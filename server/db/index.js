@@ -1,7 +1,7 @@
-const Product  = require('./Product')
-const Provider = require('./Provider')
+const ProductDB  = require('./Product')
+const ProviderDB = require('./Provider')
 
 module.exports = {
-    Product, 
-    Provider
+    ProductDB, 
+    ProviderDB
 }

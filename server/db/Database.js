@@ -50,26 +50,20 @@ class Database {
         });
     }
 
-    _getClassName () {
-        return this.constructor.name.toLowerCase();
-    }
-
     _initTable () {
-        const tableName = this._getClassName();
-        const sql = `SHOW TABLES LIKE '${tableName}s'`;
+        const sql = `SHOW TABLES LIKE '${this.tableName}'`;
 
         this.connection.query(sql, (err, data) => {
             if (err) {
                 return console.log(err)
             }
 
-            data.length === 0 && this._creatTable(tableName);
+            data.length === 0 && this._creatTable(this.tableName);
         })
     }
 
-    _creatTable(tableName) {
-        console.log(tableName)
-        const sql = `CREATE TABLE IF NOT EXISTS ${tableName}s (?)`
+    _creatTable () {
+        const sql = `CREATE TABLE IF NOT EXISTS ${this.tableName} (?)`
         this.connection.query(sql, [mysql.raw(this.fields.join(', '))], (err, data) => {
             if (err) {
                 return console.log(err)

@@ -1,7 +1,7 @@
 const Database = require('./Database');
 const debug = require('debug')('db:Provider');
 
-class Provider extends Database {
+class ProviderDB extends Database {
     constructor () {
         super();
         debug('Provider init!')
@@ -9,4 +9,4 @@ class Provider extends Database {
 
 }
 
-module.exports = Provider;
+module.exports = ProviderDB;

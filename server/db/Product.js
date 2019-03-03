@@ -1,7 +1,7 @@
 const Database = require('./Database');
 const debug = require('debug')('db:Product');
 
-class Product extends Database {
+class ProductDB extends Database {
     constructor () {
         super();
         debug('Product init!')
@@ -28,4 +28,4 @@ class Product extends Database {
     }
 }
 
-module.exports = Product;
+module.exports = ProductDB;
