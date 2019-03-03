@@ -5,7 +5,7 @@ class ProductDB extends Database {
     constructor () {
         super();
         debug('Product init!')
-        this.tableName = this._getClassName();
+        this.tableName = 'products';
 
         this.fields = [
             "id INT(6) AUTO_INCREMENT PRIMARY KEY", 
@@ -16,7 +16,7 @@ class ProductDB extends Database {
     }
 
     insertOne (params) {
-        const sql = `INSERT INTO ${this.tableName}s SET ?`;
+        const sql = `INSERT INTO ${this.tableName} SET ?`;
 
         this.connection.query(sql, params, (err, data) => {
             if (err) {
