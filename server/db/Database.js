@@ -1,7 +1,7 @@
 const path = require('path');
 const mysql = require('mysql');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
-
+const debug = require('debug')('db:Database');
 /* 
 TODO:
 check if table exists, if not, create it
@@ -9,38 +9,36 @@ as a future plan: scaffold tables
 */
 
 class Database {
-    constructor(subClasses) {
-        this.subClasses = subClasses;
-        this.connection = null;
-        
-        this._init();
-        this.connect();
+    constructor() {
+
+        !!this.connection || this.connect()
     }
 
-    _init () {
-        this.subClasses.forEach(className => {
-            if (this._checkPath(className)) {
-                this[className] = require(`./${className}`);
-            }
-        });
+    updateState () {
+        // this - will be the context from which this fn was called
+        debug('db connection can now be shared across subclasses')
+        Database.prototype.connection = this.connection;
+        console.log(Database.prototype.connection.query)
     }
 
     async connect () {
-        if (!this.connection) {
-            this.connection = mysql.createConnection({
+        this.connection = mysql.createConnection({
                 host: process.env.DB_HOST,
                 user: process.env.DB_USERNAME,
                 password: process.env.DB_PASSWORD,
                 database: process.env.DB_NAME
             });
 
-            try {
-                await this._promisify(this.connection.connect.bind(this.connection));
-                console.log('connected successfully')
-            } catch (err) {
-                console.log('err')
+        this.updateState();
+
+        this.connection.connect((err, data) => {
+            if (err) {
+                console.error(err)
+                return;
             }
-        }
+
+            // console.log('data', data)
+        })
     }
 
     _executeQuery (...params) {
@@ -52,31 +50,34 @@ class Database {
         });
     }
 
-    _promisify (fn) {
-        // TODO: make it simplier
-        return new Promise((resolve, reject) => {
-            fn(err => {
-                if (err) reject(err);
+    _getClassName () {
+        return this.constructor.name.toLowerCase();
+    }
 
-                resolve();
-            })
+    _initTable () {
+        const tableName = this._getClassName();
+        const sql = `SHOW TABLES LIKE '${tableName}s'`;
+
+        this.connection.query(sql, (err, data) => {
+            if (err) {
+                return console.log(err)
+            }
+
+            data.length === 0 && this._creatTable(tableName);
+        })
+    }
+
+    _creatTable(tableName) {
+        console.log(tableName)
+        const sql = `CREATE TABLE IF NOT EXISTS ${tableName}s (?)`
+        this.connection.query(sql, [mysql.raw(this.fields.join(', '))], (err, data) => {
+            if (err) {
+                return console.log(err)
+            }
+
+            console.log(data)
         });
-    }
-
-    getClass (className) {
-        return new this[className];
-    }
-
-    _checkPath (className) {
-        try {
-            require.resolve(`./${className}`);
-        } catch {
-            return false;
-        }
-
-        return true;
     }
 }
 
-// console.log(db.connection)
 module.exports = Database;

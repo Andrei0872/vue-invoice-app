@@ -1,5 +1,7 @@
-const Database = require('./Database');
+const Product  = require('./Product')
+const Provider = require('./Provider')
 
-const subClasses = ['Provider', 'Product'];
-
-module.exports = new Database(subClasses);
+module.exports = {
+    Product, 
+    Provider
+}
