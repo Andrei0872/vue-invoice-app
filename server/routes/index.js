@@ -1,7 +1,7 @@
-class Router {
-    constructor () {}
+const router = require('express').Router();
 
-    static getRoutes () {}
-}
+router.use('/product', require('./Product.route'))
+router.use('/provider', require('./Provider.route'))
 
-module.exports = new Router();
+module.exports = router;
+
