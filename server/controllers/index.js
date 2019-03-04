@@ -18,7 +18,7 @@ class Controller {
     async getAll (req, res) {
         const responseFromDB = await this.service.getAll();
 
-        res.status(200).json(responseFromDB);
+        res.status(responseFromDB.status).json(responseFromDB);
     }
 
     async selectOneByID (req, res) {
