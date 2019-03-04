@@ -1,7 +1,8 @@
 const router = require('express').Router()
 
-router.get('/', (req, res) => {
-    res.send('provider')
-})
+const Controller = require('../controllers');
+const controller = new Controller('Provider');
+
+router.get('/', controller.getAll.bind(controller))
 
 module.exports = router;
