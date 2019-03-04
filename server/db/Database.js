@@ -2,20 +2,13 @@ const path = require('path');
 const mysql = require('mysql');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const debug = require('debug')('db:Database');
-/* 
-TODO:
-check if table exists, if not, create it
-as a future plan: scaffold tables
-*/
 
 class Database {
     constructor() {
-
         !!this.connection || this.connect()
     }
 
     updateState () {
-        // this - will be the context from which this fn was called
         debug('db connection can now be shared across subclasses')
         Database.prototype.connection = this.connection;
         console.log(Database.prototype.connection.query)
@@ -41,15 +34,6 @@ class Database {
         })
     }
 
-    _executeQuery (...params) {
-        this.connection.query(...params, err => {
-            if (err) {
-                return console.log(err)
-            }
-            console.log('query OK')
-        });
-    }
-
     _initTable () {
         const sql = `SHOW TABLES LIKE '${this.tableName}'`;
 
@@ -71,6 +55,39 @@ class Database {
 
             console.log(data)
         });
+    }
+
+    _promisify (sql, params = null) {
+        const neededParams = [sql];
+        params !== null && neededParams.push(params);
+
+        return new Promise((resolve, reject) => {
+            this.connection.query(...neededParams, (err, data) => {
+                if (err) reject(err);
+
+                resolve(data)
+            });
+        });
+    }
+
+    async insertOne(params) {
+        return await this._promisify(
+            `INSERT INTO ${this.tableName} SET ?`,
+            params
+        );
+    }
+
+    async getAll () {
+        return await this._promisify(
+            `SELECT * FROM ${this.tableName}`
+        )
+    }
+
+    async selectOneByID (params) {
+        return await this._promisify(
+            `SELECT * FROM ${this.tableName} WHERE ?`,
+            params
+        )
     }
 }
 

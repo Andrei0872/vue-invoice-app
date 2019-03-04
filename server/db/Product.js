@@ -4,7 +4,7 @@ const debug = require('debug')('db:Product');
 class ProductDB extends Database {
     constructor () {
         super();
-        debug('Product init!')
+        debug('Product DB init!')
         this.tableName = 'products';
 
         this.fields = [
@@ -15,17 +15,6 @@ class ProductDB extends Database {
         this._initTable()
     }
 
-    insertOne (params) {
-        const sql = `INSERT INTO ${this.tableName} SET ?`;
-
-        this.connection.query(sql, params, (err, data) => {
-            if (err) {
-                return console.log(err)
-            }
-
-            console.log(data)
-        })
-    }
 }
 
 module.exports = ProductDB;
