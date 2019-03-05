@@ -5,11 +5,17 @@ import store from './store'
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 // Load Icons
-import { faCoffee, faAddressBook } from '@fortawesome/free-solid-svg-icons'
+import {
+  faIndustry,
+  faCartPlus,
+  faCog,
+  faFile,
+  faTachometerAlt
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // Add icons to the library
-library.add(faCoffee, faAddressBook);
+library.add(faIndustry, faCartPlus, faCog, faFile, faTachometerAlt);
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 

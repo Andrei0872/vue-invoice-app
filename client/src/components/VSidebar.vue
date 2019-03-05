@@ -7,7 +7,9 @@
         </div>
         <div class="l-sidebar__links">
             <ul class="c-list">
-                <li
+                <router-link 
+                    tag="li"
+                    :to="link.route"
                     class="c-list__wrapper"
                     v-for="link in links"
                     :key="link.id"
@@ -18,24 +20,20 @@
                     <span class="c-list__title">
                         {{ link.title }}
                     </span>
-                </li>
+                </router-link>
             </ul>
         </div>
     </div>
 </template>
 
 <script>
+import links from '../sidebarLinks';
+
 export default {
     name: 'sidebar',
     data: () => ({
-        links: [
-            { id: 5, title: 'Dashboard', icon: 'coffee' },
-            { id: 1, title: 'Products', icon: 'address-book' },
-            { id: 2, title: 'Providers', icon: 'coffee' },
-            { id: 3, title: 'Documents', icon: 'coffee' },
-            { id: 4, title: 'Settings', icon: 'coffee' },
-        ]
-    }),
+        links
+    })
 }
 </script>
 
