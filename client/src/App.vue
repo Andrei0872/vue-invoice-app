@@ -31,20 +31,19 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+  @import './styles/base';
 
   .main {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-columns: 250px auto;
+    grid-template-columns: $sidebar-width auto;
     grid-template-rows: 40px auto;
   }
 
   aside {
-    border: 1px solid black;
     grid-row: 1 / -1;
-    background-color: aqua;
   }
 
   header {
