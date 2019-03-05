@@ -3,9 +3,17 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
-Vue.config.productionTip = false
+import { library } from '@fortawesome/fontawesome-svg-core';
+// Load Icons
+import { faCoffee, faAddressBook } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-import './styles/base.scss';
+// Add icons to the library
+library.add(faCoffee, faAddressBook);
+
+Vue.component('font-awesome-icon', FontAwesomeIcon);
+
+Vue.config.productionTip = false
 
 new Vue({
   router,
