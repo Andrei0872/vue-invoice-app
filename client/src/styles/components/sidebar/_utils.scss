@@ -1,0 +1,11 @@
+@mixin profile-avatar {
+    background-image: url("https://image.freepik.com/free-icon/important-person_318-10744.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .2);
+}
