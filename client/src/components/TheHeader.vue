@@ -13,9 +13,10 @@ export default {
 
 <style lang="scss" scoped>
     .header {
-        padding: 1%;
         display: flex;
+        height: 100%;
         justify-content: center;
+        align-items: center;
 
         &__title {
             font-size: 1.3rem;
