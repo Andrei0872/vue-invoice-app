@@ -1,8 +1,15 @@
-<template>
-    <div class="header">
-        <span class="header__title">Name of the company</span>
-    </div>
-</template>
+
+<script>
+export default {
+    name: 'headerComp',
+    functional: true,
+    render (h, { children }) {
+        const headerTitle = h('div', { class: 'header__title' }, children[0].text);
+        
+        return h('div', { class: 'header' }, [headerTitle])
+    }
+}
+</script>
 
 <style lang="scss" scoped>
     .header {
