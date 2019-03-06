@@ -10,6 +10,7 @@
   "author": "Gatej Andrei <andreigtj01@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "debug": "^4.1.1",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
