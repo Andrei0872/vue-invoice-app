@@ -2,11 +2,11 @@
   <main class="main">
 
     <header>
-      <VHeader />
+      <TheHeader>{{ companyName }}</TheHeader>
     </header>
 
     <aside>
-      <VSidebar />
+      <TheSidebar />
     </aside>
 
     <section>
@@ -17,17 +17,20 @@
 </template>
 
 <script>
-import VSidebar from './components/VSidebar';
-import VHeader from './components/VHeader';
+import TheSidebar from './components/TheSidebar';
+import TheHeader from './components/TheHeader';
 import Dashboard from './views/Dashboard';
 
 export default {
   name: 'mainApp',
   components: {
-    VSidebar,
-    VHeader,
+    TheSidebar,
+    TheHeader,
     Dashboard,
-  }
+  },
+  data: () => ({
+    companyName: 'Name of your company'
+  }),
 }
 </script>
 
@@ -47,11 +50,13 @@ export default {
   }
 
   header {
-    background-color: orange;
+    background-color: #394263;
   }
 
   section {
     grid-row: 2 / -1;
-    background-color: red;
+    background-color: #DADAE3;
+    padding: 1rem;
+    overflow-x: auto;
   }
 </style>
