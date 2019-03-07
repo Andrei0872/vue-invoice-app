@@ -1,4 +1,13 @@
-<script>export default {
+<script>
+const createTableBody = (h, row, fields, fn) => {
+    return h('tr', [
+        ...fields.map(field =>  h('td', {
+            on: { click: fn.bind(null, row.id) }
+        }, row[field]))
+    ])
+}   
+
+export default {
     name: 'table-comp',
 
     functional: true,
@@ -10,18 +19,14 @@
 
     render (h, context) {
         let { fields, data } = context.props;
-        
-        fields = fields.map(field => h('th', field));
-        data = data.map(row => h('tr', [
-            h('td', row.name),
-            h('td', row.category),
-            h('td', row.price),
-            h('td', row.markup),
-        ]))
+        // console.log(context)
+
+        const fieldsVal = fields.map(field => h('th', field));
+        data = data.map(row => createTableBody(h, row, fields, context.listeners.showInfo))
 
         return h('div', { class: 'table_responsive' }, [
             h('table', { class: 'table' }, [
-                h('thead', [h('tr', fields)]),
+                h('thead', [h('tr', fieldsVal)]),
                 h('tbody', data)
             ])
         ])
