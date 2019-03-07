@@ -4,10 +4,8 @@ export default {
     name: 'base-button',
     functional: true,
     render (h, { listeners, children }) {
-        console.log(listeners)
-
         const content = children[0].text;
-
+        
         return h('button', { on: { click: listeners.toggleState } }, content);
     }
 }
