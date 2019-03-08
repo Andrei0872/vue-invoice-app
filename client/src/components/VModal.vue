@@ -5,6 +5,10 @@ export default {
 
     functional: true,
 
+    props: {
+        showModal: Boolean
+    },
+
     render (h, context) {
 
         const header = context.scopedSlots.header &&context.scopedSlots.header() || "Default header";
@@ -16,9 +20,9 @@ export default {
             on: { click: context.listeners.closeModal }
         });
 
-        return h(
-            'div', { class: 'modal' }, [h(
-                'transition', { props: { name: 'modal-effect' } }, [
+        const modal =  context.props.showModal 
+            ? h(
+                'div', { class: 'modal' }, [
                     h(
                         'div', { class: 'modal__container' }, [
                         h('div', { class: 'modal__header', props: { name: 'header' } }, [header, closeModal]),
@@ -26,8 +30,12 @@ export default {
                         h('div', { class: 'modal__footer', props: { name: 'footer' } }, footer)
                     ])
                 ]
-            )]
-        );
+            )
+            : null;
+
+        return h('transition', {
+            props: { name: 'fade', mode: 'out-in' } },
+            [modal])
     }
 }
 </script>
@@ -44,19 +52,23 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
-        // opacity: 0;
-        // display: none;
+        transition: all .3s;
 
         &__container {
             // TODO: media query
             width: 32rem;
-            // height: 35rem;
             min-height: 18rem;
             background-color: #fff;
             display: flex;
             flex-flow: column nowrap;
             border-radius: 15px;
             padding: 1rem;
+            transition: all .3s;
+
+            .fade-enter &,
+            .fade-leave-to & {
+                transform: scale(1.1);
+            }
         }
 
         &__header {
@@ -75,16 +87,11 @@ export default {
 
         &__footer {
             margin-top: auto;
-            // flex-basis: 10%;
             flex: 1 0 auto;
         }
     }
 
-    .modal-effect-leave-to, .modal-effect-enter {
+    .fade-leave-to, .fade-enter {
         opacity: 0;
-    }
-
-    .modal-effect-leave-active, .modal-effect-enter-active {
-        transition: opacity 1s;
     }
 </style>

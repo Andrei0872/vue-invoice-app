@@ -12,7 +12,7 @@
                 Time to create!
             </div>
         </transition>
-        <VModal v-if="showDetails" @closeModal="showDetails = false">
+            <VModal :showModal="showDetails" @closeModal="showDetails = false">
             <template v-slot:header>
                 <div class="modal-header">
                     <div class="modal-header__title">
@@ -62,7 +62,7 @@ export default {
         shownFields: [],
         isCreating: false,
         selectedProduct: {},
-        showDetails: false
+        showDetails: false,
     }),
 
     created () {
@@ -100,7 +100,8 @@ export default {
             if (ev.which === 27) {
                 this.showDetails = false;
             } 
-        }
+        },
+        // TODO: clear selected product when modal is closed
     },
 
     watch: {
