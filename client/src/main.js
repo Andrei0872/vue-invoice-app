@@ -10,12 +10,16 @@ import {
   faCartPlus,
   faCog,
   faFile,
-  faTachometerAlt
+  faTachometerAlt,
+  faTimes,
+  faArrowRight,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // Add icons to the library
-library.add(faIndustry, faCartPlus, faCog, faFile, faTachometerAlt);
+library.add(
+    faIndustry, faCartPlus, faCog, faFile, faTachometerAlt, faTimes,faArrowRight
+  );
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
