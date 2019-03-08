@@ -12,7 +12,7 @@
                 Time to create!
             </div>
         </transition>
-            <VModal :showModal="showDetails" @closeModal="showDetails = false">
+            <VModal :showModal="showDetails" @closeModal="closeModal">
             <template v-slot:header>
                 <div class="modal-header">
                     <div class="modal-header__title">
@@ -98,10 +98,14 @@ export default {
 
         shouldCloseModal (ev) {
             if (ev.which === 27) {
-                this.showDetails = false;
-            } 
+                this.closeModal();
+            }
         },
-        // TODO: clear selected product when modal is closed
+
+        closeModal () {
+            this.showDetails = false;
+            this.selectedProduct = {};
+        },
     },
 
     watch: {
