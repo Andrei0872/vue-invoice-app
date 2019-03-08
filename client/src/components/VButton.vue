@@ -1,5 +1,6 @@
 
 <script>
+// TODO: add class the specifies the color and other styles
 export default {
     name: 'base-button',
     functional: true,
