@@ -1,18 +1,21 @@
 <template>
     <div class="products">
-        <VButton @toggleState="isCreating = !isCreating">
-            Add Product
-        </VButton>
+        <div class="c-buttons">
+            <VButton @toggleState="isCreating = !isCreating">
+                Add Product
+            </VButton>
+            <VButton :showBtn="isCreating" btnClass="success">
+                Create
+            </VButton>
+        </div>
         <br><br>
         <transition name="main" mode="out-in">
             <div v-if="!isCreating" key="table">
                 <VTable @showInfo="showInfo" :data="products" :fields="shownFields" />
             </div>
-            <div key="create" v-else>
-                Time to create!
-            </div>
+            <NewItem :fields="shownFields" v-else />
         </transition>
-            <VModal :showModal="showDetails" @closeModal="closeModal">
+        <VModal :showModal="showDetails" @closeModal="closeModal">
             <template v-slot:header>
                 <div class="modal-header">
                     <div class="modal-header__title">
@@ -46,6 +49,8 @@
 import VButton from '../components/VButton';
 import VTable from '../components/VTable';
 import VModal from '../components/VModal';
+import NewItem from '../components/NewItem';
+
 
 export default {
     name: 'products',
@@ -54,6 +59,7 @@ export default {
         VButton,
         VTable,
         VModal,
+        NewItem,
     },
 
     data: () => ({
@@ -123,6 +129,10 @@ export default {
 
 <style lang="scss" scoped>
     $modal-text-color: darken($color: #394263, $amount: 10%);
+
+    .c-buttons {
+        position: relative;
+    }
 
     .modal-header {
         width: 100%;
@@ -201,6 +211,6 @@ export default {
     }
 
     .main-enter-active, .main-leave-active {
-        transition: opacity 1s;
+        transition: opacity .4s;
     }
 </style>
