@@ -1,12 +1,16 @@
 <template>
     <div class="products">
         <div class="c-buttons">
-            <VButton @toggleState="isCreating = !isCreating">
-                Add Product
-            </VButton>
-            <VButton :showBtn="isCreating" btnClass="success">
-                Create
-            </VButton>
+            <div class="c-buttons__first">
+                <VButton :btnClass="btnState" @toggleState="isCreating = !isCreating">
+                    {{ isCreating ? "Go back" : `Add ${$options.name}` }}
+                </VButton>
+            </div>
+            <div class="c-buttons__second">
+                <VButton :showBtn="isCreating" btnClass="success">
+                    Create
+                </VButton>
+            </div>
         </div>
         <br><br>
         <transition name="main" mode="out-in">
@@ -53,7 +57,7 @@ import NewItem from '../components/NewItem';
 
 
 export default {
-    name: 'products',
+    name: 'product',
 
     components: {
         VButton,
@@ -124,6 +128,11 @@ export default {
         }
     },
 
+    computed: {
+        btnState () {
+            return this.isCreating ? "danger" : "primary";
+        }
+    }
 }
 </script>
 
@@ -131,7 +140,11 @@ export default {
     $modal-text-color: darken($color: #394263, $amount: 10%);
 
     .c-buttons {
-        position: relative;
+        display: flex;
+    
+        &__first {
+            flex-basis: 25%;
+        }
     }
 
     .modal-header {

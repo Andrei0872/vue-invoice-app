@@ -46,6 +46,7 @@ export default {
     $button-color-primary: darken($color: #394263, $amount: 5%);
     $button-color-shadow: darken($color: #394263, $amount: 15%);
     $button-color-success: #08A045;
+    $button-color-danger: #DD4132;
 
     @mixin boxShadow ($c) {
         box-shadow: 1px 2px 3px darken($c,15%);
@@ -74,10 +75,14 @@ export default {
         @include boxShadow($button-color-primary);
     }
 
+    .button--danger {
+        background-color: $button-color-danger;
+        @include boxShadow($button-color-danger);
+    }
+
     .button--success {
         background-color: $button-color-success;
         @include boxShadow($button-color-success);
-        margin-left: 3rem;
         transition: all .4s linear;
     }
 
