@@ -17,7 +17,7 @@
             <div v-if="!isCreating" key="table">
                 <VTable @showInfo="showInfo" :data="products" :fields="shownFields" />
             </div>
-            <NewItem :fields="shownFields" v-else />
+            <NewItem v-else :fields="shownFields" :data="products" />
         </transition>
         <VModal :showModal="showDetails" @closeModal="closeModal">
             <template v-slot:header>
