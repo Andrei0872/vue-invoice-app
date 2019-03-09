@@ -7,7 +7,9 @@
         </div>
         <div class="l-sidebar__links">
             <ul class="c-list">
-                <router-link 
+                <router-link
+                    active-class="active"
+                    exact
                     tag="li"
                     :to="link.route"
                     class="c-list__wrapper"
@@ -39,4 +41,9 @@ export default {
 
 <style lang="scss" scoped>
     @import '@/styles/components/sidebar/main.scss';
+
+
+    .active {
+        background-color: darken($sidebar-color, 10%);
+    }
 </style>
