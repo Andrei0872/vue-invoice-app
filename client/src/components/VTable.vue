@@ -47,7 +47,7 @@ export default {
         text-align: center;
     }
 
-    tr:hover {
+    tbody tr:hover {
         background-color: rgba($color: #394263, $alpha: .5);
         cursor: pointer;
     }

@@ -143,7 +143,7 @@ export default {
         display: flex;
     
         &__first {
-            flex-basis: 25%;
+            flex-basis: 160px;
         }
     }
 
