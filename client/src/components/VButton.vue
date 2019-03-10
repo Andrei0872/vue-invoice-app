@@ -1,6 +1,6 @@
 
 <script>
-// TODO: add class the specifies the color and other styles
+// TODO: fn that computes the events
 export default {
     name: 'base-button',
 
@@ -19,6 +19,8 @@ export default {
     render (h, { listeners, children, props }) {
         const content = children[0].text;
 
+        // console.log(listeners)
+
         const button = h('button', {
             ...{ hasToggleEvent: !!listeners.toggleState }.hasToggleEvent 
                 && { on: { click: listeners.toggleState } },
@@ -30,14 +32,6 @@ export default {
                 props.showBtn ? button : null
             ])
             : button;
-
-        // return props.btnClass === 'success'
-        //     ? (
-        //         <transition name="slide-in">
-        //         { props.showBtn ? button : null }
-        //         </transition>
-        //     )
-        //     : button
     }
 }
 </script>
@@ -89,11 +83,11 @@ export default {
     /* Transitions */
 
     .slide-in-enter-active {
-        animation: slide-in .4s;
+        animation: slide-in .4s ease-in-out;
     }
 
     .slide-in-leave-active {
-        animation: slide-in .4s reverse;
+        animation: slide-in .4s reverse ease-in;
     }
 
     .slide-in-leave-to, .slide-in-enter {
