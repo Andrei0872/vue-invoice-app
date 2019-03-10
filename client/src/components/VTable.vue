@@ -13,7 +13,7 @@
                     </th>
                 </tr>
             </thead>
-            <tbody :class="{ 'h-has-hover': !willCreate }">
+            <tbody ref="tbody" :class="{ 'h-has-hover': !willCreate }">
                 <tr
                     v-for="row in itemsCopy"
                     :key="row.id"
@@ -29,10 +29,22 @@
                 </tr>
             </tbody>
         </table>
+        <!-- {{ getSanitizedData() }} -->
+
+        {{ test }}
+        <VTd @update="testUpdate(0, testField, $event)" :contentEditable="true">
+            test
+        </VTd>
+        <br>
+        <VTd @update="testUpdate(1, testField, $event)" :contentEditable="true">
+            test3
+        </VTd>
+        {{ arr }}
     </div>    
 </template>
 
 <script>
+import VTd from '../components/VTd';
 
 export default {
     name: 'table-comp',
@@ -46,29 +58,54 @@ export default {
         }
     },
 
+    components: {
+        VTd,
+    },
+
     data: () => ({
-        itemsCopy: []
+        itemsCopy: [],
+        test: {},
+        arr: [],
+        testField: 'name'
     }),
 
     watch: {
         // If the value is changed from true to false
-        // It meanse the `Create` btn has been pressed
+        // it means the `Create` btn has been pressed
         willCreate (newVal) {
             if (!newVal) {
-                // this.$root.$emit('createItem', [1, 2, 3])
+                // TODO: sanitize data first !!!
+                this.$root.$emit('createItems', [1, 2, 3])
                 this.itemsCopy = [[]]
                 this.$parent.toggleState();
-                console.log('send data')
             }
         },
 
         // Update when new rows are added
         items (newVal) {
             this.createCopy();
+        },
+
+        // arr (val) {
+        //     console.log('new', val)
+        // } 
+    },
+
+    computed: {
+        fieldsAsObject () {
+            return { ...this.fields }
         }
     },
 
     methods: {
+        testUpdate (index, field, val) {
+            console.log('val', val)
+            console.log('field', field)
+
+            // this.arr[0] = val
+            this.$set(this.arr, index, val);
+        },
+
         sendData () {
             console.log('sending data')
 
@@ -76,11 +113,27 @@ export default {
 
         createCopy () {
             this.itemsCopy = JSON.parse(JSON.stringify(this.items))
+        },
+
+        async getSanitizedData () {
+            await this.$nextTick();
+
+            const { tbody } = this.$refs;
+            const result = {};
+            
+            [...tbody.children].forEach(tr => {
+
+            })
+            console.log(tbody.children)
+            console.log(this.fieldsAsObject)
         }
     },
 
     created () {
         this.createCopy();
+        this.fields.forEach(field => {
+            this.test[field] = [];
+        })
     }
 }
 
