@@ -1,5 +1,5 @@
 <template>
-    <td :contenteditable="contentEditable" @keyup="updateState($event)">
+    <td v-on="$listeners" :contenteditable="contentEditable" @keyup="updateState($event)">
         <slot></slot>
     </td>
 </template>
@@ -18,7 +18,7 @@ export default {
             const content = ev.target.textContent.trim();
 
             this.$emit('update', content);
-        }
-    }
+        },
+    },
 }
 </script>
