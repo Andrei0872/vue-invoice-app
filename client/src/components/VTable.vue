@@ -1,36 +1,87 @@
+<template>
+    <div class="table-responsive">
+        {{ items }}
+        <!-- {{ fields }} -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th
+                        v-for="field in fields"
+                        :key="field"
+                    >
+                        {{ field }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody :class="{ 'h-has-hover': !willCreate }">
+                <tr
+                    v-for="row in itemsCopy"
+                    :key="row.id"
+                >
+                    <td
+                        v-on="{ click: !willCreate ? $parent.showInfo.bind(null, row.id) : () => {} }"
+                        v-for="field in fields"
+                        :key="field + row.id"
+                        :contenteditable="willCreate"
+                    >
+                        {{ row[field] }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>    
+</template>
+
 <script>
-const createTableBody = (h, row, fields, fn) => {
-    return h('tr', [
-        ...fields.map(field =>  h('td', {
-            on: { click: fn.bind(null, row.id) }
-        }, row[field]))
-    ])
-}   
 
 export default {
     name: 'table-comp',
 
-    functional: true,
-
     props: {
-        data: Array,
-        fields: Array
+        items: Array,
+        fields: Array,
+        willCreate: {
+            type: Boolean,
+            default: false
+        }
     },
 
-    render (h, context) {
-        let { fields, data } = context.props;
-        // console.log(context)
+    data: () => ({
+        itemsCopy: []
+    }),
 
-        const fieldsVal = fields.map(field => h('th', field));
-        data = data.map(row => createTableBody(h, row, fields, context.listeners.showInfo))
+    watch: {
+        // If the value is changed from true to false
+        // It meanse the `Create` btn has been pressed
+        willCreate (newVal) {
+            if (!newVal) {
+                // this.$root.$emit('createItem', [1, 2, 3])
+                this.itemsCopy = [[]]
+                this.$parent.toggleState();
+                console.log('send data')
+            }
+        },
 
-        return h('div', { class: 'table_responsive' }, [
-            h('table', { class: 'table' }, [
-                h('thead', [h('tr', fieldsVal)]),
-                h('tbody', data)
-            ])
-        ])
-    }   
+        // Update when new rows are added
+        items (newVal) {
+            this.createCopy();
+        }
+    },
+
+    methods: {
+        sendData () {
+            console.log('sending data')
+
+        },
+
+        createCopy () {
+            this.itemsCopy = JSON.parse(JSON.stringify(this.items))
+        }
+    },
+
+    created () {
+        this.createCopy();
+    }
 }
 
 </script>
@@ -45,11 +96,6 @@ export default {
     td, th {
         padding: 15px;
         text-align: center;
-    }
-
-    tbody tr:hover {
-        background-color: rgba($color: #394263, $alpha: .5);
-        cursor: pointer;
     }
 
     thead {
@@ -74,7 +120,7 @@ export default {
     }
 
     tbody {
-        tr>td:not(:last-child) {
+        tr > td:not(:last-child) {
             border-right: 1px solid #ccc;
         }
 
@@ -88,13 +134,29 @@ export default {
                 border-bottom-right-radius: 13px;
             }
         }
+
+        tr:not(:last-child) {
+            border-bottom: 1px solid #ccc;
+        }
+
+        tr td {
+            outline: 0;
+            border: none;
+        }
     }
 
 }
 
-.table_responsive {
+.table-responsive {
     overflow-x: auto;
     padding: .9rem;
+}
+
+.h-has-hover {
+    tr:hover {
+        background-color: rgba($color: #394263, $alpha: .5);
+        cursor: pointer;
+    }
 }
 
 </style>
