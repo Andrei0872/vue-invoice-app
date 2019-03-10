@@ -13,9 +13,6 @@
             </div>
         </div>
         
-        <button @click="willCreate = false">temp create</button>
-        <br><br>
-        
         <transition name="main" mode="out-in">
             <div v-if="!isCreating" key="table">
                 <VTable @showInfo="showInfo" :items="products" :fields="shownFields" />
@@ -135,7 +132,7 @@ export default {
         },
 
         toggleState () {
-            this.newItems = [[]];
+            this.newItems = [[{ id: 1 }]];
             this.isCreating = !this.isCreating;
             // True when `this.isCreating` is true,
             // false otherwise
