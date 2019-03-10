@@ -18,12 +18,10 @@ export default {
 
     render (h, { listeners, children, props }) {
         const content = children[0].text;
-
-        // console.log(listeners)
+        const fn = !!listeners.toggleState ? listeners.toggleState : listeners.createItems
 
         const button = h('button', {
-            ...{ hasToggleEvent: !!listeners.toggleState }.hasToggleEvent 
-                && { on: { click: listeners.toggleState } },
+            on: { click: fn },
             class: `button--${props.btnClass}`
         }, content);
 
