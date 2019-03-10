@@ -2,28 +2,29 @@
     <div class="products">
         <div class="c-buttons">
             <div class="c-buttons__first">
-                <VButton :btnClass="btnState" @toggleState="isCreating = !isCreating">
+                <VButton :btnClass="btnState" @toggleState="toggleState">
                     {{ isCreating ? "Go back" : `Add ${$options.name}` }}
                 </VButton>
             </div>
             <div class="c-buttons__second">
-                <VButton @createItem="createItem" :showBtn="isCreating" btnClass="success">
+                <VButton @createItems="willCreate = false" :showBtn="isCreating" btnClass="success">
                     Create
                 </VButton>
             </div>
         </div>
-        <button @click="mustCreateItem = true">test create</button>
+        
+        <button @click="willCreate = false">temp create</button>
         <br><br>
         
         <transition name="main" mode="out-in">
             <div v-if="!isCreating" key="table">
-                <VTable @showInfo="showInfo" :data="products" :fields="shownFields" />
+                <VTable @showInfo="showInfo" :items="products" :fields="shownFields" />
             </div>
-            <div v-else key="create">
+            <div v-else key="createTable">
                 <div @click="addRow" class="icon">
                     <font-awesome-icon icon="plus-circle" />
                 </div>
-                <VTable :mustCreateItem="mustCreateItem" :fields="shownFields" :data="newFields" />
+                <VTable :willCreate="willCreate" :items="newItems" :fields="shownFields" />
             </div>
         </transition>
         
@@ -60,8 +61,6 @@
 import VButton from '../components/VButton';
 import VTable from '../components/VTable';
 import VModal from '../components/VModal';
-import NewItem from '../components/NewItem';
-
 
 export default {
     name: 'product',
@@ -70,7 +69,6 @@ export default {
         VButton,
         VTable,
         VModal,
-        NewItem,
     },
 
     data: () => ({
@@ -80,8 +78,8 @@ export default {
         isCreating: false,
         selectedProduct: {},
         showDetails: false,
-        newFields: [[]],
-        mustCreateItem: false,
+        newItems: [[]],
+        willCreate: true
     }),
 
     created () {
@@ -106,6 +104,10 @@ export default {
         ];
 
         this.shownFields = ["name", "category", "price", "markup"];
+
+        this.$root.$on('createItems', data => {
+            console.log('data', data)
+        })
     },
 
     methods: {
@@ -127,15 +129,19 @@ export default {
         },
 
         addRow () {
-            this.newFields.push(
-                [{ id: this.newFields.length + 1 }]
+            this.newItems.push(
+                [{ id: this.newItems.length + 1 }]
             )
         },
 
-        createItem (ev) {
-            console.log(ev)
-            alert(1);
-        },
+        toggleState () {
+            this.newItems = [[]];
+            this.isCreating = !this.isCreating;
+            // True when `this.isCreating` is true,
+            // false otherwise
+            // When it is false, it will create emit the 'createItems' events from the VTable component and toggleState from this component 
+            this.willCreate = this.isCreating;
+        }
     },
 
     watch: {
