@@ -1,7 +1,8 @@
 <template>
     <div class="table-responsive">
-        {{ items }}
-        <!-- {{ fields }} -->
+        <!-- {{ items }}
+        <br>
+        {{ newItems }} -->
         <table class="table">
             <thead>
                 <tr>
@@ -13,33 +14,23 @@
                     </th>
                 </tr>
             </thead>
-            <tbody ref="tbody" :class="{ 'h-has-hover': !willCreate }">
+            <tbody :class="{ 'h-has-hover': !willCreate }">
                 <tr
-                    v-for="row in itemsCopy"
+                    v-for="(row, indexRow) in itemsCopy"
                     :key="row.id"
                 >
-                    <td
+                    <VTd
                         v-on="{ click: !willCreate ? $parent.showInfo.bind(null, row.id) : () => {} }"
                         v-for="field in fields"
                         :key="field + row.id"
-                        :contenteditable="willCreate"
+                        :contentEditable="willCreate"
+                        @update="updateContent(indexRow, field, $event)"
                     >
                         {{ row[field] }}
-                    </td>
+                    </VTd>
                 </tr>
             </tbody>
         </table>
-        <!-- {{ getSanitizedData() }} -->
-
-        {{ test }}
-        <VTd @update="testUpdate(0, testField, $event)" :contentEditable="true">
-            test
-        </VTd>
-        <br>
-        <VTd @update="testUpdate(1, testField, $event)" :contentEditable="true">
-            test3
-        </VTd>
-        {{ arr }}
     </div>    
 </template>
 
@@ -58,15 +49,11 @@ export default {
         }
     },
 
-    components: {
-        VTd,
-    },
+    components: { VTd },
 
     data: () => ({
         itemsCopy: [],
-        test: {},
-        arr: [],
-        testField: 'name'
+        newItems: {},
     }),
 
     watch: {
@@ -74,8 +61,7 @@ export default {
         // it means the `Create` btn has been pressed
         willCreate (newVal) {
             if (!newVal) {
-                // TODO: sanitize data first !!!
-                this.$root.$emit('createItems', [1, 2, 3])
+                this.$root.$emit('createItems', this.newItems)
                 this.itemsCopy = [[]]
                 this.$parent.toggleState();
             }
@@ -85,55 +71,39 @@ export default {
         items (newVal) {
             this.createCopy();
         },
-
-        // arr (val) {
-        //     console.log('new', val)
-        // } 
-    },
-
-    computed: {
-        fieldsAsObject () {
-            return { ...this.fields }
-        }
     },
 
     methods: {
-        testUpdate (index, field, val) {
-            console.log('val', val)
-            console.log('field', field)
+        updateContent (rowIndex, field, val) {
+            // Get the field array and add the new item
+            const arr = this.newItems[field];
+            const updatedArr = this.$set(arr, rowIndex, val);
+            
+            // Get the entire object and set the new array
+            const currentObj = this.newItems;
+            this.$set(currentObj, `${field}`, arr);
 
-            // this.arr[0] = val
-            this.$set(this.arr, index, val);
-        },
-
-        sendData () {
-            console.log('sending data')
-
+            // Update the changes
+            this.newItems = {... this.newItems, ...currentObj}
         },
 
         createCopy () {
             this.itemsCopy = JSON.parse(JSON.stringify(this.items))
         },
-
-        async getSanitizedData () {
-            await this.$nextTick();
-
-            const { tbody } = this.$refs;
-            const result = {};
-            
-            [...tbody.children].forEach(tr => {
-
-            })
-            console.log(tbody.children)
-            console.log(this.fieldsAsObject)
-        }
     },
 
     created () {
         this.createCopy();
         this.fields.forEach(field => {
-            this.test[field] = [];
-        })
+            this.newItems[field] = [];
+        });
+        /* 
+        --> this.newFields = {
+            field1: [],
+            field2: [],
+            ...
+        }
+        */
     }
 }
 
