@@ -56,6 +56,6 @@ export default {
   section {
     grid-row: 2 / -1;
     background-color: #DADAE3;
-    overflow-x: auto;
+    overflow-x: visible;
   }
 </style>
