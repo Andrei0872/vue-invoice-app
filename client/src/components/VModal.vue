@@ -18,7 +18,6 @@ export default {
     },
 
     render (h, context) {
-        console.log(context)
 
         const header = context.scopedSlots.header &&context.scopedSlots.header() || "Default header";
         const body = context.scopedSlots.body && context.scopedSlots.body() || "Default body";
