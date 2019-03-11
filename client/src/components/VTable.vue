@@ -11,7 +11,7 @@
                     </th>
                 </tr>
             </thead>
-            <tbody :class="{ 'h-has-hover': !willCreate }">
+            <tbody :class="{ 'h-has-hover': !willCreate && !isUpdating }">
                 <template v-for="(row, indexRow) in itemsCopy">
                     <div v-if="willCreate && indexRow > 0 || !willCreate" :key="row.id + 'icon'" class="icon">
                         <font-awesome-icon 
@@ -127,7 +127,7 @@ export default {
             // If a row is selected and the user clicks on another row
             if (this.isUpdating && this.selectedRowId !== id) {
                 this.selectedRowId = id;
-                this.selectedRow = row;
+                this.selectedRow = JSON.parse(JSON.stringify(row));
             } else {
                 this.isUpdating = !this.isUpdating
 
@@ -135,7 +135,7 @@ export default {
                 this.isUpdating
                     && (
                         this.selectedRowId = id,
-                        this.selectedRow = row
+                        this.selectedRow = JSON.parse(JSON.stringify(row))
                     )
                     || (
                         this.selectedRowId = null,
@@ -171,7 +171,7 @@ export default {
 <style lang="scss"scoped>
 
 .selected {
-    border: 1px solid blue;
+    font-size: 1.105em;
 }
 
 .blurred {
@@ -244,6 +244,10 @@ export default {
     tbody {
         tr > td:not(:last-child) {
             border-right: 1px solid #ccc;
+        }
+
+        tr {
+            transition: all .1s ease-out;
         }
 
         tr:last-child {
