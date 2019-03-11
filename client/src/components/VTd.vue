@@ -1,5 +1,5 @@
 <template>
-    <td v-on="$listeners" :contenteditable="contentEditable" @keyup="updateState($event)">
+    <td v-on="$listeners" :contenteditable="contentEditable" @blur="updateState($event)">
         <slot></slot>
     </td>
 </template>
