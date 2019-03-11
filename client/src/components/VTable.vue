@@ -3,6 +3,7 @@
         <!-- {{ items }}
         <br>
         {{ newItems }} -->
+        {{ itemsCopy }}
         <table class="table">
             <thead>
                 <tr>
@@ -15,20 +16,30 @@
                 </tr>
             </thead>
             <tbody :class="{ 'h-has-hover': !willCreate }">
-                <tr
-                    v-for="(row, indexRow) in itemsCopy"
-                    :key="row.id"
-                >
-                    <VTd
-                        v-on="{ click: !willCreate ? $parent.showInfo.bind(null, row.id) : () => {} }"
-                        v-for="field in fields"
-                        :key="field + row.id"
-                        :contentEditable="willCreate"
-                        @update="updateContent(indexRow, field, $event)"
+                <!-- <template v-for="(row, indexRow) in itemsCopy"> -->
+                    <tr
+                        v-for="(row, indexRow) in itemsCopy"
+                        :key="row.id"
                     >
-                        {{ row[field] }}
-                    </VTd>
-                </tr>
+                        <VTd
+                            v-on="{ click: !willCreate ? $parent.showInfo.bind(null, row.id) : () => {} }"
+                            v-for="(field, columnIndex) in fields"
+                            :key="field + row.id"
+                            :contentEditable="willCreate"
+                            @update="updateContent(indexRow, field, $event)"
+                        >
+                            <!-- TODO: clear box if placeholder is shown -->
+                            <div class="td" style="position: relative;">
+                                <span :class="{ 'placeholder': typeof row[field] === 'undefined' }">
+                                    {{ row[field] || field }}
+                                </span>
+                                <div v-if="indexRow > 0 && willCreate" class="icon icon--delete"> 
+                                    <font-awesome-icon @click="deleteRow(row.id)" v-if="columnIndex === 0" icon="minus-circle" />
+                                </div>        
+                            </div>
+                        </VTd>
+                    </tr>
+                <!-- </template> -->
             </tbody>
         </table>
     </div>    
@@ -62,7 +73,7 @@ export default {
         willCreate (newVal) {
             if (!newVal) {
                 this.$root.$emit('createItems', this.newItems)
-                this.itemsCopy = [[]]
+                this.itemsCopy = []
                 this.$parent.toggleState();
             }
         },
@@ -90,6 +101,12 @@ export default {
         createCopy () {
             this.itemsCopy = JSON.parse(JSON.stringify(this.items))
         },
+
+        deleteRow (id) {
+            this.itemsCopy = this.itemsCopy.filter(item => item.id !== id);
+
+            this.$parent.newItems = [... this.itemsCopy];
+        }
     },
 
     created () {
@@ -104,12 +121,35 @@ export default {
             ...
         }
         */
-    }
+    },
 }
 
 </script>
 
 <style lang="scss"scoped>
+
+.placeholder {
+    color: #ccc;
+}
+
+.icon {
+    position: absolute;
+    transform: translateY(-50%) translateX(-212%);
+    cursor: pointer;
+
+    svg {
+        width: 20px;
+        height: 20px;
+        color: tomato;
+        background-color: #fff;
+        border-radius: 50%;
+
+        &:hover {
+            transform: scale(1.1);
+        }
+    }
+}
+
 .table {
     border-collapse: collapse;
     background-color: #FFF;
@@ -172,8 +212,8 @@ export default {
 }
 
 .table-responsive {
-    overflow-x: auto;
-    padding: .9rem;
+    // overflow-x: auto;
+    padding: 1.5rem;
 }
 
 .h-has-hover {
