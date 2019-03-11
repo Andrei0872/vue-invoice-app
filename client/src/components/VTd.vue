@@ -1,5 +1,10 @@
 <template>
-    <td v-on="$listeners" :contenteditable="contentEditable" @blur="updateState($event)">
+    <td 
+        v-on="$listeners" 
+        :contenteditable="contentEditable" 
+        @blur="updateState($event)"
+        @focus="checkPlaceholder($event)"
+    >
         <slot></slot>
     </td>
 </template>
@@ -11,6 +16,17 @@ export default {
             type: Boolean,
             default: false
         },
+        isPlaceholder: {
+            type: Boolean,
+            default: false
+        }
+    },
+    
+    // Avoided using the arrow fn in order to get access to `this.isPlaceholder`
+    data () {
+        return {
+            isPlaceholderCopy: this.isPlaceholder
+        }
     },
 
     methods: {
@@ -18,6 +34,15 @@ export default {
             const content = ev.target.textContent.trim();
 
             this.$emit('update', content);
+        },
+
+        checkPlaceholder (ev) {
+
+            // setTimeout() - make the placeholder dissapear and focus the current td
+            this.isPlaceholderCopy 
+                && (
+                    setTimeout(() => {ev.target.textContent = ''}, 0), this.isPlaceholderCopy = false
+                );
         },
     },
 }
