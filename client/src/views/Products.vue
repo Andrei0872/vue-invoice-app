@@ -134,8 +134,6 @@ export default {
         toggleState () {
             this.newItems = [{ id: 1 }];
             this.isCreating = !this.isCreating;
-            // True when `this.isCreating` is true,
-            // false otherwise
             // When it is false, it will create emit the 'createItems' events from the VTable component and toggleState from this component 
             this.willCreate = this.isCreating;
         }
