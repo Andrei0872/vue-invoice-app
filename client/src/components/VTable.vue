@@ -1,9 +1,5 @@
 <template>
     <div class="table-responsive">
-        <!-- {{ items }}
-        <br>
-        {{ newItems }} -->
-        {{ itemsCopy }}
         <table class="table">
             <thead>
                 <tr>
@@ -25,7 +21,7 @@
                 >
                     <VTd
                         v-on="{ click: !willCreate ? $parent.showInfo.bind(null, row.id) : () => {} }"
-                        v-for="(field, columnIndex) in fields"
+                        v-for="field in fields"
                         :key="field + row.id"
                         :contentEditable="willCreate"
                         :isPlaceholder="typeof row[field] === 'undefined'"
