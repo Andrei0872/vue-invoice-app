@@ -75,7 +75,7 @@ export default {
         isCreating: false,
         selectedProduct: {},
         showDetails: false,
-        newItems: [[]],
+        newItems: [],
         willCreate: true
     }),
 
@@ -127,12 +127,12 @@ export default {
 
         addRow () {
             this.newItems.push(
-                [{ id: this.newItems.length + 1 }]
+                { id: Math.floor(Math.random() * (500) ) + 1 }
             )
         },
 
         toggleState () {
-            this.newItems = [[{ id: 1 }]];
+            this.newItems = [{ id: 1 }];
             this.isCreating = !this.isCreating;
             // True when `this.isCreating` is true,
             // false otherwise
@@ -164,6 +164,7 @@ export default {
 
      .icon {
         padding: .9rem;
+        max-width: 40px;
 
         svg {
             width: 32px;
