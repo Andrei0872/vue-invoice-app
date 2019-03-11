@@ -115,6 +115,7 @@ export default {
     background-color: #FFF;
     border-radius: 13px;
     width: 100%;
+    table-layout: fixed;
 
     td, th {
         padding: 15px;
