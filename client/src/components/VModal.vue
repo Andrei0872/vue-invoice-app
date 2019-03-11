@@ -1,5 +1,13 @@
 <script>
 // TODO: add arrows to footer
+
+const shouldCloseModal = (context, e) => {
+    if (e.currentTarget === e.target) {
+        context.parent.showDetails = false
+        return;
+    }
+}
+
 export default {
     name: 'modal-comp',
 
@@ -10,6 +18,7 @@ export default {
     },
 
     render (h, context) {
+        console.log(context)
 
         const header = context.scopedSlots.header &&context.scopedSlots.header() || "Default header";
         const body = context.scopedSlots.body && context.scopedSlots.body() || "Default body";
@@ -22,7 +31,7 @@ export default {
 
         const modal =  context.props.showModal 
             ? h(
-                'div', { class: 'modal' }, [
+                'div', { class: 'modal', on: { click: shouldCloseModal.bind(null, context) } }, [
                     h(
                         'div', { class: 'modal__container' }, [
                         h('div', { class: 'modal__header', props: { name: 'header' } }, [header, closeModal]),
