@@ -16,36 +16,37 @@
                 </tr>
             </thead>
             <tbody :class="{ 'h-has-hover': !willCreate }">
-                <!-- <template v-for="(row, indexRow) in itemsCopy"> -->
+                <template v-for="(row, indexRow) in itemsCopy">
+                    <div v-if="willCreate && indexRow > 0" :key="row.id + 'icon'" class="icon">
+                        <font-awesome-icon @click="deleteRow(row.id)"  icon="minus-circle" />
+                    </div>
                     <tr
-                        v-for="(row, indexRow) in itemsCopy"
-                        :key="row.id"
+                    :key="row.id"
+                >
+                    <VTd
+                        v-on="{ click: !willCreate ? $parent.showInfo.bind(null, row.id) : () => {} }"
+                        v-for="(field, columnIndex) in fields"
+                        :key="field + row.id"
+                        :contentEditable="willCreate"
+                        :isPlaceholder="typeof row[field] === 'undefined'"
+                        @update="updateContent(indexRow, field, $event)"
                     >
-                        <VTd
-                            v-on="{ click: !willCreate ? $parent.showInfo.bind(null, row.id) : () => {} }"
-                            v-for="(field, columnIndex) in fields"
-                            :key="field + row.id"
-                            :contentEditable="willCreate"
-                            @update="updateContent(indexRow, field, $event)"
-                        >
-                            <!-- TODO: clear box if placeholder is shown -->
-                            <div class="td" style="position: relative;">
-                                <span :class="{ 'placeholder': typeof row[field] === 'undefined' }">
-                                    {{ row[field] || field }}
-                                </span>
-                                <div v-if="indexRow > 0 && willCreate" class="icon icon--delete"> 
-                                    <font-awesome-icon @click="deleteRow(row.id)" v-if="columnIndex === 0" icon="minus-circle" />
-                                </div>        
-                            </div>
-                        </VTd>
-                    </tr>
-                <!-- </template> -->
+                        <span :class="{ 'placeholder': typeof row[field] === 'undefined' }">
+                            {{ row[field] || field }}
+                        </span>
+                    </VTd>
+                </tr>
+                </template>
             </tbody>
         </table>
     </div>    
 </template>
 
 <script>
+/* 
+<font-awesome-icon @click="deleteRow(row.id)" v-if="columnIndex === 0" icon="minus-circle" />
+*/
+
 import VTd from '../components/VTd';
 
 export default {
@@ -134,7 +135,7 @@ export default {
 
 .icon {
     position: absolute;
-    transform: translateY(-50%) translateX(-212%);
+    transform: translateY(60%) translateX(-120%);
     cursor: pointer;
 
     svg {
