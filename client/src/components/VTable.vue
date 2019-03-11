@@ -28,7 +28,7 @@
                         v-on="{ click: !willCreate && !isUpdating ? $parent.showInfo.bind(null, row.id) : () => {} }"
                         v-for="field in fields"
                         :key="field + row.id"
-                        :contentEditable="willCreate || isUpdating"
+                        :contentEditable="willCreate || isUpdating && selectedRowId === row.id"
                         :isPlaceholder="typeof row[field] === 'undefined'"
                         @update="updateContent(indexRow, field, $event)"
                     >
