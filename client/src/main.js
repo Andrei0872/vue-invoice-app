@@ -16,12 +16,13 @@ import {
   faPlusCircle,
   faMinusCircle,
   faPencilAlt,
+  faCheck,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // Add icons to the library
 library.add(
-  faIndustry, faCartPlus, faCog, faFile, faTachometerAlt, faTimes, faArrowRight, faPlusCircle, faMinusCircle, faPencilAlt
+  faIndustry, faCartPlus, faCog, faFile, faTachometerAlt, faTimes, faArrowRight, faPlusCircle, faMinusCircle, faPencilAlt, faCheck
 );
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
