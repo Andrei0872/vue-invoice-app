@@ -13,19 +13,25 @@
             </thead>
             <tbody :class="{ 'h-has-hover': !willCreate && !isUpdating }">
                 <template v-for="(row, indexRow) in itemsCopy">
-                    <div v-if="willCreate && indexRow > 0 || !willCreate" :key="row.id + 'icon'" class="icon">
+                    <div v-if="willCreate && indexRow > 0 || !willCreate" :key="row.id + 'icon'" :class="['icon', isUpdating && selectedRowId === row.id ? 'h-has-two-buttons' : null]">
                         <font-awesome-icon 
                             v-on="{ click: !willCreate ? updateRow.bind(null, row.id, row) : deleteRow.bind(null, row.id) }" 
                             :class="isUpdating && selectedRowId === row.id ? 'times' : currentIcon"  
                             :icon="isUpdating && selectedRowId === row.id ? 'times' : currentIcon" 
                         />
+                        <font-awesome-icon 
+                            icon="check"
+                            class="save-changes"
+                            v-if="isUpdating && selectedRowId === row.id"
+                            @click="updateRow(row.id, row, true)" 
+                        />
                     </div>
                     <tr
+                    v-on="{ click: !willCreate && !isUpdating ? $parent.showInfo.bind(null, row.id) : () => {} }"
                     :class="selectedRowId === row.id ? 'selected' : isUpdating ?  'blurred' : null"
                     :key="row.id"
                 >
                     <VTd
-                        v-on="{ click: !willCreate && !isUpdating ? $parent.showInfo.bind(null, row.id) : () => {} }"
                         v-for="field in fields"
                         :key="field + row.id"
                         :contentEditable="willCreate || isUpdating && selectedRowId === row.id"
@@ -117,11 +123,29 @@ export default {
         },
 
         compareUpdates (row) {
-            console.log(row)
-            console.log(this.selectedRow)
+            // console.log(row)
+            // console.log(this.selectedRow)
+            console.log('comparing...')
+
+            return true;
         },
 
-        updateRow (id, row) {
+        // TODO: add this to utils
+        // Clone object without Observer object
+        cloneObjProps (obj) {
+            const result = Object.create(null);
+
+            Object.getOwnPropertyNames(obj)
+                .forEach(prop => {
+                    if (obj.hasOwnProperty(prop) && typeof obj[prop] !== 'object') {
+                        result[prop] = obj[prop]
+                    }
+                })
+
+            return result;
+        },
+
+        updateRow (id, row, saveChanges = false) {
             let hasChanges = false;
 
             // If a row is selected and the user clicks on another row
@@ -139,15 +163,37 @@ export default {
                     )
                     || (
                         this.selectedRowId = null,
-                        hasChanges = this.compareUpdates(row)
+                        saveChanges === true ? (hasChanges = this.compareUpdates(row)) : null
+                        // this.selectedRow = [],
                     ) 
             }
-
-            /* 
+            
+            // TODO: refactor a little bit :D
             if (hasChanges) {
-                TODO: api call: update data; but first, check if any changes have been made!
+                // TODO: api call: update data; but first, check if any changes have been made!
+                console.log('saving changes....')
+                Object.keys(row)
+                    .forEach(key => {
+                        row[`${key}`] = " " + this.selectedRow[`${key}`]
+                    });
+
+                const indexRow = this.itemsCopy.findIndex(item => item.id === id)
+                this.$set(this.itemsCopy, indexRow, row);
+                this.$parent.products = this.itemsCopy
+
+            } else if(!this.isUpdating) {
+                console.log('keep the initial values');
+
+                // Trigger reactivity
+                Object.keys(row)
+                    .forEach(key => {
+                        row[`${key}`] = " " + row[`${key}`]
+                    });
+
+                const indexRow = this.itemsCopy.findIndex(item => item.id === id)
+                this.$set(this.itemsCopy, indexRow, row);
+                this.$parent.products = this.itemsCopy
             }
-            */
         }
     },
 
@@ -188,6 +234,12 @@ export default {
     transform: translateY(60%) translateX(-120%);
     cursor: pointer;
 
+    &.h-has-two-buttons {
+        transform: translateY(10%) translateX(-120%);
+        display: flex;
+        flex-direction: column;
+    }
+
     svg {
         width: 20px;
         height: 20px;
@@ -204,6 +256,14 @@ export default {
 
         &.pencil-alt {
             color: rgb(51, 72, 99);
+        }
+
+        &.save-changes {
+            color: #4caf50;
+        }
+
+        &.times {
+            color: darken(tomato, 10%);
         }
     }
 }
