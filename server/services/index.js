@@ -1,7 +1,4 @@
 // TODO: DRY try-catch
-
-const mockData = require('../mock');
-
 class Service {
     constructor (name) {
         const dbName = require('../db')[`${name}DB`];
@@ -35,8 +32,7 @@ class Service {
         this.response = {};
 
         try {
-            // const data = await this.db.getAll();
-            const data = mockData.products;
+            const data = await this.db.getAll();
 
             this.response = {
                 message: `Fetched from ${this.db.tableName} successfully`,

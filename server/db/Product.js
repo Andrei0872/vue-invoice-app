@@ -15,8 +15,6 @@ class ProductDB extends Database {
             "price DECIMAL(7, 2) NOT NULL",
             "markup DECIMAL(7, 2) NOT NULL",
             "provider_id INT(8) NOT NULL",
-            "quantity DECIMAL(7, 2) NOT NULL",
-            "quantity_type VARCHAR(255) NOT NULL",
             "comestible BOOLEAN",
             "inserted_date TIMESTAMP",
             "deleted_date DATETIME"

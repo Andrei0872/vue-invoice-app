@@ -3,6 +3,7 @@ const mysql = require('mysql');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const debug = require('debug')('db:Database');
 
+const mockData = require('../mock');
 class Database {
     constructor() {
         !!this.connection || this.connect()
@@ -78,9 +79,10 @@ class Database {
     }
 
     async getAll () {
-        return await this._promisify(
-            `SELECT * FROM ${this.tableName}`
-        )
+        return mockData[`${this.tableName}`]
+        // return await this._promisify(
+        //     `SELECT * FROM ${this.tableName}`
+        // )
     }
 
     async selectOneByID (params) {
