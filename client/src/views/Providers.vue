@@ -46,7 +46,9 @@ export default {
         },
 
         addRow () {
-
+            this.newItems.push(
+                { id: Math.floor(Math.random() * (500) ) + 1 }
+            )
         }
     },
 }
