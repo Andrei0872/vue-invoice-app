@@ -305,11 +305,7 @@ export default {
         tr > td:not(:last-child) {
             border-right: 1px solid #ccc;
         }
-
-        tr {
-            transition: all .1s ease-out;
-        }
-
+        
         tr:last-child {
 
             td:first-child {
