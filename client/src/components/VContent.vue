@@ -1,4 +1,5 @@
 <template>
+    <!-- FIXME: exclude dates when creating new items -->
     <div class="c-container">
         <div class="c-container__main-buttons">
             <div>
@@ -26,6 +27,7 @@
             </div>
         </transition>
 
+        <!-- Modal here.. -->
     </div>
 </template>
 
