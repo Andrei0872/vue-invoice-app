@@ -81,26 +81,26 @@ export default {
 
     created () {
         // TODO: vuex
-        // fetch('http://localhost:3000/product/', {
-        //     headers: new Headers({
-        //         'Content-Type': 'application/json',
-        //     }),
-        //     method: "POST",
-        // })
-        // .then(res => res.json())
-        // .then(res => {
-        //     console.log(res)
-        //     this.products = res.data
-        //     this.shownFields = Object.keys(res.data[0])
-        // })
-        this.products = [
-            { id: 1, name: 'P1', category: 'c1', price: 10, markup: 2 },
-            { id: 2, name: 'P2', category: 'c2', price: 123, markup: 12 },
-            { id: 3, name: 'P3', category: 'c3', price: 701, markup: 32 },
-            { id: 4, name: 'P4', category: 'c4', price: 30, markup: 10 },
-        ];
+        fetch('http://localhost:3000/product/', {
+            headers: new Headers({
+                'Content-Type': 'application/json',
+            }),
+            method: "POST",
+        })
+        .then(res => res.json())
+        .then(res => {
+            console.log(res)
+            this.products = res.data
+            this.shownFields = Object.keys(res.data[0])
+        })
+        // this.products = [
+        //     { id: 1, name: 'P1', category: 'c1', price: 10, markup: 2 },
+        //     { id: 2, name: 'P2', category: 'c2', price: 123, markup: 12 },
+        //     { id: 3, name: 'P3', category: 'c3', price: 701, markup: 32 },
+        //     { id: 4, name: 'P4', category: 'c4', price: 30, markup: 10 },
+        // ];
 
-        this.shownFields = ["name", "category", "price", "markup"];
+        // this.shownFields = ["name", "category", "price", "markup"];
 
         this.$root.$on('createItems', data => {
             console.log('data', data)
