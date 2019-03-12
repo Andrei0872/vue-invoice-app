@@ -1,0 +1,25 @@
+.icon {
+    
+    &--add-row {
+        padding: .9rem;
+        max-width: 40px;
+        transform: translateY(35%);
+        
+        svg {
+            width: 32px;
+            height: 32px;
+            color: green;
+            background-color: darken($color: #fff, $amount: 8%);
+        }
+    }
+
+    svg {
+
+        border-radius: 50%;
+        cursor: pointer;
+
+        &:hover {
+            transform: scale(1.1);
+        }
+    }
+}
