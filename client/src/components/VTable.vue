@@ -13,17 +13,18 @@
             </thead>
             <tbody :class="{ 'h-has-hover': !willCreate && !isUpdating }">
                 <template v-for="(row, indexRow) in itemsCopy">
-                    <div v-if="willCreate && indexRow > 0 || !willCreate" :key="row.id + 'icon'" :class="['icon', isUpdating && selectedRowId === row.id ? 'h-has-two-buttons' : null]">
+                    <div v-if="willCreate && indexRow > 0 || !willCreate" :key="row.id + 'icon'" :class="['icon', 'h-has-two-buttons']">
                         <font-awesome-icon 
                             v-on="{ click: !willCreate ? updateRow.bind(null, row.id, row) : deleteRow.bind(null, row.id) }" 
                             :class="isUpdating && selectedRowId === row.id ? 'times' : currentIcon"  
                             :icon="isUpdating && selectedRowId === row.id ? 'times' : currentIcon" 
                         />
+                        <!-- @click="updateRow(row.id, row, true)"  -->
                         <font-awesome-icon 
-                            icon="check"
-                            class="save-changes"
-                            v-if="isUpdating && selectedRowId === row.id"
-                            @click="updateRow(row.id, row, true)" 
+                            :icon="checkOrRemove"
+                            :class="isUpdating ? 'save-changes' : 'minus-circle'"
+                            v-if="isUpdating && selectedRowId === row.id || !isUpdating && !willCreate"
+                            v-on="{ click: isUpdating && selectedRowId === row.id ? updateRow.bind(null, row.id, row, true) : removeRow.bind(null, row.id) }"
                         />
                     </div>
                     <tr
@@ -77,6 +78,10 @@ export default {
     computed: {
         currentIcon () {
             return this.willCreate ? 'minus-circle' : 'pencil-alt'
+        },
+
+        checkOrRemove () {
+            return this.isUpdating ? 'check' : 'minus-circle'
         }
     },
 
@@ -98,6 +103,11 @@ export default {
     },
 
     methods: {
+        // TODO: make use of Vuex
+        removeRow (id) {
+            this.$parent.products = this.$parent.products.filter(product => product.id !== id)
+        },
+
         updateContent (rowIndex, field, val) {
             this.isUpdating && (this.selectedRow[field] = val);
             // Get the field array and add the new item
@@ -238,6 +248,10 @@ export default {
         transform: translateY(10%) translateX(-120%);
         display: flex;
         flex-direction: column;
+
+        svg:first-child {
+            margin-bottom: 3px;
+        }
     }
 
     svg {
