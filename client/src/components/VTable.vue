@@ -40,7 +40,7 @@
                         @update="updateContent(indexRow, field, $event)"
                     >
                         <span :class="{ 'placeholder': typeof row[field] === 'undefined' }">
-                            {{ row[field] || field }}
+                            {{ row[field] || row[field] === 0 ? row[field] : field }}
                         </span>
                     </VTd>
                 </tr>
@@ -287,7 +287,7 @@ export default {
     background-color: #FFF;
     border-radius: 13px;
     width: 100%;
-    table-layout: fixed;
+    // table-layout: fixed;
 
     td, th {
         padding: 15px;
@@ -344,8 +344,9 @@ export default {
 }
 
 .table-responsive {
-    // overflow-x: auto;
+    overflow: auto;
     padding: 1.5rem;
+    width: 80vw;
 }
 
 .h-has-hover {
