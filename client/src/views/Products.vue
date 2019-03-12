@@ -165,7 +165,7 @@ export default {
         padding: .9rem;
         max-width: 40px;
         transform: translateY(35%);
-
+            
         svg {
             width: 32px;
             height: 32px;

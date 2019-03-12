@@ -28,7 +28,7 @@
                         />
                     </div>
                     <tr
-                    v-on="{ click: !willCreate && !isUpdating ? $parent.showInfo.bind(null, row.id) : () => {} }"
+                    v-on="{ click: !willCreate && !isUpdating ? $parent.$parent.showInfo.bind(null, row.id) : () => {} }"
                     :class="selectedRowId === row.id ? 'selected' : isUpdating ?  'blurred' : null"
                     :key="row.id"
                 >
