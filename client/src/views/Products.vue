@@ -89,9 +89,10 @@ export default {
         })
         .then(res => res.json())
         .then(res => {
-            console.log(res)
             this.products = res.data
-            this.shownFields = Object.keys(res.data[0])
+            const fields = res.data[0];
+            const { provider_id, ...rest } = fields;
+            this.shownFields = Object.keys(rest)
         })
         // this.products = [
         //     { id: 1, name: 'P1', category: 'c1', price: 10, markup: 2 },
