@@ -39,7 +39,17 @@ const products = [
 const providers = [
     {
         id: 1,
-
+        name: "Company 1",
+        URC: "301939210",
+        inserted_date: "2019-03-06T18:38:20.000Z",
+        deleted_date: 'null'
+    },
+    {
+        id: 2,
+        name: "Company 2",
+        URC: "761039123",
+        inserted_date: "2019-03-06T18:38:20.000Z",
+        deleted_date: 'null'
     }
 ]
 
