@@ -1,5 +1,6 @@
 <template>
     <!-- FIXME: exclude dates when creating new items -->
+    <!-- TODO: add a new slot in c-container -->
     <div class="c-container">
         <div class="c-container__main-buttons">
             <div>
