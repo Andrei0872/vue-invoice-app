@@ -1,0 +1,46 @@
+.modal-body {
+
+    &__value,
+    &__prop {
+        display: inline-block;
+        // On smaller screens: 1 0 10rem;
+        flex: 1 1 45%;
+    }
+
+    &__arrow {
+        font-size: 1.2rem;
+    }
+
+    &__prop {
+        text-align: left;
+
+        span {
+            background-color: $modal-text-color;
+            color: #fff;
+            padding: 5px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            border-radius: 5px;
+        }
+    }
+
+    &__value {
+        color: $modal-text-color;
+        font-size: 1.2rem;
+        font-style: italic;
+        font-weight: bold;
+        text-align: right;
+        padding-right: 1rem;
+    }
+
+    &__row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 1rem;
+    }
+
+    &__row:not(:last-child) {
+        margin-bottom: 6px;
+    }
+}
