@@ -1,4 +1,5 @@
 <template>
+    <!-- TODO: $parent.$parent ===> Vuex :D -->
     <div class="table-responsive">
         <table class="table">
             <thead>
@@ -187,6 +188,9 @@ export default {
             if (hasChanges) {
                 // TODO: api call: update data; but first, check if any changes have been made!
                 console.log('saving changes....')
+                console.log(row)
+                console.log(this.selectedRow)
+
                 Object.keys(row)
                     .forEach(key => {
                         row[`${key}`] = " " + this.selectedRow[`${key}`]
@@ -194,8 +198,7 @@ export default {
 
                 const indexRow = this.itemsCopy.findIndex(item => item.id === id)
                 this.$set(this.itemsCopy, indexRow, row);
-                // console.log(this.$parent.products)
-                // this.$parent.products = this.itemsCopy
+                this.$parent.$parent.items = this.itemsCopy
 
             } else if(!this.isUpdating) {
                 console.log('keep the initial values');
@@ -208,7 +211,7 @@ export default {
 
                 const indexRow = this.itemsCopy.findIndex(item => item.id === id)
                 this.$set(this.itemsCopy, indexRow, row);
-                // this.$parent.products = this.itemsCopy
+                this.$parent.$parent.items = this.itemsCopy
             }
         }
     },
