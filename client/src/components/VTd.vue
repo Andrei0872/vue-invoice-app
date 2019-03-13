@@ -38,7 +38,7 @@ export default {
 
         checkPlaceholder (ev) {
 
-            // setTimeout() - make the placeholder dissapear and focus the current td
+            // setTimeout() - make the placeholder disappear and focus the current td
             this.isPlaceholderCopy 
                 && (
                     setTimeout(() => {ev.target.textContent = ''}, 0), this.isPlaceholderCopy = false

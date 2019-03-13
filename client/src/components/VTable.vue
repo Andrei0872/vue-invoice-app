@@ -11,11 +11,11 @@
                     </th>
                 </tr>
             </thead>
-            <tbody :class="{ 'h-has-hover': !willCreate && !isUpdating }">
+            <tbody :class="{ 'h-has-hover': !isCreating && !isUpdating }">
                 <template v-for="(row, indexRow) in itemsCopy">
-                    <div v-if="willCreate && indexRow > 0 || !willCreate" :key="row.id + 'icon'" :class="['icon', 'h-has-two-buttons']">
+                    <div v-if="isCreating && indexRow > 0 || !isCreating" :key="row.id + 'icon'" :class="['icon', 'h-has-two-buttons']">
                         <font-awesome-icon 
-                            v-on="{ click: !willCreate ? updateRow.bind(null, row.id, row) : deleteRow.bind(null, row.id) }" 
+                            v-on="{ click: !isCreating ? updateRow.bind(null, row.id, row) : deleteRow.bind(null, row.id) }" 
                             :class="isUpdating && selectedRowId === row.id ? 'times' : currentIcon"  
                             :icon="isUpdating && selectedRowId === row.id ? 'times' : currentIcon" 
                         />
@@ -23,19 +23,19 @@
                         <font-awesome-icon 
                             :icon="checkOrRemove"
                             :class="isUpdating ? 'save-changes' : 'minus-circle'"
-                            v-if="isUpdating && selectedRowId === row.id || !isUpdating && !willCreate"
+                            v-if="isUpdating && selectedRowId === row.id || !isUpdating && !isCreating"
                             v-on="{ click: isUpdating && selectedRowId === row.id ? updateRow.bind(null, row.id, row, true) : removeRow.bind(null, row.id) }"
                         />
                     </div>
                     <tr
-                    v-on="{ click: !willCreate && !isUpdating ? $parent.$parent.showInfo.bind(null, row.id) : () => {} }"
+                    v-on="{ click: !isCreating && !isUpdating ? $parent.$parent.showInfo.bind(null, row.id) : () => {} }"
                     :class="selectedRowId === row.id ? 'selected' : isUpdating ?  'blurred' : null"
                     :key="row.id"
                 >
                     <VTd
                         v-for="field in fields"
                         :key="field + row.id"
-                        :contentEditable="willCreate || isUpdating && selectedRowId === row.id"
+                        :contentEditable="isCreating || isUpdating && selectedRowId === row.id"
                         :isPlaceholder="typeof row[field] === 'undefined'"
                         @update="updateContent(indexRow, field, $event)"
                     >
@@ -59,7 +59,7 @@ export default {
     props: {
         items: Array,
         fields: Array,
-        willCreate: {
+        isCreating: {
             type: Boolean,
             default: false
         }
@@ -77,18 +77,22 @@ export default {
 
     computed: {
         currentIcon () {
-            return this.willCreate ? 'minus-circle' : 'pencil-alt'
+            return this.isCreating ? 'minus-circle' : 'pencil-alt'
         },
 
         checkOrRemove () {
             return this.isUpdating ? 'check' : 'minus-circle'
+        },
+
+        fieldsCp () {
+            return this.fields
         }
     },
 
     watch: {
         // If the value is changed from true to false
         // it means the `Create` btn has been pressed
-        willCreate (newVal) {
+        isCreating (newVal) {
             if (!newVal) {
                 this.$root.$emit('createItems', this.newItems)
                 this.itemsCopy = []
@@ -105,14 +109,15 @@ export default {
     methods: {
         // TODO: make use of Vuex
         removeRow (id) {
-            this.$parent.products = this.$parent.products.filter(product => product.id !== id)
+            this.$parent.$parent.items = this.$parent.$parent.items.filter(item => item.id !== id)
         },
 
         updateContent (rowIndex, field, val) {
             this.isUpdating && (this.selectedRow[field] = val);
+
             // Get the field array and add the new item
             const arr = this.newItems[field];
-            const updatedArr = this.$set(arr, rowIndex, val);
+            this.$set(arr, rowIndex, val);
             
             // Get the entire object and set the new array
             const currentObj = this.newItems;
@@ -189,7 +194,8 @@ export default {
 
                 const indexRow = this.itemsCopy.findIndex(item => item.id === id)
                 this.$set(this.itemsCopy, indexRow, row);
-                this.$parent.products = this.itemsCopy
+                // console.log(this.$parent.products)
+                // this.$parent.products = this.itemsCopy
 
             } else if(!this.isUpdating) {
                 console.log('keep the initial values');
@@ -202,7 +208,7 @@ export default {
 
                 const indexRow = this.itemsCopy.findIndex(item => item.id === id)
                 this.$set(this.itemsCopy, indexRow, row);
-                this.$parent.products = this.itemsCopy
+                // this.$parent.products = this.itemsCopy
             }
         }
     },
