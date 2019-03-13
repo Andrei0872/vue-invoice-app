@@ -1,6 +1,6 @@
 <template>
     <div>
-        <VContent :isCreating="isCreating" entityName="provider">
+        <VContent v-if="everythingReady" :isCreating="isCreating" entityName="provider">
             <template v-slot:existingItems>
                 <VTable @showInfo="showInfo" :items="items" :fields="fields" />
             </template>
@@ -8,9 +8,12 @@
                  <div @click="addRow" class="icon icon--add-row">
                     <font-awesome-icon icon="plus-circle" />
                 </div>
-                <VTable :willCreate="isCreating" :items="newItems" :fields="fields" />
+                <VTable :isCreating="isCreating" :items="newItems" :fields="fields" />
             </template>
         </VContent>
+        <div v-else-if="everythingReady === false">
+            There are no providers
+        </div>
     </div>
 </template>
 
@@ -31,7 +34,8 @@ export default {
         fields: [],
         newItems: [{ id: 1 }],
         entityName: 'provider',
-        isCreating: false
+        isCreating: false,
+        everythingReady: null
     }),
 
     methods: {
