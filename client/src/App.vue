@@ -57,5 +57,6 @@ export default {
     grid-row: 2 / -1;
     background-color: #DADAE3;
     overflow-x: visible;
+    position: relative;
   }
 </style>
