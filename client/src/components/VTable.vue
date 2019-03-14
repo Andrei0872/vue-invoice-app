@@ -39,6 +39,7 @@
                         :contentEditable="isCreating || isUpdating && selectedRowId === row.id"
                         :isPlaceholder="typeof row[field] === 'undefined'"
                         @update="updateContent(indexRow, field, $event)"
+                        :showProducts="field === 'nr_doc' && isUpdating && selectedRowId === row.id"
                     >
                         <span :class="{ 'placeholder': typeof row[field] === 'undefined' }">
                             {{ row[field] || row[field] === 0 ? row[field] : field }}
