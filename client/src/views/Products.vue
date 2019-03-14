@@ -1,7 +1,7 @@
 <template>
     <div>
         
-        <VContent v-if="everythingReady" :isCreating="isCreating" entityName="provider">
+        <VContent v-if="everythingReady" :isCreating="isCreating" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTable @showInfo="showInfo" :items="items" :fields="fields" />
             </template>
