@@ -2,6 +2,7 @@
 class Service {
     constructor (name) {
         const dbName = require('../db')[`${name}DB`];
+        console.log(name)
         this.db = new dbName();
 
         this.response = {};

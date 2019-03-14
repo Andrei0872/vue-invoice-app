@@ -79,7 +79,7 @@ class Database {
     }
 
     async getAll () {
-        return mockData[`${this.tableName}`]
+        return mockData[`${this.tableName}`];
         // return await this._promisify(
         //     `SELECT * FROM ${this.tableName}`
         // )

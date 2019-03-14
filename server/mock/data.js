@@ -54,10 +54,22 @@ const providers = [
 ]
 
 const documents = [
-    
+    {
+        id: 1,
+        nr_doc: 1,
+        provider: "p1",
+        nr_products: 3
+    },
+    {
+        id: 2,
+        nr_doc: 2,
+        provider: "p3",
+        nr_products: 10
+    }
 ]
 
 module.exports = {
     products,
     providers,
+    documents,
 }
