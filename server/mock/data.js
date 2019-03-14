@@ -65,6 +65,12 @@ const documents = [
         nr_doc: 2,
         provider: "p3",
         nr_products: 10
+    },
+    {
+        id: 3,
+        nr_doc: 2,
+        provider: "p4",
+        nr_products: 20
     }
 ]
 
