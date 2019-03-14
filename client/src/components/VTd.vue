@@ -6,10 +6,20 @@
         @focus="checkPlaceholder($event)"
     >
         <slot></slot>
+        <VList 
+            v-if="showProducts" 
+            @ready="getCoords"
+            :style="listStyles"
+        >
+
+        </VList>
+
     </td>
 </template>
 
 <script>
+import VList from './VList';
+
 export default {
     props: {
         contentEditable: {
@@ -19,13 +29,20 @@ export default {
         isPlaceholder: {
             type: Boolean,
             default: false
+        },
+        showProducts: {
+            type: Boolean,
+            default: false
         }
     },
     
+    components: { VList },
+
     // Avoided using the arrow fn in order to get access to `this.isPlaceholder`
     data () {
         return {
-            isPlaceholderCopy: this.isPlaceholder
+            isPlaceholderCopy: this.isPlaceholder,
+            listStyles: {}
         }
     },
 
@@ -44,6 +61,16 @@ export default {
                     setTimeout(() => {ev.target.textContent = ''}, 0), this.isPlaceholderCopy = false
                 );
         },
+
+        getCoords (list_coords) {
+            const { left: td_left, x: td_x, width: td_width } = this.$el.getBoundingClientRect();
+            const { left: list_left, x: list_x } = list_coords;
+
+            this.listStyles = {
+                'width': `${td_width}px`,
+                'transform': `translateX(-${Math.abs(td_x - list_x)}px) translateY(${Math.abs(td_left - list_left)}px)`
+            }
+        }
     },
 }
 </script>
