@@ -380,6 +380,7 @@ export default {
         tr td {
             outline: 0;
             border: none;
+            padding: 15px 1px;
         }
     }
 
