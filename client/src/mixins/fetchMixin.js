@@ -1,4 +1,5 @@
 
+/* eslint-disable */
 export default {
     created () {
         fetch(`http://localhost:3000/${this.entityName}`, {
@@ -13,7 +14,7 @@ export default {
                     this.everythingReady = false;
                     return;
                 }
-                
+
                 this.items = res.data
                 const fields = res.data[0];
                 const {id, provider_id = null, ...rest } = fields;
