@@ -39,7 +39,7 @@
                         :contentEditable="isCreating || isUpdating && selectedRowId === row.id"
                         :isPlaceholder="typeof row[field] === 'undefined'"
                         @update="updateContent(indexRow, field, $event)"
-                        :showProducts="field === 'nr_doc' && isUpdating && selectedRowId === row.id"
+                        @isTyping="showList($event, field)"
                     >
                         <span :class="{ 'placeholder': typeof row[field] === 'undefined' }">
                             {{ row[field] || row[field] === 0 ? row[field] : field }}
@@ -49,11 +49,17 @@
                 </template>
             </tbody>
         </table>
+        <!-- :style="listStyles" -->
+        <VList
+            v-if="isTyping"
+            :style="listStyles"
+        ></VList>
     </div>    
 </template>
 
 <script>
 import VTd from '../components/VTd';
+import VList from './VList';
 
 export default {
     name: 'table-comp',
@@ -67,7 +73,7 @@ export default {
         }
     },
 
-    components: { VTd },
+    components: { VTd, VList },
 
     data: () => ({
         itemsCopy: [],
@@ -75,6 +81,8 @@ export default {
         selectedRowId: null,
         selectedRow: [],
         isUpdating: false,
+        listStyles: {},
+        isTyping: false,
     }),
 
     computed: {
@@ -109,6 +117,30 @@ export default {
     },
 
     methods: {
+
+        showList (td_coords, field) {
+            if (field !== 'nr_doc')
+                return;
+
+            if (!td_coords) {
+                this.isTyping = false;
+                return;
+            }
+
+            this.isTyping = true;
+
+            this.$root.$on('ready', listCoords => {
+
+                const { width: tdWidth, y: tdY, height: tdHeight } = td_coords;
+                const { y: listY } = listCoords;
+
+                this.listStyles = {
+                    'width': `${tdWidth}px`,
+                    'transform': `translateY(-${listY - tdY - tdHeight}px)`
+                }
+            })
+        },
+
         // TODO: make use of Vuex
         removeRow (id) {
             this.$parent.$parent.items = this.$parent.$parent.items.filter(item => item.id !== id)
