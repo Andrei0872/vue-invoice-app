@@ -8,12 +8,19 @@
                  <div @click="addRow" class="icon icon--add-row">
                     <font-awesome-icon icon="plus-circle" />
                 </div>
-                <VTable :isCreating="isCreating" :items="newItems" :fields="fields" />
+                <VTableCreate 
+                    @deleteRow="deleteRow($event)" 
+                    :fields="fields" 
+                    :items="newItems"
+                    @addFieldValue=addFieldValue($event)
+                />
             </template>
         </VContent>
         <div v-else-if="everythingReady === false">
             There are no items
         </div>
+
+        <!-- <VTableCreate :fields="fields" :items="newItems" /> -->
 
         <VModal :showModal="showDetails" @closeModal="closeModal">
             <template v-slot:header>
@@ -43,14 +50,17 @@
 import VContent from '../components/VContent';
 import VTable from '../components/VTable';
 import VModal from '../components/VModal';
+import VTableCreate from '../components/VTableCreate';
 import modalMixin from '../mixins/modalMixin';
+
+import uuidv1 from 'uuid/v1';
 
 import { mapActions, mapState } from 'vuex';
 
 export default {
     name: 'products',
 
-    components: { VContent, VTable, VModal },
+    components: { VContent, VTable, VModal, VTableCreate },
 
     mixins: [modalMixin],
 
@@ -61,6 +71,12 @@ export default {
     }),
 
     methods: {
+
+        // TODO: add to utils / global mixin
+        createRandomObj () {
+            return Object.assign({}, ... (this.fields.map(field => ({ [field]: '' }))), { id: uuidv1() });
+        },
+
         showInfo (id) {
             this.selectedItem = this.items.find(product => product.id === id)
             this.showDetails = true;
@@ -71,21 +87,29 @@ export default {
         },
 
         addRow () {
-            this.newItems.push(
-                { id: Math.floor(Math.random() * (500) ) + 1 }
-            )
+            this.ADD_ITEM(this.createRandomObj());
         },
 
-        ...mapActions('product', ['FETCH_DATA'])
+        deleteRow (rowId) {
+            this.DELETE_ITEM({ prop: 'newItems', id: rowId });
+        },
+
+        addFieldValue ([rowId, fieldName, value]) {
+            console.log(rowId, fieldName, value)
+            this.ADD_FIELD_VALUE({ rowId, fieldName, value });
+        },
+
+        ...mapActions('product', ['FETCH_DATA', 'ADD_ITEM', 'DELETE_ITEM', 'ADD_FIELD_VALUE'])
     },
 
     computed: {
-        ...mapState('product', ['items', 'fields']),
+        ...mapState('product', ['items', 'fields', 'newItems']),
         ...mapState(['everythingReady'])
     },
 
     created () {
         this.FETCH_DATA();
+        this.ADD_ITEM(this.createRandomObj());
     }
 }
 </script>

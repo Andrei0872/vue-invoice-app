@@ -5,15 +5,18 @@
         :value="theValue" 
         :placeholder="placeholder" 
         @input="sendContent($event)"
-        @blur="updateContent"
     >
+        <!-- @blur="updateContent" -->
 </template>
 
 <script>
 export default {
     props: {
         placeholder: String,
-        value: [String, Number]
+        value: {
+            type: [String, Number],
+            default: ''
+        }
     },
     
     data () {

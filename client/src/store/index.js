@@ -10,7 +10,8 @@ export default new Vuex.Store({
         everythingReady: null,
     },
     mutations: {
-        CHANGE_STATE: (state, payload) => state.everythingReady = payload
+        CHANGE_STATE: (state, payload) => state.everythingReady = payload,
+        ADD_ITEM: (_, { state, prop, payload }) => state[prop].push(payload)
     },
     actions: {
 
