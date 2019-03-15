@@ -37,21 +37,22 @@
                         :key="field + row.id"
                     >
                         <template v-if="isCreating || isUpdating" >
-                            <!-- TODO: make more readable .. :D -->
+                            <!-- TODO: make it more readable .. :D -->
+                            <!-- TODO: placeholder class -->
+                            <!-- inputValue && field === 'nr_doc' && selectedRowId === row.id ? inputValue -->
+                            <!-- :placeholder="isCreating ? field : ''" -->
                             <VInput
                                 :key="field + row.id + 'input'" 
-                                class="the-input" 
-                                :placeholder="isCreating ? field : ''" 
+                                class="the-input"
                                 :disabled="isUpdating && row.id !== selectedRowId"
-                                :value="inputValue && field === 'nr_doc' && selectedRowId === row.id ? inputValue : isUpdating ? row[field] || row[field] === 0 ? row[field] : 'not specified' : ''"
+                                :value="inputValue && field === 'nr_doc' && selectedRowId === row.id ? inputValue : defaultUpdateValue(row, field)"
                                 @input="showList($event, field, row.id)"
                                 @update="updateContent(indexRow, field, $event)"
                             />
-
                             <VList
                                 :style="listStyles"
                                 v-if="field === 'nr_doc' && isTyping && selectedRowId === row.id"
-                                @itemSelected="updateInputvalue($event)"
+                                @itemSelected="updateInputvalue($event, field)"
                             ></VList>
                         </template>
 
@@ -61,6 +62,8 @@
                 </template>
             </tbody>
         </table>
+        {{ inputValue }}
+        {{ selectedRowId }}
     </div>    
 </template>
 
@@ -104,10 +107,6 @@ export default {
         checkOrRemove () {
             return this.isUpdating ? 'check' : 'minus-circle'
         },
-
-        fieldsCp () {
-            return this.fields
-        }
     },
 
     watch: {
@@ -127,15 +126,24 @@ export default {
             this.isTyping = false;
             this.currentInputCoords = {};
             this.listPos = {};
+            // !
+            // this.inputValue = null;
             this.createCopy();
         },
     },
 
     methods: {
-    
-        updateInputvalue (value) {
+        
+        defaultUpdateValue (row, field) {
+            return this.isUpdating && (row[field] || row[field] === 0) 
+                ? row[field] 
+                : this.isCreating ? field : 'not specified'
+        },
+
+        updateInputvalue (value, field) {
             this.isTyping = false;
             this.inputValue = value;
+
             console.log('updating the input:', this.inputValue)
         },
 
@@ -163,6 +171,7 @@ export default {
         },
 
         updateContent (rowIndex, field, val) {
+            console.log('updating value', val)
             this.isTyping = false;
 
             this.isUpdating && (this.selectedRow[field] = val);
