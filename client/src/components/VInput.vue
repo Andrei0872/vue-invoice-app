@@ -32,7 +32,7 @@ export default {
             this.theValue = ev.target.value;
             this.$emit(
                 'input', this.theValue !== '' 
-                    ? this.$el.getBoundingClientRect()
+                    ? this.$el.getBoundingClientRect().width + 1
                     : false
             )
         },

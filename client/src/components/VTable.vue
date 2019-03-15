@@ -36,25 +36,31 @@
                         v-for="field in fields"
                         :key="field + row.id"
                     >
-                        <VInput 
-                            class="the-input" 
-                            v-if="isCreating || isUpdating" 
-                            :placeholder="isCreating ? field : ''" 
-                            :disabled="isUpdating && row.id !== selectedRowId" 
-                            :value="isUpdating ? row[field] || row[field] === 0 ? row[field] : 'not specified' : ''"
-                            @update="updateContent(indexRow, field, $event)"
-                            @input="showList($event, field)"
-                        />
+                        <template v-if="isCreating || isUpdating" >
+                            <VInput
+                                :key="field + row.id + 'input'" 
+                                class="the-input" 
+                                :placeholder="isCreating ? field : ''" 
+                                :disabled="isUpdating && row.id !== selectedRowId" 
+                                :value="isUpdating ? row[field] || row[field] === 0 ? row[field] : 'not specified' : ''"
+                                @update="updateContent(indexRow, field, $event)"
+                                @input="showList($event, field, row.id)"
+                            />
+
+                            <VList
+                                :style="listStyles"
+                                v-if="field === 'nr_doc' && isTyping && selectedRowId === row.id"
+                            ></VList>
+                        </template>
+
                         <span v-else>{{ row[field] || row[field] === 0 ? row[field] : 'not specified' }}</span>
                     </td>
                 </tr>
                 </template>
             </tbody>
         </table>
-        <VList
-            v-if="isTyping"
-            :style="listStyles"
-        ></VList>
+        <!-- @ready="gotListCoords($event)" -->
+            <!-- v-if="isTyping" -->
     </div>    
 </template>
 
@@ -84,6 +90,9 @@ export default {
         isUpdating: false,
         listStyles: {},
         isTyping: false,
+        hasBeenEmpty: false,
+        currentInputCoords: {},
+        listPos: {},
     }),
 
     computed: {
@@ -113,37 +122,58 @@ export default {
 
         // Update when new rows are added
         items (newVal) {
+            // console.log(newVal)
+            this.isTyping = false;
+            this.currentInputCoords = {};
+            this.listPos = {};
             this.createCopy();
         },
     },
 
     methods: {
+    
+        gotListCoords (listCoords) {
 
-        showList (input_coords, field) {
+            // TODO: Make list comp send its data only once
+            if (Object.keys(this.listPos).length === 0) {
+                for (const prop in listCoords) {
+                    this.listPos[prop] = listCoords[prop]
+                }
+            }
+
+            let moveTo;
+            const { width: tdWidth, y: tdY, height: tdHeight } = this.currentInputCoords;
+            const { y: listY } = this.listPos;
+            
+            console.log('this.listPos', this.listPos)
+            console.log('this.currentInputCoords', this.currentInputCoords)
+
+            moveTo = Math.abs(listY - tdY - tdHeight - 17);
+
+            console.log(moveTo)
+
+            this.listStyles = {
+                'width': `${tdWidth + 3}px`,
+                'transform': `translateY(-${moveTo}px)`
+            };
+        },
+
+        showList (width, field, rowId) {
             if (field !== 'nr_doc')
                 return;
 
-            if (!input_coords) {
+            if (!width) {
+                (this.isCreating || this.isUpdating) || (this.selectedRowId = null)
                 this.isTyping = false;
                 return;
             }
             
+            this.listStyles = {
+                'width': `${width}px`
+            };
+            this.selectedRowId = rowId;
+            // Make the VList component send its position && make it visible
             this.isTyping = true;
-            // console.log(input_coords)
-
-            this.$root.$on('ready', listCoords => {
-
-                const { width: tdWidth, y: tdY, height: tdHeight } = input_coords;
-                const { y: listY } = listCoords;
-                
-                console.log(listCoords)
-                console.log(input_coords)
-
-                this.listStyles = {
-                    'width': `${tdWidth + 3}px`,
-                    'transform': `translateY(-${listY - tdY - tdHeight - 17}px)`
-                }
-            })
         },
 
         // TODO: make use of Vuex
@@ -152,6 +182,8 @@ export default {
         },
 
         updateContent (rowIndex, field, val) {
+            this.isTyping = false;
+
             this.isUpdating && (this.selectedRow[field] = val);
 
             // Get the field array and add the new item
@@ -272,7 +304,7 @@ export default {
 
 </script>
 
-<style lang="scss"scoped>
+<style lang="scss" scoped>
 
 .selected {
     font-size: 1.105em;
@@ -400,6 +432,7 @@ export default {
     overflow: auto;
     padding: 1.5rem;
     width: 80vw;
+    // position: relative;
 }
 
 .h-has-hover {

@@ -1,8 +1,8 @@
 <template>
-    <div class="list" contenteditable="false">
+    <div class="list" contenteditable="false" v-if="this.items.length">
         <div
             class="list__row"
-            v-for="item in items"
+            v-for="item in filteredItems"
             :key="item.id"
         >   
             {{ item.name }}
@@ -14,25 +14,29 @@
 export default {
     name: 'list',
 
-    data: () => ({
-        items: [],
-    }),
-
-    // props: {
-    //     isTyping: Boolean
-    // },
-
-    mounted () {
-        this.$root.$emit('ready', this.$el.getBoundingClientRect());
+    props: {
+        filterKey: {
+            type: String,
+            default: 'mo'
+        }
     },
 
-    // watch: {
-    //     isTyping (val) {
-    //         if (val) {
-    //             this.$root.$emit('ready', this.$el.getBoundingClientRect());
-    //         }
-    //     }
-    // },
+    data: () => ({
+        items: [],
+        currentIndex: 0,
+    }),
+
+    computed: {
+        filteredItems () {
+            return this.items.filter(
+                ({ name }) => ~(name.toLowerCase().indexOf(this.filterKey.toLowerCase()))
+            )
+        }
+    },
+
+    mounted () {
+        this.$emit('ready', this.$el.getBoundingClientRect());
+    },
 
     created () {
         this.items = [
@@ -82,13 +86,19 @@ export default {
     .list {
         background-color: $bg-color;
         color: $text-color;
-        // position: absolute;
+        position: absolute;
         z-index: 100;
         max-height: 15rem;
+        width: 100px;
         user-select: none;
+        transform: translateY(.9rem);
 
         &__row {
             padding: .2rem;
+
+            &:first-child {
+                border-top: 1px solid rgba($color: $text-color, $alpha: .4);
+            }
 
             &:not(:last-child) {
                 border-bottom: 1px solid rgba($color: $text-color, $alpha: .4);
@@ -96,6 +106,10 @@ export default {
 
             &:hover {
                 cursor: pointer;
+                background-color: lighten($color: $text-color, $amount: 53%);
+            }
+
+            &.selected-row {
                 background-color: lighten($color: $text-color, $amount: 53%);
             }
         }
