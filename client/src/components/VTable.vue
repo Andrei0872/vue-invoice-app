@@ -20,7 +20,6 @@
                             :class="isUpdating && selectedRowId === row.id ? 'times' : currentIcon"  
                             :icon="isUpdating && selectedRowId === row.id ? 'times' : currentIcon" 
                         />
-                        <!-- @click="updateRow(row.id, row, true)"  -->
                         <font-awesome-icon 
                             :icon="checkOrRemove"
                             :class="isUpdating ? 'save-changes' : 'minus-circle'"
@@ -33,18 +32,21 @@
                     :class="selectedRowId === row.id ? 'selected' : isUpdating ?  'blurred' : null"
                     :key="row.id"
                 >
-                    <VTd
+                    <td
                         v-for="field in fields"
                         :key="field + row.id"
-                        :contentEditable="isCreating || isUpdating && selectedRowId === row.id"
-                        :isPlaceholder="typeof row[field] === 'undefined'"
-                        @update="updateContent(indexRow, field, $event)"
                         @isTyping="showList($event, field)"
                     >
-                        <span :class="{ 'placeholder': typeof row[field] === 'undefined' }">
-                            {{ row[field] || row[field] === 0 ? row[field] : field }}
-                        </span>
-                    </VTd>
+                        <VInput 
+                            class="the-input" 
+                            v-if="isCreating || isUpdating" 
+                            :placeholder="isCreating ? field : ''" 
+                            :disabled="isUpdating && row.id !== selectedRowId" 
+                            :value="isUpdating ? row[field] || row[field] === 0 ? row[field] : 'not specified' : ''"
+                            @update="updateContent(indexRow, field, $event)"
+                        />
+                        <span v-else>{{ row[field] || row[field] === 0 ? row[field] : 'not specified' }}</span>
+                    </td>
                 </tr>
                 </template>
             </tbody>
@@ -59,6 +61,7 @@
 
 <script>
 import VTd from '../components/VTd';
+import VInput from './VInput';
 import VList from './VList';
 
 export default {
@@ -73,7 +76,7 @@ export default {
         }
     },
 
-    components: { VTd, VList },
+    components: { VTd, VList, VInput },
 
     data: () => ({
         itemsCopy: [],
@@ -275,6 +278,10 @@ export default {
 .blurred {
     filter: blur(2px);
     background-color: lighten($color: #394263, $amount: 50%);
+
+    & .the-input {
+        background-color: lighten($color: #394263, $amount: 50%);
+    }
 }
 
 .placeholder {
