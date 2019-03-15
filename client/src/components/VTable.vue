@@ -37,19 +37,21 @@
                         :key="field + row.id"
                     >
                         <template v-if="isCreating || isUpdating" >
+                            <!-- TODO: make more readable .. :D -->
                             <VInput
                                 :key="field + row.id + 'input'" 
                                 class="the-input" 
                                 :placeholder="isCreating ? field : ''" 
-                                :disabled="isUpdating && row.id !== selectedRowId" 
-                                :value="isUpdating ? row[field] || row[field] === 0 ? row[field] : 'not specified' : ''"
-                                @update="updateContent(indexRow, field, $event)"
+                                :disabled="isUpdating && row.id !== selectedRowId"
+                                :value="inputValue && field === 'nr_doc' && selectedRowId === row.id ? inputValue : isUpdating ? row[field] || row[field] === 0 ? row[field] : 'not specified' : ''"
                                 @input="showList($event, field, row.id)"
+                                @update="updateContent(indexRow, field, $event)"
                             />
 
                             <VList
                                 :style="listStyles"
                                 v-if="field === 'nr_doc' && isTyping && selectedRowId === row.id"
+                                @itemSelected="updateInputvalue($event)"
                             ></VList>
                         </template>
 
@@ -59,8 +61,6 @@
                 </template>
             </tbody>
         </table>
-        <!-- @ready="gotListCoords($event)" -->
-            <!-- v-if="isTyping" -->
     </div>    
 </template>
 
@@ -93,6 +93,7 @@ export default {
         hasBeenEmpty: false,
         currentInputCoords: {},
         listPos: {},
+        inputValue: null
     }),
 
     computed: {
@@ -132,30 +133,10 @@ export default {
 
     methods: {
     
-        gotListCoords (listCoords) {
-
-            // TODO: Make list comp send its data only once
-            if (Object.keys(this.listPos).length === 0) {
-                for (const prop in listCoords) {
-                    this.listPos[prop] = listCoords[prop]
-                }
-            }
-
-            let moveTo;
-            const { width: tdWidth, y: tdY, height: tdHeight } = this.currentInputCoords;
-            const { y: listY } = this.listPos;
-            
-            console.log('this.listPos', this.listPos)
-            console.log('this.currentInputCoords', this.currentInputCoords)
-
-            moveTo = Math.abs(listY - tdY - tdHeight - 17);
-
-            console.log(moveTo)
-
-            this.listStyles = {
-                'width': `${tdWidth + 3}px`,
-                'transform': `translateY(-${moveTo}px)`
-            };
+        updateInputvalue (value) {
+            this.isTyping = false;
+            this.inputValue = value;
+            console.log('updating the input:', this.inputValue)
         },
 
         showList (width, field, rowId) {
@@ -232,6 +213,7 @@ export default {
         },
 
         updateRow (id, row, saveChanges = false) {
+            this.inputValue = null
             let hasChanges = false;
 
             // If a row is selected and the user clicks on another row

@@ -22,6 +22,12 @@ export default {
         }
     },
 
+    watch: {
+        value (newVal) {
+            this.theValue = newVal;
+        }
+    },
+
     methods: {
 
         hidePlaceholder () {
@@ -38,7 +44,6 @@ export default {
         },
 
         updateContent () {
-            console.log(this.theValue)
             this.$emit('update', this.theValue);
         }
     }

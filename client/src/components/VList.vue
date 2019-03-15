@@ -1,8 +1,8 @@
 <template>
     <div class="list" contenteditable="false" v-if="this.items.length">
         <div
-            class="list__row"
-            v-for="item in filteredItems"
+            v-for="(item, index) in filteredItems"
+            :class="['list__row', index === currentIndex ? 'selected-row' : null ]"
             :key="item.id"
         >   
             {{ item.name }}
@@ -17,7 +17,7 @@ export default {
     props: {
         filterKey: {
             type: String,
-            default: 'mo'
+            default: ''
         }
     },
 
@@ -25,6 +25,31 @@ export default {
         items: [],
         currentIndex: 0,
     }),
+
+    destroyed() {
+        window.removeEventListener("keyup", this.handleKeys);
+    },
+
+    methods: {
+        handleKeys (ev) {
+            if (ev.which === 13) {
+                this.selectItem();
+                return;
+            }
+
+            this.currentIndex += ev.which === 40 
+                ? 1 : ev.which === 38 ? -1 : 0;
+
+            if (this.currentIndex === -1) 
+                this.currentIndex = this.items.length - 1;
+            else if (this.currentIndex === this.items.length) 
+                this.currentIndex = 0;
+        },
+
+        selectItem () {
+            this.$emit('itemSelected', this.items[this.currentIndex].name);
+        }
+    },
 
     computed: {
         filteredItems () {
@@ -35,6 +60,7 @@ export default {
     },
 
     mounted () {
+        window.addEventListener("keyup", this.handleKeys);
         this.$emit('ready', this.$el.getBoundingClientRect());
     },
 
