@@ -35,7 +35,6 @@
                     <td
                         v-for="field in fields"
                         :key="field + row.id"
-                        @isTyping="showList($event, field)"
                     >
                         <VInput 
                             class="the-input" 
@@ -44,6 +43,7 @@
                             :disabled="isUpdating && row.id !== selectedRowId" 
                             :value="isUpdating ? row[field] || row[field] === 0 ? row[field] : 'not specified' : ''"
                             @update="updateContent(indexRow, field, $event)"
+                            @input="showList($event, field)"
                         />
                         <span v-else>{{ row[field] || row[field] === 0 ? row[field] : 'not specified' }}</span>
                     </td>
@@ -51,7 +51,6 @@
                 </template>
             </tbody>
         </table>
-        <!-- :style="listStyles" -->
         <VList
             v-if="isTyping"
             :style="listStyles"
@@ -121,25 +120,29 @@ export default {
 
     methods: {
 
-        showList (td_coords, field) {
+        showList (input_coords, field) {
             if (field !== 'nr_doc')
                 return;
 
-            if (!td_coords) {
+            if (!input_coords) {
                 this.isTyping = false;
                 return;
             }
-
+            
             this.isTyping = true;
+            // console.log(input_coords)
 
             this.$root.$on('ready', listCoords => {
 
-                const { width: tdWidth, y: tdY, height: tdHeight } = td_coords;
+                const { width: tdWidth, y: tdY, height: tdHeight } = input_coords;
                 const { y: listY } = listCoords;
+                
+                console.log(listCoords)
+                console.log(input_coords)
 
                 this.listStyles = {
-                    'width': `${tdWidth}px`,
-                    'transform': `translateY(-${listY - tdY - tdHeight}px)`
+                    'width': `${tdWidth + 3}px`,
+                    'transform': `translateY(-${listY - tdY - tdHeight - 17}px)`
                 }
             })
         },
@@ -215,6 +218,7 @@ export default {
                     )
                     || (
                         this.selectedRowId = null,
+                        this.isTyping = false,
                         saveChanges === true ? (hasChanges = this.compareUpdates(row)) : null
                         // this.selectedRow = [],
                     ) 

@@ -30,8 +30,11 @@ export default {
 
         sendContent (ev) {
             this.theValue = ev.target.value;
-            // This is for the list 
-            // this.$emit('input', this.content)
+            this.$emit(
+                'input', this.theValue !== '' 
+                    ? this.$el.getBoundingClientRect()
+                    : false
+            )
         },
 
         updateContent () {
