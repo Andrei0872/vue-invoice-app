@@ -59,7 +59,6 @@
 </template>
 
 <script>
-import VTd from '../components/VTd';
 import VInput from './VInput';
 import VList from './VList';
 
@@ -75,7 +74,7 @@ export default {
         }
     },
 
-    components: { VTd, VList, VInput },
+    components: { VList, VInput },
 
     data: () => ({
         itemsCopy: [],
