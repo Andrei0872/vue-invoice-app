@@ -1,6 +1,5 @@
 <template>
     <div>
-        
         <VContent v-if="everythingReady" :isCreating="isCreating" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTable @showInfo="showInfo" :items="items" :fields="fields" />
@@ -13,7 +12,7 @@
             </template>
         </VContent>
         <div v-else-if="everythingReady === false">
-            There are no providers
+            There are no items
         </div>
 
         <VModal :showModal="showDetails" @closeModal="closeModal">
@@ -44,25 +43,21 @@
 import VContent from '../components/VContent';
 import VTable from '../components/VTable';
 import VModal from '../components/VModal';
-import fetchMixin from '../mixins/fetchMixin';
 import modalMixin from '../mixins/modalMixin';
 
+import { mapActions, mapState } from 'vuex';
 
 export default {
     name: 'products',
 
     components: { VContent, VTable, VModal },
 
-    mixins: [fetchMixin, modalMixin],
+    mixins: [modalMixin],
 
     data: () => ({
-        items: [],
-        fields: [],
-        newItems: [{ id: 1 }],
         selectedItem: {},
         entityName: 'product',
         isCreating: false,
-        everythingReady: null
     }),
 
     methods: {
@@ -80,7 +75,18 @@ export default {
                 { id: Math.floor(Math.random() * (500) ) + 1 }
             )
         },
+
+        ...mapActions('product', ['FETCH_DATA'])
     },
+
+    computed: {
+        ...mapState('product', ['items', 'fields']),
+        ...mapState(['everythingReady'])
+    },
+
+    created () {
+        this.FETCH_DATA();
+    }
 }
 </script>
 
