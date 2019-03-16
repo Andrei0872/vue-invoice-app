@@ -2,11 +2,12 @@
     <div>
         <VContent v-if="everythingReady" :isCreating="isCreating" :entityName="entityName">
             <template v-slot:existingItems>
-                <!-- <VTable @showInfo="showInfo" :items="items" :fields="fields" /> -->
                 <VTableRead 
                     :fields="fields" 
                     :items="items" 
                     @update="update($event)"
+                    @showInfo="showInfo($event)"
+                    @deleteRow="deleteRow('items', $event)"
                 />  
             </template>
             <template v-slot:createItems>
@@ -14,7 +15,7 @@
                     <font-awesome-icon icon="plus-circle" />
                 </div>
                 <VTableCreate 
-                    @deleteRow="deleteRow($event)" 
+                    @deleteRow="deleteRow('newItems', $event)" 
                     :fields="fields" 
                     :items="newItems"
                     @addFieldValue=addFieldValue($event)
@@ -82,8 +83,8 @@ export default {
             return Object.assign({}, ... (this.fields.map(field => ({ [field]: '' }))), { id: uuidv1() });
         },
 
-        showInfo (id) {
-            this.selectedItem = this.items.find(product => product.id === id)
+        showInfo (row) {
+            this.selectedItem = {... row};
             this.showDetails = true;
         },
 
@@ -95,8 +96,8 @@ export default {
             this.ADD_ITEM(this.createRandomObj());
         },
 
-        deleteRow (rowId) {
-            this.DELETE_ITEM({ prop: 'newItems', id: rowId });
+        deleteRow (prop, rowId) {
+            this.DELETE_ITEM({ prop, id: rowId });
         },
 
         addFieldValue ([rowId, fieldName, value]) {
@@ -110,6 +111,7 @@ export default {
         },
 
         update (changesArr) {
+            console.log(changesArr)
             this.UPDATE_ITEMS(changesArr);
         },
 
