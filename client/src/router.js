@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from './store/';
 
 import { capitalize } from './utils';
 
@@ -17,7 +18,7 @@ const loadComp = (path = '/', children = null, name = path.slice(1), component =
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   routes: [
     loadComp('/', null, 'dashboard'),
@@ -27,3 +28,11 @@ export default new Router({
     loadComp('/documents'),
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  store.dispatch('changeEntity', to.name)
+  
+  next();
+});
+
+export default router;
