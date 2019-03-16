@@ -1,6 +1,6 @@
 <template>
     <div>
-        <VContent v-if="everythingReady" :isCreating="isCreating" entityName="provider">
+        <!-- <VContent v-if="everythingReady" :isCreating="isCreating" entityName="provider">
             <template v-slot:existingItems>
                 <VTable @showInfo="showInfo" :items="items" :fields="fields" />
             </template>
@@ -13,7 +13,7 @@
         </VContent>
         <div v-else-if="everythingReady === false">
             There are no providers
-        </div>
+        </div> -->
 
         <VModal :showModal="showDetails" @closeModal="closeModal">
             <template v-slot:header>
@@ -41,7 +41,6 @@
 
 <script>
 import VContent from '../components/VContent';
-import VTable from '../components/VTable';
 import VModal from '../components/VModal';
 import fetchMixin from '../mixins/fetchMixin';
 import modalMixin from '../mixins/modalMixin';
@@ -49,7 +48,7 @@ import modalMixin from '../mixins/modalMixin';
 export default {
     name: 'providers',
 
-    components: { VContent, VTable, VModal },
+    components: { VContent, VModal },
 
     mixins: [fetchMixin, modalMixin],
 
