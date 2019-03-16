@@ -71,8 +71,8 @@ export default {
         &__container {
             // TODO: media query
             max-width: 100%;
-            width: 36rem;
-            height: 18rem;
+            width: 40rem;
+            height: 25rem;
             max-height: 100%;
             background-color: #fff;
             display: flex;
