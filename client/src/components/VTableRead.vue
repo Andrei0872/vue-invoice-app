@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody :class="{ 'h-has-hover': !isUpdating }">
-                <template v-for="row in items">
+                <template v-for="row in itemsFromProps">
                     <div :key="row.id" class="icon h-has-two-buttons">
                         <template v-if="!isUpdating || isUpdating && selectedRowId !== row.id">
                             <font-awesome-icon 
