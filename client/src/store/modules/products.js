@@ -10,55 +10,53 @@ export const state = {
 // TODO: remove logic from here and add it to actions
 export const mutations = {
     UPDATE_DATA: (state, payload) => state.items = payload,
+
+    UPDATE_NEW_DATA: (state, payload) => state.newItems = payload,
     
     UPDATE_FIELDS: (state, payload) => state.fields = payload,
     
     DELETE_ITEM: (state, { prop, id }) => state[prop] = state[prop].filter(item => item.id !== id),
 
-    ADD_FIELD_VALUE: (state, { rowId, fieldName, value }) => {
-        let row = state.newItems.find(item => item.id === rowId);
-        row[fieldName] = value;
-    },
-
     RESET_ARR: (state, { prop }) => state[prop] = [],
 }
 
 export const actions = {
-    FETCH_DATA: ({ state, commit }) => {
+    fetchData: async ({ state, commit, dispatch }) => {
         commit('CHANGE_STATE', null, { root: true });
 
-        fetch(state.url, {
-                headers: new Headers({
-                    'Content-Type': 'application/json',
-                }),
-                method: "POST",
-            })
-            .then(res => res.json())
-            .then(res => {
-                const allFields = res.data[0];
-                const {id, provider_id = null, ...rest } = allFields;
-                
-                if (res.data.length === 0) 
-                    throw new Error('empty arr')
+        try {
+            const { data } = await dispatch('api/FETCH_DATA', state.url, { root: true });
+            
+            if (!data.length)
+                throw new Error('empty!')
 
-                commit('UPDATE_DATA', res.data);
-                commit('UPDATE_FIELDS', Object.keys(rest));
-                commit('CHANGE_STATE', true, { root: true })
-            })
-            .catch(err => {
-                commit('CHANGE_STATE', false, { root: true })
-            })
+            const allFields = data[0];
+            const {id, provider_id = null, ...rest } = allFields;
+
+            commit('UPDATE_DATA', data);
+            commit('UPDATE_FIELDS', Object.keys(rest));
+            commit('CHANGE_STATE', true, { root: true })
+        } catch {
+            commit('CHANGE_STATE', false, { root: true });
+        }
     },
 
-    ADD_ITEM: ({ state, commit }, payload) => commit('ADD_ITEM', { state, prop: 'newItems', payload }, { root: true }),
+    addItem: ({ state, commit }, payload) => commit('ADD_ITEM', { state, prop: 'newItems', payload }, { root: true }),
 
-    DELETE_ITEM: ({ commit }, payload) => commit('DELETE_ITEM', payload),
+    deleteItem: ({ commit }, payload) => commit('DELETE_ITEM', payload),
 
-    ADD_FIELD_VALUE: ({ commit }, payload) => commit('ADD_FIELD_VALUE', payload),
+    addFieldValue: ({ commit, state }, { rowId, fieldName, value }) => {
+        const newItemsCopy = JSON.parse(JSON.stringify(state.newItems))
+        let rowIndex = newItemsCopy.findIndex(item => item.id === rowId);
 
-    RESET_ARR: ({ commit }, payload) => commit('RESET_ARR', payload),
+        newItemsCopy[rowIndex][fieldName] = value;
 
-    UPDATE_ITEMS: ({ state, commit }, [id, changes]) => {
+        commit('UPDATE_NEW_DATA', newItemsCopy);
+    },
+
+    reset_arr: ({ commit }, payload) => commit('RESET_ARR', payload),
+
+    updateItems: ({ state, commit }, [id, changes]) => {
         const indexRow = state.items.findIndex(item => item.id === id);
         const itemsCopy = JSON.parse(JSON.stringify(state.items))
 
