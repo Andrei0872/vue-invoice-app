@@ -1,12 +1,11 @@
 <template>
     <input 
-        type="text" 
-        @focus="hidePlaceholder" 
-        :value="theValue" 
+        type="text"
+        :value="theValue"
+        :style="{ 'width': widthValue }"
         :placeholder="placeholder" 
         @input="sendContent($event)"
     >
-        <!-- @blur="updateContent" -->
 </template>
 
 <script>
@@ -21,35 +20,34 @@ export default {
     
     data () {
         return {
-            theValue: this.value.toString().trim()
+            widthValue: null,
+            theValue: this.value
         }
     },
 
     watch: {
-        value (newVal) {
-            this.theValue = newVal;
+        theValue (newVal) {
+            this.widthValue = `${((newVal.trim().length || this.placeholder.length) + 1) * 8}px`
         }
     },
 
     methods: {
 
-        hidePlaceholder () {
-            // this.placeholder = '';
-        },
-
         sendContent (ev) {
             this.theValue = ev.target.value;
+
             this.$emit(
                 'input', this.theValue !== '' 
                     ? this.$el.getBoundingClientRect().width + 1
                     : false
             )
-        },
+        }, 
+    },
 
-        updateContent () {
-            this.$emit('update', this.theValue);
-        }
-    }
+    created () {
+        this.widthValue = (`${this.value}`.trim().length + 1) * 8 + 'px';
+    },
+
 }
 </script>
 
