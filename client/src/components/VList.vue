@@ -1,14 +1,17 @@
 <template>
-    <div class="list" contenteditable="false" v-if="this.items.length">
+    <div class="list" v-if="this.items.length">
         <div
             v-for="(item, index) in filteredItems"
             :class="['list__row', index === currentIndex ? 'selected-row' : null ]"
             :key="item.id"
+            @click="currentIndex = index; selectItem()"
         >   
             {{ item.name }}
         </div>
     </div>
 </template>
+
+
 
 <script>
 export default {
@@ -61,7 +64,7 @@ export default {
 
     mounted () {
         window.addEventListener("keyup", this.handleKeys);
-        this.$emit('ready', this.$el.getBoundingClientRect());
+        // this.$emit('ready', this.$el.getBoundingClientRect());
     },
 
     created () {

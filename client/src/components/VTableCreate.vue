@@ -1,6 +1,7 @@
 <template>
     <!-- TODO: use a blueprint table -->
     <div class="table-responsive">
+        {{ items }}
         <table class="table">
             <thead>
                 <tr>
@@ -24,12 +25,19 @@
                     <tr :key="row.id + 'row'">
                         <td v-for="field in fields" :key="field + 'td'">
                             <VInput 
-                                :key="row.id + 'input'"
+                                :key="row[field]"
                                 class="the-input"
                                 :placeholder="field"
+                                :value="row[field] !== field ? row[field] : ''"
+                                @input="inputValue = $event"
+                                @focus.native="selectRow(row.id, field, $event)"
                                 @blur.native="addField(row.id, field, $event)"
                             />
-                            <!-- {{ row[field] || '' }} -->
+                            <component
+                                @itemSelected="selectItem($event)" 
+                                v-if="field === 'nr_doc' && selectedField === 'nr_doc' && inputValue && row.id === selectedRowId"
+                                :is="VList">
+                            </component>
                         </td>
                     </tr>
                 </template>
@@ -49,17 +57,54 @@ export default {
 
     components: { VInput },
 
-    data: () => ({
-        inputValue: null
-    }),
+    data () {
+        return {
+            inputValue: null,
+            selectedRowId: null,
+            selectedItemFromList: null,
+            selectedField: null
+        }
+    },
+
+    computed: {
+        VList () {
+            // TODO: optimize it!
+            return this.$store.state['currentEntity'] === 'documents' 
+                ? () => import('../components/VList.vue') 
+                : false
+        }
+    },
 
     methods: {
         addField (rowId, fieldName, ev) {
-            this.$emit('addField', [rowId, fieldName, ev.target.value]);
+            const val = ev.target ? ev.target.value : ev;
+            
+            if (!!this.VList === false) {
+                this.$emit('addField', [rowId, fieldName,  val])
+                return;
+            }
+
+            if (this.selectedItemFromList) {
+                this.selectedItemFromList = null
+            } else {
+                this.$emit('addField', [rowId, fieldName,  val])
+            }
         },
 
         deleteRow (rowId) {
             this.$emit('deleteRow', rowId);
+        },
+
+        selectRow (id, field, ev) {
+            this.inputValue = null
+            this.selectedRowId = id
+            this.selectedField = field;
+        },
+
+        selectItem (val) {
+            this.selectedItemFromList = val;
+            this.$emit('addField', [this.selectedRowId, this.selectedField,  val]);
+            this.inputValue = null
         }
     },
 
