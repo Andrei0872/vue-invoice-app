@@ -21,7 +21,7 @@ export default {
     data () {
         return {
             widthValue: null,
-            theValue: this.value
+            theValue: `${this.value}`.trim()
         }
     },
 
