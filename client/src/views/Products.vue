@@ -13,6 +13,7 @@
                     :fields="fields" 
                     :items="newItems"
                     @addFieldValue=addFieldValue($event)
+                    @init="init"
                 />
             </template>
         </VContent>
@@ -99,7 +100,12 @@ export default {
             this.ADD_FIELD_VALUE({ rowId, fieldName, value });
         },
 
-        ...mapActions('product', ['FETCH_DATA', 'ADD_ITEM', 'DELETE_ITEM', 'ADD_FIELD_VALUE'])
+        init () {
+            this.RESET_ARR({ prop: 'newItems' });
+            this.ADD_ITEM(this.createRandomObj());
+        },
+
+        ...mapActions('product', ['FETCH_DATA', 'ADD_ITEM', 'DELETE_ITEM', 'ADD_FIELD_VALUE', 'RESET_ARR'])
     },
 
     computed: {
@@ -109,7 +115,6 @@ export default {
 
     created () {
         this.FETCH_DATA();
-        this.ADD_ITEM(this.createRandomObj());
     }
 }
 </script>

@@ -9,12 +9,17 @@ export const state = {
 
 export const mutations = {
     UPDATE_DATA: (state, payload) => state.items = payload,
+    
     UPDATE_FIELDS: (state, payload) => state.fields = payload,
+    
     DELETE_ITEM: (state, { prop, id }) => state[prop] = state[prop].filter(item => item.id !== id),
+
     ADD_FIELD_VALUE: (state, { rowId, fieldName, value }) => {
         let row = state.newItems.find(item => item.id === rowId);
         row[fieldName] = value;
-    }
+    },
+
+    RESET_ARR: (state, { prop }) => state[prop] = []
 }
 
 export const actions = {
@@ -49,4 +54,6 @@ export const actions = {
     DELETE_ITEM: ({ commit }, payload) => commit('DELETE_ITEM', payload),
 
     ADD_FIELD_VALUE: ({ commit }, payload) => commit('ADD_FIELD_VALUE', payload),
+
+    RESET_ARR: ({ commit }, payload) => commit('RESET_ARR', payload),
 }

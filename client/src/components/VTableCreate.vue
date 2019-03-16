@@ -62,6 +62,10 @@ export default {
             this.$emit('deleteRow', rowId);
         }
     },
+
+    created () {
+        this.$emit('init');
+    }
 }
 </script>
 
