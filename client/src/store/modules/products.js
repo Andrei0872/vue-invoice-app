@@ -7,6 +7,7 @@ export const state = {
     url: 'http://localhost:3000/product'
 }
 
+// TODO: remove logic from here and add it to actions
 export const mutations = {
     UPDATE_DATA: (state, payload) => state.items = payload,
     
@@ -19,7 +20,7 @@ export const mutations = {
         row[fieldName] = value;
     },
 
-    RESET_ARR: (state, { prop }) => state[prop] = []
+    RESET_ARR: (state, { prop }) => state[prop] = [],
 }
 
 export const actions = {
@@ -56,4 +57,13 @@ export const actions = {
     ADD_FIELD_VALUE: ({ commit }, payload) => commit('ADD_FIELD_VALUE', payload),
 
     RESET_ARR: ({ commit }, payload) => commit('RESET_ARR', payload),
+
+    UPDATE_ITEMS: ({ state, commit }, [id, changes]) => {
+        const indexRow = state.items.findIndex(item => item.id === id);
+        const itemsCopy = JSON.parse(JSON.stringify(state.items))
+
+        itemsCopy[indexRow] = {... itemsCopy[indexRow], ...changes}
+        
+        commit('UPDATE_DATA', itemsCopy)
+    }
 }

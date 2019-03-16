@@ -2,7 +2,12 @@
     <div>
         <VContent v-if="everythingReady" :isCreating="isCreating" :entityName="entityName">
             <template v-slot:existingItems>
-                <VTable @showInfo="showInfo" :items="items" :fields="fields" />
+                <!-- <VTable @showInfo="showInfo" :items="items" :fields="fields" /> -->
+                <VTableRead 
+                    :fields="fields" 
+                    :items="items" 
+                    @update="update($event)"
+                />  
             </template>
             <template v-slot:createItems>
                  <div @click="addRow" class="icon icon--add-row">
@@ -20,8 +25,6 @@
         <div v-else-if="everythingReady === false">
             There are no items
         </div>
-
-        <!-- <VTableCreate :fields="fields" :items="newItems" /> -->
 
         <VModal :showModal="showDetails" @closeModal="closeModal">
             <template v-slot:header>
@@ -52,6 +55,7 @@ import VContent from '../components/VContent';
 import VTable from '../components/VTable';
 import VModal from '../components/VModal';
 import VTableCreate from '../components/VTableCreate';
+import VTableRead from '../components/VTableRead';
 import modalMixin from '../mixins/modalMixin';
 
 import uuidv1 from 'uuid/v1';
@@ -61,7 +65,7 @@ import { mapActions, mapState } from 'vuex';
 export default {
     name: 'products',
 
-    components: { VContent, VTable, VModal, VTableCreate },
+    components: { VContent, VTable, VModal, VTableCreate, VTableRead },
 
     mixins: [modalMixin],
 
@@ -105,7 +109,13 @@ export default {
             this.ADD_ITEM(this.createRandomObj());
         },
 
-        ...mapActions('product', ['FETCH_DATA', 'ADD_ITEM', 'DELETE_ITEM', 'ADD_FIELD_VALUE', 'RESET_ARR'])
+        update (changesArr) {
+            this.UPDATE_ITEMS(changesArr);
+        },
+
+        ...mapActions('product', [
+            'FETCH_DATA', 'ADD_ITEM', 'DELETE_ITEM', 'ADD_FIELD_VALUE', 'RESET_ARR', 'UPDATE_ITEMS'
+        ])
     },
 
     computed: {
