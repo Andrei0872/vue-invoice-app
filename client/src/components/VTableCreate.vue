@@ -27,7 +27,7 @@
                                 :key="row.id + 'input'"
                                 class="the-input"
                                 :placeholder="field"
-                                @blur.native="addFieldValue(row.id, field, $event)"
+                                @blur.native="addField(row.id, field, $event)"
                             />
                             <!-- {{ row[field] || '' }} -->
                         </td>
@@ -54,8 +54,8 @@ export default {
     }),
 
     methods: {
-        addFieldValue (rowId, fieldName, ev) {
-            this.$emit('addFieldValue', [rowId, fieldName, ev.target.value]);
+        addField (rowId, fieldName, ev) {
+            this.$emit('addField', [rowId, fieldName, ev.target.value]);
         },
 
         deleteRow (rowId) {
