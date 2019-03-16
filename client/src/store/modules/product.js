@@ -4,7 +4,7 @@ export const state = {
     items: [],
     fields: [],
     newItems: [],
-    url: 'http://localhost:3000/product'
+    url: 'http://localhost:3000/products'
 }
 
 // TODO: remove logic from here and add it to actions
@@ -31,6 +31,7 @@ export const actions = {
                 throw new Error('empty!')
 
             const allFields = data[0];
+            // eslint-disable-next-line
             const {id, provider_id = null, ...rest } = allFields;
 
             commit('UPDATE_DATA', data);
