@@ -44,8 +44,8 @@ export default {
         }, 
     },
 
-    created () {
-        this.widthValue = (`${this.value}`.trim().length + 1) * 8 + 'px';
+    mounted () {
+        this.widthValue = ((`${this.theValue}`.trim().length || this.placeholder.length) + 1) * 8 + 'px'; 
     },
 
 }
