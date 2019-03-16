@@ -30,7 +30,7 @@
                             <font-awesome-icon 
                                 icon="times" 
                                 class="times"
-                                @click="cancelChanges(row.id)"
+                                @click="cancelChanges(row)"
                             />
                             <font-awesome-icon 
                                 icon="check" 
@@ -42,6 +42,7 @@
                     <tr 
                         :key="row.id + 'row'"
                         :class="isUpdating && selectedRowId === row.id ? 'selected' : isUpdating ? 'blurred' : null"
+                        v-on="{ click: !isUpdating ? showInfo.bind(null, row) : () => {} }"
                     >
                         <td v-for="field in fields" :key="field + 'td'">
                             <VInput 
@@ -97,6 +98,10 @@ export default {
             this.selectedRow = { ...row };
         },
 
+        deleteRow (rowId) {
+            this.$emit('deleteRow', rowId);
+        },
+
         resetData (rowId) {
             this.isUpdating = false;
             this.selectedRowId = this.selectedRow = null;
@@ -126,11 +131,24 @@ export default {
             this.resetData();
         },
 
+        cancelChanges (row) {
+            // It suffices to change the :key of an element inside the element to trigger reactivity
+            Object.keys(row).forEach(key => {
+                row[key] += ' ';
+            });
+
+            this.resetData();
+        },
+
         addFieldValue (fieldName, ev) {
             if (!this.selectedRowId)
                 return;
             
             this.selectedRow[fieldName] = ev.target.value;
+        },
+
+        showInfo (row) {
+            this.$emit('showInfo', row);
         },
     },
 }
