@@ -1,4 +1,5 @@
 <template>
+    <!-- TODO: use a blueprint table -->
     <div class="table-responsive">
         <table class="table">
             <thead>
@@ -13,7 +14,6 @@
             </thead>
             <tbody>
                 <template v-for="row in items">
-                    <!-- TODO: if row.id === selectedId -->
                     <div :key="row.id" class="icon">
                         <font-awesome-icon 
                             icon="minus-circle" 
