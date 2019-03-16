@@ -51,7 +51,7 @@
                                 :placeholder="field"
                                 :value="row[field] || row[field] === 0 ? row[field] : ''"
                                 @focus.native="handleFocus(row.id, $event)"
-                                @blur.native="addFieldValue(field, $event)"
+                                @blur.native="addField(field, $event)"
                             />
                         </td>
                     </tr>
@@ -78,12 +78,13 @@ export default {
             isUpdating: false,
             selectedRowId: null,
             selectedRow: null,
+            itemsFromProps: JSON.parse(JSON.stringify(this.items))
         }
     },
 
-    computed: {
-        itemsFromProps () {
-            return this.items
+    watch: {
+        items (newVal) {
+            this.itemsFromProps = JSON.parse(JSON.stringify(this.items))
         }
     },
 
@@ -134,13 +135,13 @@ export default {
         cancelChanges (row) {
             // It suffices to change the :key of an element inside the element to trigger reactivity
             Object.keys(row).forEach(key => {
-                row[key] += ' ';
+                row[key] = row[key] ? row[key] +  ' ' : '';
             });
 
             this.resetData();
         },
 
-        addFieldValue (fieldName, ev) {
+        addField (fieldName, ev) {
             if (!this.selectedRowId)
                 return;
             

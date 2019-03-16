@@ -18,7 +18,7 @@
                     @deleteRow="deleteRow('newItems', $event)" 
                     :fields="fields" 
                     :items="newItems"
-                    @addFieldValue=addFieldValue($event)
+                    @addField="addField($event)"
                     @init="init"
                 />
             </template>
@@ -53,7 +53,6 @@
 
 <script>
 import VContent from '../components/VContent';
-import VTable from '../components/VTable';
 import VModal from '../components/VModal';
 import VTableCreate from '../components/VTableCreate';
 import VTableRead from '../components/VTableRead';
@@ -66,7 +65,7 @@ import { mapActions, mapState } from 'vuex';
 export default {
     name: 'products',
 
-    components: { VContent, VTable, VModal, VTableCreate, VTableRead },
+    components: { VContent, VModal, VTableCreate, VTableRead },
 
     mixins: [modalMixin],
 
@@ -93,30 +92,30 @@ export default {
         },
 
         addRow () {
-            this.ADD_ITEM(this.createRandomObj());
+            this.addItem(this.createRandomObj());
         },
 
         deleteRow (prop, rowId) {
-            this.DELETE_ITEM({ prop, id: rowId });
+            this.deleteItem({ prop, id: rowId });
         },
 
-        addFieldValue ([rowId, fieldName, value]) {
+        addField ([rowId, fieldName, value]) {
             console.log(rowId, fieldName, value)
-            this.ADD_FIELD_VALUE({ rowId, fieldName, value });
+            this.addFieldValue({ rowId, fieldName, value });
         },
 
         init () {
-            this.RESET_ARR({ prop: 'newItems' });
-            this.ADD_ITEM(this.createRandomObj());
+            this.reset_arr({ prop: 'newItems' });
+            this.addItem(this.createRandomObj());
         },
 
         update (changesArr) {
             console.log(changesArr)
-            this.UPDATE_ITEMS(changesArr);
+            this.updateItems(changesArr);
         },
 
         ...mapActions('product', [
-            'FETCH_DATA', 'ADD_ITEM', 'DELETE_ITEM', 'ADD_FIELD_VALUE', 'RESET_ARR', 'UPDATE_ITEMS'
+            'fetchData', 'addItem', 'deleteItem', 'addFieldValue', 'reset_arr', 'updateItems'
         ])
     },
 
@@ -126,7 +125,7 @@ export default {
     },
 
     created () {
-        this.FETCH_DATA();
+        this.fetchData();
     }
 }
 </script>
