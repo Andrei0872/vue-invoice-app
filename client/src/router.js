@@ -29,8 +29,9 @@ const router = new Router({
   ]
 })
 
+const entities = ["documents", "products", "providers"];
 router.beforeEach((to, from, next) => {
-  store.dispatch('changeEntity', to.name)
+  entities.includes(to.name) && store.dispatch('changeEntity', to.name)
   
   next();
 });
