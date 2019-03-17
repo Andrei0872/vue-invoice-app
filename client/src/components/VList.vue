@@ -29,6 +29,12 @@ export default {
         filteredItems: []
     }),
 
+    watch: {
+        filterKey (newVal) {
+            this.updateItems();
+        }
+    },
+
     destroyed() {
         window.removeEventListener("keyup", this.handleKeys);
     },
@@ -52,6 +58,12 @@ export default {
         selectItem () {
             const itemName = this.filteredItems.find((_, index) => this.currentIndex === index).name
             this.$emit('itemSelected', itemName);
+        },
+
+        updateItems () {
+            this.filteredItems = this.items.filter(
+                ({ name }) => ~(name.toLowerCase().indexOf(this.filterKey.toLowerCase()))
+            )
         }
     },
 
@@ -64,9 +76,7 @@ export default {
     },
 
     created () {
-        this.filteredItems = this.items.filter(
-            ({ name }) => ~(name.toLowerCase().indexOf(this.filterKey.toLowerCase()))
-        )
+        this.updateItems();
     }
 }
 </script>
