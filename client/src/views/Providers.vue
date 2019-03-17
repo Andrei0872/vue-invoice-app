@@ -1,19 +1,31 @@
 <template>
     <div>
-        <!-- <VContent v-if="everythingReady" :isCreating="isCreating" entityName="provider">
+        <VContent v-if="everythingReady" :entityName="entityName">
             <template v-slot:existingItems>
-                <VTable @showInfo="showInfo" :items="items" :fields="fields" />
+                <VTableRead 
+                    :fields="fields" 
+                    :items="items" 
+                    @update="update($event)"
+                    @showInfo="showInfo($event)"
+                    @deleteRow="deleteRow('items', $event)"
+                />  
             </template>
             <template v-slot:createItems>
                  <div @click="addRow" class="icon icon--add-row">
                     <font-awesome-icon icon="plus-circle" />
                 </div>
-                <VTable :isCreating="isCreating" :items="newItems" :fields="fields" />
+                <VTableCreate 
+                    @deleteRow="deleteRow('newItems', $event)" 
+                    :fields="fieldsWhenCreating" 
+                    :items="newItems"
+                    @addField="addField($event)"
+                    @init="init"
+                />
             </template>
         </VContent>
         <div v-else-if="everythingReady === false">
-            There are no providers
-        </div> -->
+            There are no items
+        </div>
 
         <VModal :showModal="showDetails" @closeModal="closeModal">
             <template v-slot:header>
@@ -42,29 +54,36 @@
 <script>
 import VContent from '../components/VContent';
 import VModal from '../components/VModal';
-import fetchMixin from '../mixins/fetchMixin';
+import VTableCreate from '../components/VTableCreate';
+import VTableRead from '../components/VTableRead';
 import modalMixin from '../mixins/modalMixin';
 
+import uuidv1 from 'uuid/v1';
+
+import { mapActions, mapState } from 'vuex';
+
 export default {
-    name: 'providers',
+    name: 'products',
 
-    components: { VContent, VModal },
+    components: { VContent, VModal, VTableCreate, VTableRead },
 
-    mixins: [fetchMixin, modalMixin],
+    mixins: [modalMixin],
 
     data: () => ({
-        items: [],
-        fields: [],
-        newItems: [{ id: 1 }],
         selectedItem: {},
         entityName: 'provider',
         isCreating: false,
-        everythingReady: null
     }),
 
     methods: {
-        showInfo (id) {
-            this.selectedItem = this.items.find(product => product.id === id)
+
+        // TODO: add to utils / global mixin
+        createRandomObj () {
+            return Object.assign({}, ... (this.fields.map(field => ({ [field]: field }))), { id: uuidv1() });
+        },
+
+        showInfo (row) {
+            this.selectedItem = {... row};
             this.showDetails = true;
         },
 
@@ -73,11 +92,41 @@ export default {
         },
 
         addRow () {
-            this.newItems.push(
-                { id: Math.floor(Math.random() * (500) ) + 1 }
-            )
+            this.addItem(this.createRandomObj());
         },
+
+        deleteRow (prop, rowId) {
+            this.deleteItem({ prop, id: rowId });
+        },
+
+        addField ([rowId, fieldName, value]) {
+            console.log(rowId, fieldName, value)
+            this.addFieldValue({ rowId, fieldName, value });
+        },
+
+        init () {
+            this.reset_arr({ prop: 'newItems' });
+            this.addItem(this.createRandomObj());
+        },
+
+        update (changesArr) {
+            console.log(changesArr)
+            this.updateItems(changesArr);
+        },
+
+        ...mapActions('provider', [
+            'fetchData', 'addItem', 'deleteItem', 'addFieldValue', 'reset_arr', 'updateItems'
+        ])
     },
+
+    computed: {
+        ...mapState('provider', ['items', 'fields', 'newItems', 'fieldsWhenCreating']),
+        ...mapState(['everythingReady'])
+    },
+
+    created () {
+        this.fetchData();
+    }
 }
 </script>
 

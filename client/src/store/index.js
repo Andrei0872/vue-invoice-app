@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 
 import * as product from './modules/product';
 import * as document from './modules/document';
+import * as provider from './modules/provider';
 import * as api from './modules/api';
 
 Vue.use(Vuex)
@@ -37,5 +38,6 @@ export default new Vuex.Store({
         product,
         api,
         document,
+        provider,
     }
 })
