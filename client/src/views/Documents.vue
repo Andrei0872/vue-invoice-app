@@ -1,5 +1,6 @@
 <template>
     <div>
+        {{ items }}
         <VContent v-if="everythingReady" :isCreating="isCreating" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTableRead 
@@ -76,6 +77,10 @@ export default {
     }),
 
     methods: {
+
+        testFn (data) {
+            console.log(data)
+        },
 
         // TODO: add to utils / global mixin
         createRandomObj () {

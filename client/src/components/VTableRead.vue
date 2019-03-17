@@ -50,8 +50,16 @@
                                 class="the-input"
                                 :placeholder="field"
                                 :value="row[field] || row[field] === 0 ? row[field] : ''"
-                                @focus.native="handleFocus(row.id, $event)"
+                                @input="inputValue = $event"
+                                @focus.native="handleFocus(row.id, field, $event)"
                                 @blur.native="addField(field, $event)"
+                            />
+                            <component
+                                @itemSelected="selectItem($event)" 
+                                v-if="field === 'nr_doc' && selectedField === 'nr_doc' && inputValue && row.id === selectedRowId"
+                                :is="VList"
+                                :filterKey="inputValue"
+                                :key="row.id + 'uniq'"
                             />
                         </td>
                     </tr>
@@ -78,7 +86,11 @@ export default {
             isUpdating: false,
             selectedRowId: null,
             selectedRow: null,
-            itemsFromProps: JSON.parse(JSON.stringify(this.items))
+            itemsFromProps: JSON.parse(JSON.stringify(this.items)),
+            inputValue: '',
+            selectedRowId: '',
+            selectedField: '',
+            alreadyUpdated: false
         }
     },
 
@@ -88,9 +100,47 @@ export default {
         }
     },
 
+    computed: {
+        VList () {
+            // TODO: optimize it!
+            return this.$store.state['currentEntity'] === 'documents' && this.isUpdating
+                ? () => import('./VList.vue') 
+                : false
+        }
+    },
+
     methods: {
-        handleFocus (rowId, ev) {
-            (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId) && ev.target.blur();
+        handleFocus (rowId, field, ev) {
+            if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId) {
+                ev.target.blur();
+                return;
+            }
+
+            this.inputValue = null;
+            this.selectedRowId = rowId;
+            this.selectedField = field;
+        },
+
+        selectItem (val) {
+            this.selectedItemFromList = val;
+
+            if (this.needsAdditionalUpdate()) {
+                console.log('new update')
+                this.$emit('update', [this.selectedRowId, { [this.selectedField]: this.inputValue }])
+            }
+
+            setTimeout(() => {
+                this.$emit('update', [this.selectedRowId, { [this.selectedField]: val }]);
+                this.inputValue = null;
+                this.alreadyUpdated = true
+            }, 0);
+        },
+
+        needsAdditionalUpdate () {
+            return this.items.some(
+                item => item.id === this.selectedRowId 
+                    && item[this.selectedField] === this.selectedItemFromList
+            )
         },
 
         updateRow (row) {
@@ -125,9 +175,14 @@ export default {
         },        
 
         confirmChanges (row) {
-            const changes = this.compareChanges(row, this.selectedRow);
             
-            !(this.isObjectEmpty(changes)) && this.$emit('update', [row.id, changes])
+            if (!this.alreadyUpdated) {
+                const changes = this.compareChanges(row, this.selectedRow);
+            
+                !(this.isObjectEmpty(changes)) && this.$emit('update', [row.id, changes]);
+
+                this.alreadyUpdated = false;
+            }
 
             this.resetData();
         },
