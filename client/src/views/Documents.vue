@@ -1,6 +1,5 @@
 <template>
     <div>
-        {{ items }}
         <VContent v-if="everythingReady" :isCreating="isCreating" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTableRead 

@@ -44,7 +44,7 @@
                         :class="isUpdating && selectedRowId === row.id ? 'selected' : isUpdating ? 'blurred' : null"
                         v-on="{ click: !isUpdating ? showInfo.bind(null, row) : () => {} }"
                     >
-                        <td v-for="field in fields" :key="field + 'td'">
+                        <td @click="focusInputChild($event)" v-for="field in fields" :key="field + 'td'">
                             <VInput 
                                 :key="row[field]"
                                 class="the-input"
@@ -52,7 +52,7 @@
                                 :value="row[field] || row[field] === 0 ? row[field] : ''"
                                 @input="inputValue = $event"
                                 @focus.native="handleFocus(row.id, field, $event)"
-                                @blur.native="addField(field, $event)"
+                                @blur.native="addField(row, field, $event)"
                             />
                             <component
                                 @itemSelected="selectItem($event)" 
@@ -90,7 +90,8 @@ export default {
             inputValue: '',
             selectedRowId: '',
             selectedField: '',
-            alreadyUpdated: false
+            alreadyUpdated: false,
+            untouchedRow: null
         }
     },
 
@@ -121,6 +122,13 @@ export default {
             this.selectedField = field;
         },
 
+        focusInputChild (ev) {
+            if (ev.currentTarget !== ev.target) 
+                return
+
+            ev.target.children[0].focus();
+        },
+
         selectItem (val) {
             this.selectedItemFromList = val;
 
@@ -147,6 +155,7 @@ export default {
             this.isUpdating = true;
             this.selectedRowId = row.id;
             this.selectedRow = { ...row };
+            this.untouchedRow = { ...row };
         },
 
         deleteRow (rowId) {
@@ -155,7 +164,7 @@ export default {
 
         resetData (rowId) {
             this.isUpdating = false;
-            this.selectedRowId = this.selectedRow = null;
+            this.selectedRowId = this.selectedRow = this.untouchedRow = null;
         },
 
         compareChanges (rowBeforeChanges, rowAfterChange) {
@@ -188,19 +197,20 @@ export default {
         },
 
         cancelChanges (row) {
-            // It suffices to change the :key of an element inside the element to trigger reactivity
+
             Object.keys(row).forEach(key => {
-                row[key] = row[key] ? row[key] +  ' ' : '';
+                row[key] = this.untouchedRow[key] ? this.untouchedRow[key] : '';
             });
 
             this.resetData();
         },
 
-        addField (fieldName, ev) {
+        addField (row, fieldName, ev) {
             if (!this.selectedRowId)
                 return;
             
             this.selectedRow[fieldName] = ev.target.value;
+            row[fieldName] = ev.target.value;
         },
 
         showInfo (row) {
