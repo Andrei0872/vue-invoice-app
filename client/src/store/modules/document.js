@@ -4,6 +4,7 @@ export const state = {
     items: [],
     fields: [],
     newItems: [],
+    fieldsWhenCreating: ["product_name", "quantity", "quantity_type", "comestible"],
     url: 'http://localhost:3000/documents'
 }
 
