@@ -116,16 +116,22 @@ export default {
 
         ...mapActions('document', [
             'fetchData', 'addItem', 'deleteItem', 'addFieldValue', 'reset_arr', 'updateItems'
-        ])
+        ]),
+        ...mapActions('product', { 'fetchProducts': 'fetchData' })
     },
 
     computed: {
         ...mapState('document', ['items', 'fields', 'newItems']),
-        ...mapState(['everythingReady'])
+        ...mapState(['everythingReady']),
+        ...mapState('product', { 'products': 'items' })
     },
 
     created () {
         this.fetchData();
+        
+        if (!this.products.length) {
+            this.fetchProducts();
+        }
     }
 }
 </script>
