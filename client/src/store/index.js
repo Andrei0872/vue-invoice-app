@@ -15,6 +15,14 @@ export default new Vuex.Store({
         currentEntity: null
     },
 
+    getters: {
+        getEntityNewItems: state => {
+            const entityName = state.currentEntity.slice(0, -1)
+
+            return state[entityName].newItems
+        }
+    },
+
     mutations: {
         CHANGE_STATE: (state, payload) => state.everythingReady = payload,
         ADD_ITEM: (_, { state, prop, payload }) => state[prop].push(payload),
