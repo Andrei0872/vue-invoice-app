@@ -1,6 +1,6 @@
 <template>
     <div>
-        <VContent v-if="everythingReady" :isCreating="isCreating" :entityName="entityName">
+        <VContent @addNewItems="addNewItems" v-if="everythingReady" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTableRead 
                     :fields="fields" 
@@ -76,6 +76,10 @@ export default {
     }),
 
     methods: {
+        
+        addNewItems () {
+            console.log('new items - product')
+        },
 
         // TODO: add to utils / global mixin
         createRandomObj () {
