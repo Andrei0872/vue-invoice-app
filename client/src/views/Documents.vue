@@ -1,6 +1,6 @@
 <template>
     <div>
-        <VContent v-if="everythingReady" :isCreating="isCreating" :entityName="entityName">
+        <VContent v-if="everythingReady" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTableRead 
                     :fields="fields" 
@@ -11,12 +11,15 @@
                 />  
             </template>
             <template v-slot:createItems>
-                 <div @click="addRow" class="icon icon--add-row">
+                <div class="existing-items">
+                    <span>Document Nr. {{ items.length }}</span>
+                </div>
+                <div @click="addRow" class="icon icon--add-row">
                     <font-awesome-icon icon="plus-circle" />
                 </div>
-                <VTableCreate 
+                <VTableCreate
                     @deleteRow="deleteRow('newItems', $event)" 
-                    :fields="fields" 
+                    :fields="fieldsWhenCreating" 
                     :items="newItems"
                     @addField="addField($event)"
                     @init="init"
@@ -77,22 +80,14 @@ export default {
 
     methods: {
 
-        testFn (data) {
-            console.log(data)
-        },
-
         // TODO: add to utils / global mixin
         createRandomObj () {
-            return Object.assign({}, ... (this.fields.map(field => ({ [field]: field }))), { id: uuidv1() });
+            return Object.assign({}, ... (this.fieldsWhenCreating.map(field => ({ [field]: field }))), { id: uuidv1() });
         },
 
         showInfo (row) {
             this.selectedItem = {... row};
             this.showDetails = true;
-        },
-
-        toggleState () {
-            this.isCreating = !this.isCreating
         },
 
         addRow () {
@@ -125,7 +120,7 @@ export default {
     },
 
     computed: {
-        ...mapState('document', ['items', 'fields', 'newItems']),
+        ...mapState('document', ['items', 'fields', 'newItems', 'fieldsWhenCreating']),
         ...mapState(['everythingReady']),
         ...mapState('product', { 'products': 'items' })
     },
@@ -145,4 +140,15 @@ export default {
     
     @import '../styles/common.scss';
     @import '../styles/modal.scss';
+
+    .existing-items {
+        margin-top: 3rem;
+        margin-left: 2rem;
+
+        span {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: $modal-text-color;
+        }
+    }
 </style>
