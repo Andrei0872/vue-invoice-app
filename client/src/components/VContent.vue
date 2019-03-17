@@ -1,16 +1,14 @@
 <template>
-    <!-- FIXME: exclude dates when creating new items -->
-    <!-- TODO: add a new slot in c-container -->
     <div class="c-container">
         <div class="c-container__main-buttons">
             <div>
-                <VButton @toggleState="$parent.toggleState" :btnClass="btnState">
+                <VButton @toggleState="isCreating = !isCreating" :btnClass="btnState">
                 {{ mainButtonContent }}
                 </VButton>
             </div>
             <div>
                 <VButton 
-                @createItems="isCreating = false"
+                @createItems="addNewItems"
                 :showBtn="isCreating"
                 btnClass="success"
             >
@@ -33,6 +31,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 import VButton from '../components/VButton';
 
 export default {
@@ -41,7 +41,6 @@ export default {
 
     props: {
         entityName: String,
-        isCreating: Boolean
     },
 
     computed: {
@@ -52,15 +51,34 @@ export default {
         btnState () {
             return this.isCreating ? 'danger' : 'primary'
         },
+
+        ...mapGetters({
+            newItems: 'getEntityNewItems'
+        }),
     },
 
     data: () => ({
-        ok: true,
+        isCreating: false,
     }),
 
     methods: {
-    },
+        addNewItems () {
+            console.log(this.newItems)
 
+            if (!this.newItems.length)
+                return;
+
+            const allValid = this.filterNewItems(this.newItems)
+
+            allValid && (this.isCreating = false, console.log('creating data..'))
+        },
+
+        filterNewItems (arr) {
+            return !(arr.some(
+                item => Object.entries(item).some(([key, value]) => key !== 'id' && key === value)
+            ))
+        },
+    },
 }
 </script>
 
