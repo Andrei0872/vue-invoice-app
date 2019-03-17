@@ -72,7 +72,7 @@ export default {
         VList () {
             // TODO: optimize it!
             return this.$store.state['currentEntity'] === 'documents' 
-                ? () => import('../components/VList.vue') 
+                ? () => import('./VList.vue') 
                 : false
         }
     },
