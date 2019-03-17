@@ -36,11 +36,7 @@ export default {
         sendContent (ev) {
             this.theValue = ev.target.value;
 
-            this.$emit(
-                'input', this.theValue !== '' 
-                    ? this.$el.getBoundingClientRect().width + 1
-                    : false
-            )
+            this.$emit('input', this.theValue);
         }, 
     },
 
