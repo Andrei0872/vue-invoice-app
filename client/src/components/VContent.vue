@@ -77,6 +77,11 @@ export default {
             return !(arr.some(
                 item => Object.entries(item).some(([key, value]) => key !== 'id' && key === value)
             ))
+            // const errors = arr.reduce((memo, currentItem) => {
+            //     const id = currentItem.id;
+
+            //     Object.entries(currentItem).forEach(([key, value]))
+            // }, {})
         },
     },
 }
