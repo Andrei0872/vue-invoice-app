@@ -1,7 +1,6 @@
 <template>
-    <!-- TODO: use a blueprint table -->
+    <!-- TODO: add filter for th -->
     <div class="table-responsive">
-        {{ items }}
         <table class="table">
             <thead>
                 <tr>
@@ -23,19 +22,19 @@
                         />
                     </div>
                     <tr :key="row.id + 'row'">
-                        <td v-for="field in fields" :key="field + 'td'">
+                        <td @click="focusInputChild($event)" v-for="field in fields" :key="field + 'td'">
                             <VInput 
                                 :key="row[field]"
                                 class="the-input"
                                 :placeholder="field"
                                 :value="row[field] !== field ? row[field] : ''"
                                 @input="inputValue = $event"
-                                @focus.native="selectRow(row.id, field, $event)"
-                                @blur.native="addField(row.id, field, $event)"
+                                @focus.native="selectRow(row, field, $event)"
+                                @blur.native="addField(row, field, $event)"
                             />
                             <component
                                 @itemSelected="selectItem($event)" 
-                                v-if="field === 'nr_doc' && selectedField === 'nr_doc' && inputValue && row.id === selectedRowId"
+                                v-if="field === 'product_name' && selectedField === 'product_name' && inputValue && row.id === selectedRowId"
                                 :is="VList"
                                 :filterKey="inputValue"
                                 :key="row.id + 'uniq'"
@@ -64,7 +63,8 @@ export default {
             inputValue: null,
             selectedRowId: null,
             selectedItemFromList: null,
-            selectedField: null
+            selectedField: null,
+            selectedFieldValue: ''
         }
     },
 
@@ -78,18 +78,22 @@ export default {
     },
 
     methods: {
-        addField (rowId, fieldName, ev) {
+        addField (row, fieldName, ev) {
             const val = ev.target ? ev.target.value : ev;
             
+            if (this.selectedFieldValue.trim() === val.trim()) {
+                return
+            }
+            
             if (!!this.VList === false) {
-                this.$emit('addField', [rowId, fieldName,  val])
+                this.$emit('addField', [row.id, fieldName,  val])
                 return;
             }
 
             if (this.selectedItemFromList) {
                 this.selectedItemFromList = null
             } else {
-                this.$emit('addField', [rowId, fieldName,  val])
+                this.$emit('addField', [row.id, fieldName,  val])
                 // Give enough time to update the items after the user has chosen an item from the list
                 setTimeout(() => {
                     this.inputValue = null
@@ -97,14 +101,23 @@ export default {
             }
         },
 
+        focusInputChild (ev) {
+            if (ev.currentTarget !== ev.target) 
+                return
+
+            ev.target.children[0].focus();
+        },
+
         deleteRow (rowId) {
             this.$emit('deleteRow', rowId);
         },
 
-        selectRow (id, field, ev) {
-            this.inputValue = null
-            this.selectedRowId = id
+        selectRow (row, field, ev) {
+            this.inputValue = null;
+            this.selectedRowId = row.id;
             this.selectedField = field;
+
+            this.selectedFieldValue = row[field] || '';
         },
 
         needsAdditionalUpdate () {
