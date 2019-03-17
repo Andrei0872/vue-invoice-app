@@ -36,8 +36,10 @@
                             <component
                                 @itemSelected="selectItem($event)" 
                                 v-if="field === 'nr_doc' && selectedField === 'nr_doc' && inputValue && row.id === selectedRowId"
-                                :is="VList">
-                            </component>
+                                :is="VList"
+                                :filterKey="inputValue"
+                                :key="row.id + 'uniq'"
+                            />
                         </td>
                     </tr>
                 </template>
@@ -88,6 +90,10 @@ export default {
                 this.selectedItemFromList = null
             } else {
                 this.$emit('addField', [rowId, fieldName,  val])
+                // Give enough time to update the items after the user has chosen an item from the list
+                setTimeout(() => {
+                    this.inputValue = null
+                }, 100)
             }
         },
 
@@ -101,10 +107,25 @@ export default {
             this.selectedField = field;
         },
 
+        needsAdditionalUpdate () {
+            return this.items.some(
+                item => item.id === this.selectedRowId 
+                    && item[this.selectedField] === this.selectedItemFromList
+            )
+        },
+
         selectItem (val) {
             this.selectedItemFromList = val;
-            this.$emit('addField', [this.selectedRowId, this.selectedField,  val]);
-            this.inputValue = null
+
+            if (this.needsAdditionalUpdate()) {
+                console.log('new update')
+                this.$emit('addField', [this.selectedRowId, this.selectedField,  this.inputValue])
+            }
+
+            setTimeout(() => {
+                this.$emit('addField', [this.selectedRowId, this.selectedField,  val]);
+                this.inputValue = null
+            }, 0);
         }
     },
 
