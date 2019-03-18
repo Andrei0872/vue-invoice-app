@@ -19,8 +19,6 @@ app.get('/', (req, res) => {
     res.send('ok!');
 });
 
-// const data = require('./mock');
-
 app.use('/', routes);
 
 app.listen(3000, () => console.log('ok!!!'))
