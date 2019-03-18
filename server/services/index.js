@@ -1,10 +1,7 @@
 // TODO: DRY try-catch
 class Service {
     constructor (name) {
-        const dbName = require('../db')[`${name}DB`];
-        console.log(name)
-        this.db = new dbName();
-
+        this.db = require('../db').useTable(name);
         this.response = {};
     }
 
@@ -34,7 +31,7 @@ class Service {
 
         try {
             const data = await this.db.getAll();
-
+            
             this.response = {
                 message: `Fetched from ${this.db.tableName} successfully`,
                 status: 200,
