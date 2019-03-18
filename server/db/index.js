@@ -1,9 +1,3 @@
-const ProductDB  = require('./Product')
-const ProviderDB = require('./Provider')
-const DocumentDB = require('./Document')
+const Database = require('./Database');
 
-module.exports = {
-    ProductDB, 
-    ProviderDB,
-    DocumentDB
-}
+module.exports = new Database();
