@@ -26,6 +26,9 @@
         <div v-else-if="everythingReady === false">
             There are no items
         </div>
+        <div v-else>
+            Some other error happened
+        </div>
 
         <VModal :showModal="showDetails" @closeModal="closeModal">
             <template v-slot:header>
