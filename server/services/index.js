@@ -1,7 +1,7 @@
 // TODO: DRY try-catch
 class Service {
     constructor (name) {
-        this.db = require('../db').useTable(name);
+        this.table = require('../db').useTable(name);
         this.response = {};
     }
 
@@ -10,7 +10,7 @@ class Service {
         this.response = {};
 
         try {
-            await this.db.insertOne(params);
+            await this.table.insertOne(params);
             
             this.response = {
                 message: `Inserted into ${this.tableName} successfully`,
@@ -30,16 +30,16 @@ class Service {
         this.response = {};
 
         try {
-            const data = await this.db.getAll();
+            const data = await this.table.getAll();
             
             this.response = {
-                message: `Fetched from ${this.db.tableName} successfully`,
+                message: `Fetched from ${this.table.tableName} successfully`,
                 status: 200,
                 data
             }
         } catch (err) {
             this.response = {
-                message: `Failed to fetch from ${this.db.tableName}`,
+                message: `Failed to fetch from ${this.table.tableName}`,
                 status: 400
             }
         }
@@ -51,16 +51,16 @@ class Service {
         this.response = {};
 
         try {
-            const data = await this.db.selectOneByID(params);
+            const data = await this.table.selectOneByID(params);
 
             this.response = {
-                message: `Fetched one single item from ${this.db.tableName} successfully`,
+                message: `Fetched one single item from ${this.table.tableName} successfully`,
                 status: 200,
                 data
             }
         } catch (err) {
             this.response = {
-                message: `Failed to fetch a single item from ${this.db.tableName}`,
+                message: `Failed to fetch a single item from ${this.table.tableName}`,
                 status: 400
             }
         }
