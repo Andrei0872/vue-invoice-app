@@ -3,16 +3,24 @@ const mysql = require('mysql');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const debug = require('debug')('db:Database');
 
-const mockData = require('../mock');
+// TODO: add to utils
+function capitalizeAndClean(name) {
+    return name.replace(
+        /(?<=_|^)([a-z]+)/g, match => {
+            return match[0].toUpperCase() + match.slice(1)
+        }
+    )
+}
+
 class Database {
     constructor() {
+        debug('Database constructor')
         !!this.connection || this.connect()
-    }
+        this.currentTable = null;
 
-    updateState () {
-        debug('db connection can now be shared across subclasses')
-        Database.prototype.connection = this.connection;
-        console.log(Database.prototype.connection.query)
+        ['product', 'document', 'provider', 'document_product'].forEach(tableName => {
+            this[tableName] = require(`./${capitalizeAndClean(tableName)}.js`);
+        });
     }
 
     async connect () {
@@ -23,38 +31,45 @@ class Database {
                 database: process.env.DB_NAME
             });
 
-        this.updateState();
-
-        this.connection.connect((err, data) => {
+        this.connection.connect(async (err, data) => {
             if (err) {
                 console.error(err)
                 return;
             }
 
-            // console.log('data', data)
+            !(await this._tablesExist()) && this._createTables();
         })
     }
 
-    _initTable () {
-        const sql = `SHOW TABLES LIKE '${this.tableName}'`;
+    async _createTables () {
+        ['product', 'document', 'provider', 'document_product'].forEach(tableName => {
+            this._creatTable(tableName, this[tableName].fields);
+        });
+    }
 
-        this.connection.query(sql, (err, data) => {
+    async _tablesExist () {
+        const sql = 'SHOW TABLES';
+        
+        const tables = await this._promisify(sql);
+
+        return tables.length !== 0
+    }
+
+    useTable (tableName) {
+        this.currentTable = tableName;
+        
+        return this;
+    }
+
+    _creatTable (tableName, tableFields) {
+        const sql = `CREATE TABLE IF NOT EXISTS ${tableName} (?)`;
+
+        this.connection.query(sql, [mysql.raw(tableFields.join(', '))], (err, data) => {
             if (err) {
                 return console.log(err)
             }
 
-            data.length === 0 && this._creatTable(this.tableName);
-        })
-    }
-
-    _creatTable () {
-        const sql = `CREATE TABLE IF NOT EXISTS ${this.tableName} (?)`
-        this.connection.query(sql, [mysql.raw(this.fields.join(', '))], (err, data) => {
-            if (err) {
-                return console.log(err)
-            }
-
-            console.log(data)
+            debug(`tabel ${tableName} created!`)
         });
     }
 
@@ -73,21 +88,20 @@ class Database {
 
     async insertOne(params) {
         return await this._promisify(
-            `INSERT INTO ${this.tableName} SET ?`,
+            `INSERT INTO ${this.currentTable} SET ?`,
             params
         );
     }
 
     async getAll () {
-        return mockData[`${this.tableName}`];
-        // return await this._promisify(
-        //     `SELECT * FROM ${this.tableName}`
-        // )
+        return await this._promisify(
+            `SELECT * FROM ${this.currentTable}`
+        )
     }
 
     async selectOneByID (params) {
         return await this._promisify(
-            `SELECT * FROM ${this.tableName} WHERE ?`,
+            `SELECT * FROM ${this.currentTable} WHERE ?`,
             params
         )
     }
