@@ -72,7 +72,7 @@ export default {
             // TODO: media query
             max-width: 100%;
             width: 40rem;
-            max-height: 25rem;
+            max-height: 35rem;
             background-color: #fff;
             display: flex;
             flex-flow: column nowrap;
