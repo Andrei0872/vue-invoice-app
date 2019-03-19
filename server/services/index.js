@@ -33,7 +33,6 @@ class Service {
     async getAll () {
         this.response = {};
 
-        // TODO: send columns if data is empty
         try {
             const data = await this.table.getAll();
 
@@ -41,7 +40,8 @@ class Service {
                 message: `Fetched from ${this.table.currentTable} successfully`,
                 status: 200,
                 data,
-                columns: this.table[this.table.currentTable].newItemsColumns
+                createColumns: this.table[this.table.currentTable].createColumns,
+                readColumns: this.table[this.table.currentTable].readColumns,
             }
         } catch (err) {
             this.response = {
