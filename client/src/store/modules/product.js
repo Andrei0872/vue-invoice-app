@@ -31,18 +31,12 @@ export const actions = {
         });
 
         try {
-            const { data, columns = null } = await dispatch('api/FETCH_DATA', state.url, { root: true });
-            
-            if (!data.length) {
-                commit('UPDATE_NEW_ITEMS_COLUMNS', columns)
-            } else {
-                const allFields = data[0];
-                // eslint-disable-next-line
-                const {id, provider_id = null, ...rest } = allFields;
+            const { data, createColumns = null, readColumns } = await dispatch('api/FETCH_DATA', state.url, { root: true });
 
-                commit('UPDATE_DATA', data);
-                commit('UPDATE_FIELDS', Object.keys(rest));
-            }
+            commit('UPDATE_NEW_ITEMS_COLUMNS', createColumns);
+
+            commit('UPDATE_DATA', data);
+            commit('UPDATE_FIELDS', readColumns);
 
             !(avoidChangingState)  && commit('CHANGE_STATE', true, {
                 root: true
