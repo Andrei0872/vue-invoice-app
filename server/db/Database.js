@@ -14,36 +14,51 @@ function capitalizeAndClean(name) {
 
 class Database {
     constructor() {
-        debug('Database constructor')
-        !!this.connection || this.connect()
+        debug('Database constructor');
+        this.tables = ['product', 'document', 'provider', 'document_product'];
+
+        (!!this.isConnecting) || this.connect()
     }
 
     async connect () {
+        // Avoid connecting multiple times while awaiting for the first connection to resolve
+        Database.prototype.isConnecting = true;
+        debug('connecting to db')
         this.connection = mysql.createConnection({
-                host: process.env.DB_HOST,
-                user: process.env.DB_USERNAME,
-                password: process.env.DB_PASSWORD,
-                database: process.env.DB_NAME
-            });
-
-        this.connection.connect(async (err, data) => {
-            if (err) {
-                console.error(err)
-                return;
-            }
-            
-            ['product', 'document', 'provider', 'document_product'].forEach(tableName => {
-                this[tableName] = require(`./${capitalizeAndClean(tableName)}.js`);
-            });
+            host: process.env.DB_HOST,
+            user: process.env.DB_USERNAME,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME
+        });
+        
+        try {
+            await this._promisifyConn();
 
             !(await this._tablesExist()) && this._createTables();
+
+            Database.prototype.isConnecting = false;
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
+    _promisifyConn () {
+        return new Promise((resolve, reject) => {
+            this.connection.connect((err, data) => {
+                if (err) reject(err)
+
+                resolve(data)
+            })
         })
     }
 
     async _createTables () {
-        ['product', 'document', 'provider', 'document_product'].forEach(tableName => {
-            this._creatTable(tableName, this[tableName].fields);
-        });
+        await Promise.all(this.tables.map(table => {
+            this[table] = require(`./${capitalizeAndClean(table)}.js`);
+            return this._creatTable(table, this[table].fields)
+        }))
+
+        debug('tables created!')
     }
 
     async _tablesExist () {
@@ -63,16 +78,10 @@ class Database {
         }
     }
 
-    _creatTable (tableName, tableFields) {
+    async _creatTable (tableName, tableFields) {
         const sql = `CREATE TABLE IF NOT EXISTS ${tableName} (?)`;
 
-        this.connection.query(sql, [mysql.raw(tableFields.join(', '))], (err, data) => {
-            if (err) {
-                return console.log(err)
-            }
-
-            debug(`tabel ${tableName} created!`)
-        });
+        await this._promisify(sql, [mysql.raw(tableFields.join(', '))])
     }
 
     _promisify (sql, params = null) {

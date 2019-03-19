@@ -1,6 +1,8 @@
 // TODO: DRY try-catch
+const debug = require('debug')('service')
 class Service {
     constructor (name) {
+        debug('new service', name)
         this.table = require('../db').useTable(name);
         this.table = new this.table();
 
