@@ -23,12 +23,12 @@ export const mutations = {
 
 export const actions = {
     fetchData: async ({ state, commit, dispatch }) => {
-        commit('CHANGE_STATE', null, { root: true });
+        commit('CHANGE_STATE', 'pending', { root: true });
 
         try {
             const { data } = await dispatch('api/FETCH_DATA', state.url, { root: true });
             
-            if (!data.length)
+            if (!data.length) 
                 throw new Error('empty!')
 
             const allFields = data[0];
@@ -38,8 +38,10 @@ export const actions = {
             commit('UPDATE_DATA', data);
             commit('UPDATE_FIELDS', Object.keys(rest));
             commit('CHANGE_STATE', true, { root: true })
-        } catch {
-            commit('CHANGE_STATE', false, { root: true });
+        } catch (err) {
+            err.status === 404 
+                ? commit('CHANGE_STATE', null, { root: true })
+                : commit('CHANGE_STATE', false, { root: true })
         }
     },
 
