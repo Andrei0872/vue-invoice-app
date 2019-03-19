@@ -2,6 +2,8 @@
 class Service {
     constructor (name) {
         this.table = require('../db').useTable(name);
+        this.table = new this.table();
+
         this.response = {};
     }
 
@@ -31,7 +33,7 @@ class Service {
 
         try {
             const data = await this.table.getAll();
-            
+
             this.response = {
                 message: `Fetched from ${this.table.tableName} successfully`,
                 status: 200,
