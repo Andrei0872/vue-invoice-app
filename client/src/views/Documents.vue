@@ -1,6 +1,6 @@
 <template>
     <div>
-        <VContent v-if="everythingReady" :entityName="entityName">
+        <VContent v-if="everythingReady === true" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTableRead 
                     :fields="fields" 
@@ -29,7 +29,7 @@
         <div v-else-if="everythingReady === false">
             There are no items
         </div>
-        <div v-else>
+        <div v-else-if="everythingReady === null">
             Some other error happened
         </div>
 
@@ -69,7 +69,7 @@ import uuidv1 from 'uuid/v1';
 import { mapActions, mapState } from 'vuex';
 
 export default {
-    name: 'products',
+    name: 'documents',
 
     components: { VContent, VModal, VTableCreate, VTableRead },
 
@@ -77,7 +77,7 @@ export default {
 
     data: () => ({
         selectedItem: {},
-        entityName: 'product',
+        entityName: 'document',
         isCreating: false,
     }),
 
@@ -132,7 +132,7 @@ export default {
         this.fetchData();
         
         if (!this.products.length) {
-            this.fetchProducts();
+            this.fetchProducts(true);
         }
     }
 }

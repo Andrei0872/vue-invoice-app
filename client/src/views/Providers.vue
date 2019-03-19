@@ -1,6 +1,6 @@
 <template>
     <div>
-        <VContent v-if="everythingReady" :entityName="entityName">
+        <VContent v-if="everythingReady === true" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTableRead 
                     :fields="fields" 
@@ -26,7 +26,7 @@
         <div v-else-if="everythingReady === false">
             There are no items
         </div>
-        <div v-else>
+        <div v-else-if="everythingReady === null">
             Some other error happened
         </div>
 
