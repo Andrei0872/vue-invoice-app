@@ -16,11 +16,6 @@ class Database {
     constructor() {
         debug('Database constructor')
         !!this.connection || this.connect()
-        this.currentTable = null;
-
-        ['product', 'document', 'provider', 'document_product'].forEach(tableName => {
-            this[tableName] = require(`./${capitalizeAndClean(tableName)}.js`);
-        });
     }
 
     async connect () {
@@ -36,6 +31,10 @@ class Database {
                 console.error(err)
                 return;
             }
+            
+            ['product', 'document', 'provider', 'document_product'].forEach(tableName => {
+                this[tableName] = require(`./${capitalizeAndClean(tableName)}.js`);
+            });
 
             !(await this._tablesExist()) && this._createTables();
         })
@@ -56,9 +55,12 @@ class Database {
     }
 
     useTable (tableName) {
-        this.currentTable = tableName;
-        
-        return this;
+        return class extends Database {
+            constructor () {
+                super();
+                this.currentTable = tableName
+            }
+        }
     }
 
     _creatTable (tableName, tableFields) {
