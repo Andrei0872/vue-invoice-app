@@ -34,8 +34,8 @@ class Database {
         });
         
         try {
-            await this._promisifyConn();
             this._initTables();
+            await this._promisifyConn();
 
             !(await this._tablesExist()) && this._createTables();
 
