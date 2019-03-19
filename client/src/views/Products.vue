@@ -3,12 +3,16 @@
         <VContent @addNewItems="addNewItems" v-if="everythingReady === true" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTableRead 
+                    v-if="items.length"
                     :fields="fields" 
                     :items="items" 
                     @update="update($event)"
                     @showInfo="showInfo($event)"
                     @deleteRow="deleteRow('items', $event)"
-                />  
+                />
+                <div v-else class="no-items">
+                    There are no items!
+                </div>
             </template>
             <template v-slot:createItems>
                  <div @click="addRow" class="icon icon--add-row">
@@ -16,17 +20,14 @@
                 </div>
                 <VTableCreate 
                     @deleteRow="deleteRow('newItems', $event)" 
-                    :fields="fields" 
+                    :fields="newItemsColumns" 
                     :items="newItems"
                     @addField="addField($event)"
                     @init="init"
                 />
             </template>
         </VContent>
-        <div v-else-if="everythingReady === false">
-            There are no items
-        </div>
-        <div v-else-if="everythingReady === null">
+        <div v-else-if="everythingReady !== 'pending'">
             Some other error happened
         </div>
 
@@ -86,7 +87,7 @@ export default {
 
         // TODO: add to utils / global mixin
         createRandomObj () {
-            return Object.assign({}, ... (this.fields.map(field => ({ [field]: '' }))), { id: uuidv1() });
+            return Object.assign({}, ... (this.newItemsColumns.map(field => ({ [field]: '' }))), { id: uuidv1() });
         },
 
         showInfo (row) {
@@ -127,7 +128,7 @@ export default {
     },
 
     computed: {
-        ...mapState('product', ['items', 'fields', 'newItems']),
+        ...mapState('product', ['items', 'fields', 'newItems', 'newItemsColumns']),
         ...mapState(['everythingReady'])
     },
 
@@ -139,7 +140,7 @@ export default {
 
 <style lang="scss" scoped>
     $modal-text-color: darken($color: #394263, $amount: 10%);
-    
+
     @import '../styles/common.scss';
     @import '../styles/modal.scss';
 </style>

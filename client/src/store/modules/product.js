@@ -26,25 +26,18 @@ export const mutations = {
 export const actions = {
     fetchData: async ({ state, commit, dispatch }, avoidChangingState = false) => {
         
-        !(avoidChangingState) && commit('CHANGE_STATE', 'pending', {
-            root: true
-        });
+        !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
 
         try {
             const { data, createColumns = null, readColumns } = await dispatch('api/FETCH_DATA', state.url, { root: true });
 
             commit('UPDATE_NEW_ITEMS_COLUMNS', createColumns);
-
             commit('UPDATE_DATA', data);
             commit('UPDATE_FIELDS', readColumns);
 
-            !(avoidChangingState)  && commit('CHANGE_STATE', true, {
-                root: true
-            })
-        } catch (err) {
-            err.status === 404 
-                ? commit('CHANGE_STATE', null, { root: true })
-                : commit('CHANGE_STATE', false, { root: true })
+            !(avoidChangingState)  && commit('CHANGE_STATE', true, { root: true })
+        } catch {
+            commit('CHANGE_STATE', null, { root: true })
         }
     },
 
