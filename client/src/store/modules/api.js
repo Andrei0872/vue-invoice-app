@@ -20,7 +20,7 @@ export const actions = {
                 
                 resolve((await initialResponse.json()))
             } catch (err) {
-                reject((await err.text()))
+                reject(err)
             }
         });
     }
