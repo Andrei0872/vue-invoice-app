@@ -8,6 +8,7 @@ module.exports = {
         "markup DECIMAL(7, 2) NOT NULL",
         "price_sell DECIMAL(7, 2) NOT NULL",
         "comestible BOOLEAN",
+        "currency CHAR(1)",
         "expiration_date DATETIME",
         "inserted_date TIMESTAMP",
         "deleted_date DATETIME"
