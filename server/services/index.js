@@ -33,17 +33,20 @@ class Service {
     async getAll () {
         this.response = {};
 
+        // TODO: send columns if data is empty
         try {
             const data = await this.table.getAll();
 
             this.response = {
-                message: `Fetched from ${this.table.tableName} successfully`,
+                message: `Fetched from ${this.table.currentTable} successfully`,
                 status: 200,
-                data
+                data,
+                columns: this.table[this.table.currentTable].newItemsColumns
             }
         } catch (err) {
             this.response = {
-                message: `Failed to fetch from ${this.table.tableName}`,
+                message: `Failed to fetch from ${this.table.currentTable}`,
+                reason: err.message,
                 status: 400
             }
         }

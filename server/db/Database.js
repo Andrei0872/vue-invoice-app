@@ -12,10 +12,12 @@ function capitalizeAndClean(name) {
     )
 }
 
+
+
 class Database {
     constructor() {
         debug('Database constructor');
-        this.tables = ['product', 'document', 'provider', 'document_product'];
+        // TODO: make this an object so that subclasses can send the columns if the the a tables is empty
 
         (!!this.isConnecting) || this.connect()
     }
@@ -33,13 +35,22 @@ class Database {
         
         try {
             await this._promisifyConn();
+            this._initTables();
 
             !(await this._tablesExist()) && this._createTables();
 
             Database.prototype.isConnecting = false;
+            Database.prototype.connection = this.connection;
         } catch (err) {
             console.error(err)
         }
+    }
+
+    _initTables () {
+        // TODO: do something with this hard-coded array...
+        ['product', 'document', 'provider', 'document_product'].forEach(table => {
+            Database.prototype[table] = require(`./${capitalizeAndClean(table)}.js`);
+        })
     }
 
     _promisifyConn () {
@@ -53,9 +64,8 @@ class Database {
     }
 
     async _createTables () {
-        await Promise.all(this.tables.map(table => {
-            this[table] = require(`./${capitalizeAndClean(table)}.js`);
-            return this._creatTable(table, this[table].fields)
+        await Promise.all(['product', 'document', 'provider', 'document_product'].map(table => {
+            return this._creatTable(table, Database.prototype[table].fields)
         }))
 
         debug('tables created!')

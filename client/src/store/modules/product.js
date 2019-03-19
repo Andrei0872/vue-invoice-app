@@ -4,12 +4,15 @@ export const state = {
     items: [],
     fields: [],
     newItems: [],
+    newItemsColumns: [],
     url: 'http://localhost:3000/products'
 }
 
 // TODO: remove logic from here and add it to actions
 export const mutations = {
     UPDATE_DATA: (state, payload) => state.items = payload,
+
+    UPDATE_NEW_ITEMS_COLUMNS: (state, payload) => state.newItemsColumns = payload,
 
     UPDATE_NEW_DATA: (state, payload) => state.newItems = payload,
     
@@ -28,17 +31,19 @@ export const actions = {
         });
 
         try {
-            const { data } = await dispatch('api/FETCH_DATA', state.url, { root: true });
+            const { data, columns = null } = await dispatch('api/FETCH_DATA', state.url, { root: true });
             
-            if (!data.length)
-                throw new Error('empty!')
+            if (!data.length) {
+                commit('UPDATE_NEW_ITEMS_COLUMNS', columns)
+            } else {
+                const allFields = data[0];
+                // eslint-disable-next-line
+                const {id, provider_id = null, ...rest } = allFields;
 
-            const allFields = data[0];
-            // eslint-disable-next-line
-            const {id, provider_id = null, ...rest } = allFields;
+                commit('UPDATE_DATA', data);
+                commit('UPDATE_FIELDS', Object.keys(rest));
+            }
 
-            commit('UPDATE_DATA', data);
-            commit('UPDATE_FIELDS', Object.keys(rest));
             !(avoidChangingState)  && commit('CHANGE_STATE', true, {
                 root: true
             })
