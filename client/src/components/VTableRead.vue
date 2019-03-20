@@ -90,7 +90,14 @@ export default {
             inputValue: '',
             selectedRowId: '',
             selectedField: '',
-            alreadyUpdated: false,
+            /* 
+            Useful when using the VList component
+            Because as soon as we select an item, the blur event will occur
+            And that will basically cancel the initial change
+            In order to prevent that, when an item is selected, we will set this variable to true
+            So the blur event won't override the change we meant
+            */
+            alreadyUpdated: false, 
             untouchedRow: null
         }
     },
