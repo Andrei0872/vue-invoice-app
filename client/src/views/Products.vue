@@ -37,7 +37,7 @@
             </template>
             <template v-slot:body>
                 <div
-                    v-for="field in fields"
+                    v-for="field in readColumns"
                     :key="field"
                     class="modal-body__row"
                 >
