@@ -9,7 +9,7 @@ module.exports = {
         "price_sell DECIMAL(7, 2) NOT NULL",
         "comestible BOOLEAN",
         "currency CHAR(1)",
-        "expiration_date DATETIME",
+        "expiration_date DATE",
         "inserted_date TIMESTAMP",
     ]
 };
