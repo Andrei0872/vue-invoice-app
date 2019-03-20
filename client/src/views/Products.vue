@@ -4,7 +4,7 @@
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="items.length"
-                    :fields="fields" 
+                    :fields="readColumns" 
                     :items="items" 
                     @update="update($event)"
                     @showInfo="showInfo($event)"
@@ -20,7 +20,7 @@
                 </div>
                 <VTableCreate 
                     @deleteRow="deleteRow('newItems', $event)" 
-                    :fields="newItemsColumns" 
+                    :fields="createColumns" 
                     :items="newItems"
                     @addField="addField($event)"
                     @init="init"
@@ -77,6 +77,29 @@ export default {
         selectedItem: {},
         entityName: 'product',
         isCreating: false,
+        createColumns: [
+            "name",
+            "category",
+            "sub_category",
+            "price_buy",
+            "markup",
+            "price_sell",
+            "comestible",
+            "currency",
+            "expiration_date",
+        ],
+        readColumns: [
+            "name",
+            "category",
+            "sub_category",
+            "price_buy",
+            "markup",
+            "price_sell",
+            "comestible",
+            "currency",
+            "expiration_date",
+            "inserted_date"
+        ]
     }),
 
     methods: {
@@ -87,7 +110,7 @@ export default {
 
         // TODO: add to utils / global mixin
         createRandomObj () {
-            return Object.assign({}, ... (this.newItemsColumns.map(field => ({ [field]: '' }))), { id: uuidv1() });
+            return Object.assign({}, ... (this.createColumns.map(field => ({ [field]: '' }))), { id: uuidv1() });
         },
 
         showInfo (row) {
@@ -128,7 +151,7 @@ export default {
     },
 
     computed: {
-        ...mapState('product', ['items', 'fields', 'newItems', 'newItemsColumns']),
+        ...mapState('product', ['items', 'fields', 'newItems']),
         ...mapState(['everythingReady'])
     },
 

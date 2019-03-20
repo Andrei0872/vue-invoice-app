@@ -4,15 +4,12 @@ export const state = {
     items: [],
     fields: [],
     newItems: [],
-    newItemsColumns: [],
     url: 'http://localhost:3000/products'
 }
 
 // TODO: remove logic from here and add it to actions
 export const mutations = {
     UPDATE_DATA: (state, payload) => state.items = payload,
-
-    UPDATE_NEW_ITEMS_COLUMNS: (state, payload) => state.newItemsColumns = payload,
 
     UPDATE_NEW_DATA: (state, payload) => state.newItems = payload,
     
@@ -29,11 +26,11 @@ export const actions = {
         !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
 
         try {
-            const { data, createColumns = null, readColumns } = await dispatch('api/FETCH_DATA', state.url, { root: true });
+            const { data } = await dispatch('api/FETCH_DATA', state.url, { root: true });
 
-            commit('UPDATE_NEW_ITEMS_COLUMNS', createColumns);
+            // commit('UPDATE_NEW_ITEMS_COLUMNS', createColumns);
             commit('UPDATE_DATA', data);
-            commit('UPDATE_FIELDS', readColumns);
+            // commit('UPDATE_FIELDS', readColumns);
 
             !(avoidChangingState)  && commit('CHANGE_STATE', true, { root: true })
         } catch {

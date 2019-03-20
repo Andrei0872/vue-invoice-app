@@ -11,28 +11,5 @@ module.exports = {
         "currency CHAR(1)",
         "expiration_date DATETIME",
         "inserted_date TIMESTAMP",
-    ],
-    createColumns: [
-        "name",
-        "category",
-        "sub_category",
-        "price_buy",
-        "markup",
-        "price_sell",
-        "comestible",
-        "currency",
-        "expiration_date",
-    ],
-    readColumns: [
-        "name",
-        "category",
-        "sub_category",
-        "price_buy",
-        "markup",
-        "price_sell",
-        "comestible",
-        "currency",
-        "expiration_date",
-        "inserted_date"
     ]
 };

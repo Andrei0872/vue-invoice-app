@@ -40,8 +40,6 @@ class Service {
                 message: `Fetched from ${this.table.currentTable} successfully`,
                 status: 200,
                 data,
-                createColumns: this.table[this.table.currentTable].createColumns,
-                readColumns: this.table[this.table.currentTable].readColumns,
             }
         } catch (err) {
             this.response = {
