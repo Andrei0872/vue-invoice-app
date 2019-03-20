@@ -6,12 +6,12 @@ class Controller {
     }
 
     insertOne (req, res) {
-        const paramsBody = req.params.body;
+        const body = req.body;
 
-        this.service.insertOne(paramsBody);
+        this.service.insertOne(body);
 
         res.json({
-            message: 'success'
+            message: 'success!'
         })
     }
 
