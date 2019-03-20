@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions, mapState } from 'vuex';
 
 import VButton from '../components/VButton';
 
@@ -55,6 +55,8 @@ export default {
         ...mapGetters({
             newItems: 'getEntityNewItems'
         }),
+
+        ...mapState(['currentEntity'])
     },
 
     data: () => ({
@@ -63,14 +65,18 @@ export default {
 
     methods: {
         addNewItems () {
-            console.log(this.newItems)
-
+            
             if (!this.newItems.length)
                 return;
 
-            const allValid = this.filterNewItems(this.newItems)
+            const entityName = this.currentEntity.slice(0, -1);
 
-            allValid && (this.isCreating = false, console.log('creating data..'))
+            this.$store.dispatch(`${entityName}/insertItem`, this.newItems)
+
+            this.isCreating = false
+            // const allValid = this.filterNewItems(this.newItems)
+
+            // allValid && (this.isCreating = false, console.log('creating data..'))
         },
 
         filterNewItems (arr) {

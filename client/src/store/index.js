@@ -19,9 +19,8 @@ export default new Vuex.Store({
     getters: {
         getEntityNewItems: state => {
             const entityName = state.currentEntity.slice(0, -1)
-
             return state[entityName].newItems
-        }
+        },
     },
 
     mutations: {
@@ -31,7 +30,7 @@ export default new Vuex.Store({
     },
 
     actions: {
-        changeEntity: ({ commit }, payload) => commit('CHANGE_ENTITY', payload)
+        changeEntity: ({ commit }, payload) => commit('CHANGE_ENTITY', payload),
     },
 
     modules: {

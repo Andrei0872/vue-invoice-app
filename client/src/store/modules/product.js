@@ -1,3 +1,7 @@
+
+import { getRidOfObjProp } from "../../utils/index";
+import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from "constants";
+
 export const namespaced = true;
 
 export const state = {
@@ -5,6 +9,10 @@ export const state = {
     fields: [],
     newItems: [],
     url: 'http://localhost:3000/products'
+}
+
+export const getters = {
+    insertOneUrl: state => `${state.url}/insert`
 }
 
 // TODO: remove logic from here and add it to actions
@@ -28,9 +36,7 @@ export const actions = {
         try {
             const { data } = await dispatch('api/FETCH_DATA', state.url, { root: true });
 
-            // commit('UPDATE_NEW_ITEMS_COLUMNS', createColumns);
             commit('UPDATE_DATA', data);
-            // commit('UPDATE_FIELDS', readColumns);
 
             !(avoidChangingState)  && commit('CHANGE_STATE', true, { root: true })
         } catch {
@@ -60,5 +66,17 @@ export const actions = {
         itemsCopy[indexRow] = {... itemsCopy[indexRow], ...changes}
         
         commit('UPDATE_DATA', itemsCopy)
+    }, 
+
+    insertItem: async ({ getters, dispatch }, payload) => {
+        try {
+            // TODO: update array
+            payload = payload.map(row => getRidOfObjProp(row, 'id'))
+            await dispatch('api/insertItem', { url: getters.insertOneUrl, payload }, { root: true });
+
+            dispatch('fetchData', true);
+        } catch (err) {
+            console.error(err)
+        }
     }
 }

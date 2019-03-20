@@ -12,8 +12,6 @@ function capitalizeAndClean(name) {
     )
 }
 
-
-
 class Database {
     constructor() {
         debug('Database constructor');
@@ -100,7 +98,10 @@ class Database {
 
         return new Promise((resolve, reject) => {
             this.connection.query(...neededParams, (err, data) => {
-                if (err) reject(err);
+                if (err) {
+                    console.log(err)
+                    reject(err);
+                }
 
                 resolve(data)
             });
@@ -109,8 +110,8 @@ class Database {
 
     async insertOne(params) {
         return await this._promisify(
-            `INSERT INTO ${this.currentTable} SET ?`,
-            params
+            `INSERT INTO ${this.currentTable} (${Object.keys(params[0]).join(', ')}) VALUES ?`,
+            [params.map(row => Object.values(row))]
         );
     }
 
