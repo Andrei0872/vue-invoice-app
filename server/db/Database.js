@@ -3,15 +3,7 @@ const mysql = require('mysql');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const debug = require('debug')('db:Database');
 
-// TODO: add to utils
-function capitalizeAndClean(name) {
-    return name.replace(
-        /(?<=_|^)([a-z]+)/g, match => {
-            return match[0].toUpperCase() + match.slice(1)
-        }
-    )
-}
-
+const { capitalizeAndClean } = require('../utils/index');
 class Database {
     constructor() {
         debug('Database constructor');
