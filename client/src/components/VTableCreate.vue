@@ -70,7 +70,7 @@ export default {
 
     computed: {
         VList () {
-            // TODO: optimize it!
+            // TODO: optimize it! - mixin & directory
             return this.$store.state['currentEntity'] === 'documents' 
                 ? () => import('./VList.vue') 
                 : false
