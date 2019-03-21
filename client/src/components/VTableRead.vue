@@ -49,7 +49,7 @@
                                 :key="row[field]"
                                 class="the-input"
                                 :placeholder="field"
-                                :value="row[field] || row[field] === 0 ? row[field] : ''"
+                                :value="row[field] || row[field] === 0 ? `${row[field]}`.trim() : ''"
                                 @input="inputValue = $event"
                                 @focus.native="handleFocus(row.id, field, $event)"
                                 @blur.native="addField(row, field, $event)"
@@ -175,10 +175,9 @@ export default {
         },
 
         compareChanges (rowBeforeChanges, rowAfterChange) {
-
             return Object.entries(rowAfterChange)
                 .reduce((changes, [key, value]) => {
-                    return rowBeforeChanges[key] !== value 
+                    return rowBeforeChanges[key] !== value
                         ? (changes[key] = value, changes) 
                         : changes
 
@@ -193,9 +192,9 @@ export default {
         confirmChanges (row) {
             
             if (!this.alreadyUpdated) {
-                const changes = this.compareChanges(row, this.selectedRow);
-            
-                !(this.isObjectEmpty(changes)) && this.$emit('update', [row.id, changes]);
+                const changes = this.compareChanges(this.untouchedRow, this.selectedRow);
+
+                !(this.isObjectEmpty(changes)) && this.$emit('update', { ...changes, id: row.id });
 
                 this.alreadyUpdated = false;
             }
@@ -216,8 +215,8 @@ export default {
             if (!this.selectedRowId)
                 return;
             
-            this.selectedRow[fieldName] = ev.target.value;
-            row[fieldName] = ev.target.value;
+            this.selectedRow[fieldName] = ev.target.value.trim();
+            row[fieldName] = ev.target.value.trim();
         },
 
         showInfo (row) {
