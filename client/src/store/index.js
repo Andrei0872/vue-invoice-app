@@ -8,12 +8,13 @@ import * as api from './modules/api';
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
     strict: process.env.NODE_ENV !== 'production',
     
     state: {
         everythingReady: null,
-        currentEntity: null
+        currentEntity: null,
+        mainUrl: 'http://localhost:3000/',
     },
 
     getters: {
@@ -39,4 +40,21 @@ export default new Vuex.Store({
         document,
         provider,
     }
+});
+
+// Every time the user updates an item, changes the values locally, but also make a db call to have the new results on refresh etc..
+store.subscribeAction(action => {
+    const currentEntity = store.state.currentEntity && store.state.currentEntity.slice(0, -1) || null
+
+    if (currentEntity && action.type === `${currentEntity}/updateItems`) {
+        
+        const data = {
+            url: `${store.state.mainUrl}${currentEntity}s`,
+            payload: action.payload
+        }
+
+        store.dispatch(`api/updateItem`, data)
+    }
 })
+
+export default store;
