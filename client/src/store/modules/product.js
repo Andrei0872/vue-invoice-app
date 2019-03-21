@@ -59,7 +59,7 @@ export const actions = {
 
     reset_arr: ({ commit }, payload) => commit('RESET_ARR', payload),
 
-    updateItems: ({ state, commit }, [id, changes]) => {
+    updateItems: ({ state, commit }, { id, ...changes }) => {
         const indexRow = state.items.findIndex(item => item.id === id);
         const itemsCopy = JSON.parse(JSON.stringify(state.items))
 
@@ -78,5 +78,5 @@ export const actions = {
         } catch (err) {
             console.error(err)
         }
-    }
+    },
 }
