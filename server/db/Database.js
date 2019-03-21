@@ -123,6 +123,13 @@ class Database {
         )
     }
 
+    async deleteOne (id) {
+        return await this._promisify(
+            `DELETE FROM ${this.currentTable} WHERE id = ?`,
+            id
+        )
+    }
+
 }
 
 module.exports = Database;

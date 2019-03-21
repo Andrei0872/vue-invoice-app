@@ -75,6 +75,20 @@ class Service {
 
         return response;
     }
+
+    async deleteOne ({ id }) {
+        try {
+            await this.table.deleteOne(id);
+
+            return {
+                message: 'Successfully deleted'
+            }
+        } catch {
+            return {
+                message: 'Error deleting'
+            }
+        }
+    }
 }
 
 module.exports = Service;

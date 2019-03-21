@@ -9,7 +9,7 @@
                     :items="items" 
                     @update="update($event)"
                     @showInfo="showInfo($event)"
-                    @deleteRow="deleteRow('items', $event)"
+                    @deleteRow="deleteRow($event)"
                 />
                 <div v-else class="no-items">
                     There are no items!
@@ -20,7 +20,7 @@
                     <font-awesome-icon icon="plus-circle" />
                 </div>
                 <VTableCreate 
-                    @deleteRow="deleteRow('newItems', $event)" 
+                    @deleteRow="deleteRowInstantly($event)" 
                     :fields="createColumns" 
                     :items="newItems"
                     @addField="addField($event)"
@@ -132,15 +132,18 @@ export default {
             this.addItem(this.createRandomObj());
         },
 
-        deleteRow (prop, row) {
+        deleteRow (row) {
             this.isAboutToDelete = true;
             this.selectedItem = { ...row };
             this.showDetails = true;
-            this.stateProp = prop;
+        },
+
+        deleteRowInstantly (rowId) {
+            this.deleteItem({ prop: 'newItems', id: rowId });
         },
 
         confirmDelete () {
-            this.deleteItem({ prop: this.stateProp, id: this.selectedItem.id });
+            this.deleteItem({ prop: 'items', id: this.selectedItem.id });
             this.resetModalContent();
         },
 

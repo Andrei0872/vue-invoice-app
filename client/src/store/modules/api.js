@@ -8,7 +8,8 @@ export const getters = {
         method: "POST"
     }),
 
-    updateEndpoint: () => '/update'
+    updateEndpoint: () => '/update',
+    deleteEndpoint: () => '/delete'
 }
 
 // TODO: make one action to perform the request
@@ -57,6 +58,19 @@ export const actions = {
         }
     },
 
+    deleteItem: async ({ getters, dispatch }, { url, payload: id }) => {
+        url += getters.deleteEndpoint;
+        const config = { body: JSON.stringify({ id }), ...getters.config, method: "DELETE" };
+
+        try {
+            const response = await dispatch('makeRequest', { url, config })
+
+            console.log('response', response)
+        } catch (err) {
+            console.error(err)
+        }
+    },
+
     makeRequest: (_, { url, config }) => {
         return new Promise(async (resolve, reject) => {
             try {
@@ -70,5 +84,6 @@ export const actions = {
                 reject(err);
             }
         });
-    }
+    },
+    // TODO: add parseResponse or smth like that
 }

@@ -28,6 +28,14 @@ class Controller {
 
         res.json(responseFromDB)
     }
+
+    async deleteOne (req, res) {
+        const { body } = req;
+        
+        const responseFromDB = await this.service.deleteOne(body);
+
+        res.json(responseFromDB)
+    }
 }
 
 module.exports = Controller;

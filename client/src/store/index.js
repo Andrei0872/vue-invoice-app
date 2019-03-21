@@ -43,6 +43,7 @@ const store = new Vuex.Store({
 });
 
 // Every time the user updates an item, changes the values locally, but also make a db call to have the new results on refresh etc..
+// TODO: refactor a little bit
 store.subscribeAction(action => {
     const currentEntity = store.state.currentEntity && store.state.currentEntity.slice(0, -1) || null
 
@@ -54,6 +55,14 @@ store.subscribeAction(action => {
         }
 
         store.dispatch(`api/updateItem`, data)
+    } else if (action.type === `${currentEntity}/deleteItem` && action.payload.prop === 'items') {
+        
+        const data = {
+            url: `${store.state.mainUrl}${currentEntity}s`,
+            payload: action.payload.id
+        }
+
+        store.dispatch('api/deleteItem', data);
     }
 })
 
