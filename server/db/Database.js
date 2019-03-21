@@ -4,6 +4,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const debug = require('debug')('db:Database');
 
 const { capitalizeAndClean } = require('../utils/index');
+
 class Database {
     constructor() {
         debug('Database constructor');
@@ -100,6 +101,8 @@ class Database {
         });
     }
 
+    // TODO: change name to insertMany...
+    // TODO: perform logic in service
     async insertOne(params) {
         return await this._promisify(
             `INSERT INTO ${this.currentTable} (${Object.keys(params[0]).join(', ')}) VALUES ?`,
@@ -113,12 +116,13 @@ class Database {
         )
     }
 
-    async selectOneByID (params) {
+    async updateOne (keys, values) {
         return await this._promisify(
-            `SELECT * FROM ${this.currentTable} WHERE ?`,
-            params
+            `UPDATE ${this.currentTable} SET ${keys} WHERE id = ?`,
+            values
         )
     }
+
 }
 
 module.exports = Database;

@@ -9,7 +9,6 @@ class Service {
         this.response = {};
     }
 
-    // Business Logic
     async insertOne (params) {
         this.response = {};
 
@@ -31,46 +30,50 @@ class Service {
     }
 
     async getAll () {
-        this.response = {};
+        let response = {};
 
         try {
             const data = await this.table.getAll();
 
-            this.response = {
+            response = {
                 message: `Fetched from ${this.table.currentTable} successfully`,
                 status: 200,
                 data,
             }
         } catch (err) {
-            this.response = {
+            response = {
                 message: `Failed to fetch from ${this.table.currentTable}`,
                 reason: err.message,
                 status: 400
             }
         }
 
-        return this.response;
+        return response;
     }
 
-    async selectOneByID (params) {
-        this.response = {};
+    async updateOne (params) {
+        let response = {};
 
         try {
-            const data = await this.table.selectOneByID(params);
+            const { id, ...changes } = params
+            const punctuation = [', ', ' '];
 
-            this.response = {
-                message: `Fetched one single item from ${this.table.tableName} successfully`,
-                status: 200,
-                data
+            const keys = Object.keys(changes).map(
+                (change, index, arr) => `${change} = ?${punctuation[~~(index === arr.length - 1)]}`
+            ).join('')
+            const values = [...Object.values(changes), id]
+            await this.table.updateOne(keys, values);
+
+            response = {
+                message: 'Successfully updated!',
             }
-        } catch (err) {
-            this.response = {
-                message: `Failed to fetch a single item from ${this.table.tableName}`,
-                status: 400
+        } catch {
+            response = {
+                message: 'There has been an error updating!',
             }
         }
 
-        return this.response;
+        return response;
     }
 }
 

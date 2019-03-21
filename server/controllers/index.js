@@ -21,13 +21,12 @@ class Controller {
         res.status(responseFromDB.status).json(responseFromDB);
     }
 
-    async selectOneByID (req, res) {
-        const { id } = req.params;
-        const responseFromDB = await this.service.selectOneByID ({
-            id
-        });
+    async updateOne (req, res) {
+        const { body } = req;
+        
+        const responseFromDB = await this.service.updateOne(body);
 
-        res.status(responseFromDB.status).json(responseFromDB);
+        res.json(responseFromDB)
     }
 }
 

@@ -7,6 +7,8 @@ export const getters = {
         }),
         method: "POST"
     }),
+
+    updateEndpoint: () => '/update'
 }
 
 // TODO: make one action to perform the request
@@ -40,5 +42,33 @@ export const actions = {
                 reject(err)
             }
         })
+    },
+
+    updateItem: async ({ getters, dispatch }, { url, payload }) => {
+        url += getters.updateEndpoint;
+        const config = { body: JSON.stringify(payload), ...getters.config, method: "PUT" };
+
+        try {
+            const response = await dispatch('makeRequest', { url, config });
+
+            console.log(response)
+        } catch (err) {
+            console.error(err)
+        }
+    },
+
+    makeRequest: (_, { url, config }) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const initialResponse = await fetch(url, config);
+
+                if (!initialResponse.ok)
+                    throw initialResponse;
+                
+                resolve((await initialResponse.json()))
+            } catch (err) {
+                reject(err);
+            }
+        });
     }
 }
