@@ -1,6 +1,5 @@
 
 import { getRidOfObjProp } from "../../utils/index";
-import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from "constants";
 
 export const namespaced = true;
 

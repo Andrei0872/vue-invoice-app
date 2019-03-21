@@ -1,11 +1,17 @@
+
+import { getRidOfObjProp } from "../../../utils/index";
+
 export const namespaced = true;
 
-export const state = {
+export const state = () => ({
     items: [],
     fields: [],
     newItems: [],
-    fieldsWhenCreating: ["provider_name", "URC", "address"],
-    url: 'http://localhost:3000/providers'
+    url: 'http://localhost:3000/products'
+})
+
+export const getters = {
+    insertOneUrl: state => `${state.url}/insert`
 }
 
 // TODO: remove logic from here and add it to actions
@@ -52,12 +58,24 @@ export const actions = {
 
     reset_arr: ({ commit }, payload) => commit('RESET_ARR', payload),
 
-    updateItems: ({ state, commit }, [id, changes]) => {
+    updateItems: ({ state, commit }, { id, ...changes }) => {
         const indexRow = state.items.findIndex(item => item.id === id);
         const itemsCopy = JSON.parse(JSON.stringify(state.items))
 
         itemsCopy[indexRow] = {... itemsCopy[indexRow], ...changes}
         
         commit('UPDATE_DATA', itemsCopy)
-    }
+    }, 
+
+    // insertItem: async ({ getters, dispatch }, payload) => {
+    //     try {
+    //         // TODO: update array
+    //         payload = payload.map(row => getRidOfObjProp(row, 'id'))
+    //         await dispatch('api/insertItem', { url: getters.insertOneUrl, payload }, { root: true });
+
+    //         dispatch('fetchData', true);
+    //     } catch (err) {
+    //         console.error(err)
+    //     }
+    // },
 }

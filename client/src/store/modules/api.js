@@ -58,6 +58,7 @@ export const actions = {
         }
     },
 
+    // TODO: update the current entity's module directly
     deleteItem: async ({ getters, dispatch }, { url, payload: id }) => {
         url += getters.deleteEndpoint;
         const config = { body: JSON.stringify({ id }), ...getters.config, method: "DELETE" };

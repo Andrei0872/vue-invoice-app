@@ -1,14 +1,18 @@
 <template>
     <div>
-        <VContent v-if="everythingReady === true" :entityName="entityName">
+        <!-- <VContent v-if="everythingReady === true" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTableRead 
+                    v-if="items.length"
                     :fields="fields" 
                     :items="items" 
                     @update="update($event)"
                     @showInfo="showInfo($event)"
                     @deleteRow="deleteRow('items', $event)"
-                />  
+                />
+                <div v-else class="no-items">
+                    There are no providers!
+                </div>
             </template>
             <template v-slot:createItems>
                  <div @click="addRow" class="icon icon--add-row">
@@ -23,34 +27,10 @@
                 />
             </template>
         </VContent>
-        <div v-else-if="everythingReady === false">
-            There are no items
-        </div>
         <div v-else-if="everythingReady === null">
             Some other error happened
-        </div>
-
-        <VModal :showModal="showDetails" @closeModal="closeModal">
-            <template v-slot:header>
-                {{ selectedItem.name || 'name' }}
-            </template>
-            <template v-slot:body>
-                <div
-                    v-for="field in fields"
-                    :key="field"
-                    class="modal-body__row"
-                >
-                    <div class="modal-body__prop"><span>{{ field }}</span></div>
-                    <div class="modal-body__arrow"><font-awesome-icon icon="arrow-right" /></div>
-                    <div class="modal-body__value">
-                        <span>{{ selectedItem[field] }}</span>
-                    </div>
-                </div>
-            </template>
-            <template v-slot:footer>
-                <!-- {{ selectedItem }} -->
-            </template>
-        </VModal>
+        </div> -->
+        {{ items }}
     </div>
 </template>
 
@@ -61,9 +41,13 @@ import VTableCreate from '../components/VTableCreate';
 import VTableRead from '../components/VTableRead';
 import modalMixin from '../mixins/modalMixin';
 
+const entityName = 'provider';
+
 import uuidv1 from 'uuid/v1';
 
-import { mapActions, mapState } from 'vuex';
+import { createNamespacedHelpers } from 'vuex';
+import * as common from '@/store/modules/common';
+const { mapState, mapActions } = createNamespacedHelpers(entityName)
 
 export default {
     name: 'products',
@@ -74,8 +58,8 @@ export default {
 
     data: () => ({
         selectedItem: {},
-        entityName: 'provider',
         isCreating: false,
+        fields: ['test1', 'test2', 'test3'],
     }),
 
     methods: {
@@ -117,18 +101,27 @@ export default {
             this.updateItems(changesArr);
         },
 
-        ...mapActions('provider', [
-            'fetchData', 'addItem', 'deleteItem', 'addFieldValue', 'reset_arr', 'updateItems'
-        ])
+        // ...mapActions(entityName, [
+        //     'fetchData', 'addItem', 'deleteItem', 'addFieldValue', 'reset_arr', 'updateItems'
+        // ])
     },
 
     computed: {
-        ...mapState('provider', ['items', 'fields', 'newItems', 'fieldsWhenCreating']),
-        ...mapState(['everythingReady'])
+        everythingReady () {
+            console.log(mapState)
+            return this.$store.state['everyrthingReady']
+        },
+        ...mapState(['items'])
     },
 
-    created () {
-        this.fetchData();
+    async created () {
+        // this.fetchData();
+        !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
+
+        const r = await this.$store.dispatch('api/FETCH_DATA', 'http://localhost:3000/providers');
+
+        this.$store.commit(`${entityName}/UPDATE_DATA`, r.data);
+        
     }
 }
 </script>

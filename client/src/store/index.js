@@ -38,7 +38,7 @@ const store = new Vuex.Store({
         product,
         api,
         document,
-        provider,
+        // provider,
     }
 });
 
