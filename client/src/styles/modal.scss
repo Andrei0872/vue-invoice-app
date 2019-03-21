@@ -44,3 +44,30 @@
         margin-bottom: 6px;
     }
 }
+
+.c-modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex;
+
+    &__button {
+        border-radius: 7px;
+        -webkit-border-radius: 7px;
+        -moz-border-radius: 7px;
+        -ms-border-radius: 7px;
+        -o-border-radius: 7px;
+        color: #fff;
+        font-size: 1rem;
+        padding: .4rem;
+        border: none;
+        cursor: pointer;
+        
+        &:hover {
+            transform: scale(1.1);
+            -webkit-transform: scale(1.1);
+            -moz-transform: scale(1.1);
+            -ms-transform: scale(1.1);
+            -o-transform: scale(1.1);
+        }
+    }
+}

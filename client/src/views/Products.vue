@@ -32,12 +32,11 @@
             Some other error happened
         </div>
 
-        <VModal :showModal="showDetails" @closeModal="closeModal">
+        <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
-                <!-- TODO: computed prop -->
-                {{ selectedItem.name || 'name' }}
+                <span>{{ modalTitle }}</span>
             </template>
-            <template v-slot:body>
+            <template v-if="!isAboutToDelete" v-slot:body>
                 <div
                     v-for="field in readColumns"
                     :key="field"
@@ -48,6 +47,12 @@
                     <div class="modal-body__value">
                         <span>{{ selectedItem[field] }}</span>
                     </div>
+                </div>
+            </template>
+            <template v-else v-slot:body>
+                <div class="c-modal-buttons">
+                    <button class="c-modal-buttons__button c-modal-buttons--yes" @click="confirmDelete">Yes</button>
+                    <button class="c-modal-buttons__button c-modal-buttons--no" @click="cancelDelete">No</button>
                 </div>
             </template>
         </VModal>
@@ -76,6 +81,8 @@ export default {
         selectedItem: {},
         entityName: 'product',
         isCreating: false,
+        isAboutToDelete: false,
+        stateProp: null, // Either `items` or `newItems`
         createColumns: [
             "name",
             "category",
@@ -125,9 +132,25 @@ export default {
             this.addItem(this.createRandomObj());
         },
 
-        deleteRow (prop, rowId) {
+        deleteRow (prop, row) {
+            this.isAboutToDelete = true;
+            this.selectedItem = { ...row };
+            this.showDetails = true;
+            this.stateProp = prop;
+        },
 
-            this.deleteItem({ prop, id: rowId });
+        confirmDelete () {
+            this.deleteItem({ prop: this.stateProp, id: this.selectedItem.id });
+            this.resetModalContent();
+        },
+
+        cancelDelete () {
+            this.resetModalContent();
+        },
+
+        resetModalContent () {
+            this.showDetails = false;
+            this.isAboutToDelete = false;
         },
 
         addField ([rowId, fieldName, value]) {
@@ -152,7 +175,10 @@ export default {
 
     computed: {
         ...mapState('product', ['items', 'fields', 'newItems']),
-        ...mapState(['everythingReady'])
+        ...mapState(['everythingReady']),
+        modalTitle () {
+            return this.isAboutToDelete ? `Are you sure you want to delete ${this.selectedItem.name} ?` : `About ${this.selectedItem.name}`
+        }
     },
 
     created () {

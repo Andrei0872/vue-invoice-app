@@ -15,13 +15,18 @@ export default {
     functional: true,
 
     props: {
-        showModal: Boolean
+        showModal: Boolean,
+        isAboutToDelete: Boolean
     },
 
     render (h, context) {
 
+        const isAboutToDelete = context.props.isAboutToDelete;
+        const modalContainerClasses = ['modal__container'];
+        isAboutToDelete && (modalContainerClasses.push('warning'))
+
         const headerContent = context.scopedSlots.header &&context.scopedSlots.header() || "Default header";
-        const header = h('div', { class: 'modal__header--title' }, [h('span','About'), ' ', h('span', headerContent)])
+        const header = h('div', { class: 'modal__header--title' }, [headerContent])
 
         const bodyContent = context.scopedSlots.body && context.scopedSlots.body() || "Default body";
         
@@ -36,7 +41,7 @@ export default {
             ? h(
                 'div', { class: 'modal', on: { click: shouldCloseModal.bind(null, context) } }, [
                     h(
-                        'div', { class: 'modal__container' }, [
+                        'div', { class: modalContainerClasses, }, [
                         h('div', { class: 'modal__header', props: { name: 'header' } }, [header, closeModal]),
                         h('div', { class: 'modal__body', props: { name: 'body' } }, bodyContent),
                     ])
@@ -79,6 +84,10 @@ export default {
             padding: 1rem;
             transition: all .3s;
             overflow: auto;
+            
+            &.warning {
+                width: 27rem;
+            }
 
             .fade-enter &,
             .fade-leave-to & {
@@ -104,10 +113,6 @@ export default {
         &__close {
             cursor: pointer;
             width: 1.2rem;
-        }
-
-        &__body {
-            margin-bottom: 1.2rem;
         }
     }
 

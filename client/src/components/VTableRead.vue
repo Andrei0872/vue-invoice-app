@@ -23,7 +23,7 @@
                             <font-awesome-icon 
                                 icon="minus-circle" 
                                 class="minus-circle" 
-                                @click="deleteRow(row.id)"    
+                                @click="deleteRow(row)"    
                             />
                         </template>
                         <template v-else-if="isUpdating && selectedRowId === row.id">
@@ -165,8 +165,8 @@ export default {
             this.untouchedRow = { ...row };
         },
 
-        deleteRow (rowId) {
-            this.$emit('deleteRow', rowId);
+        deleteRow (row) {
+            this.$emit('deleteRow', row);
         },
 
         resetData (rowId) {
