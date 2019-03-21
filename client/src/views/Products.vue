@@ -1,5 +1,6 @@
 <template>
     <div>
+        <!-- TODO: add notification :D - based on a vuex's state property -->
         <VContent @addNewItems="addNewItems" v-if="everythingReady === true" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTableRead 
@@ -141,7 +142,7 @@ export default {
         },
 
         update (changesArr) {
-            console.log(changesArr)
+            console.log('changes obj:', changesArr)
             this.updateItems(changesArr);
         },
 

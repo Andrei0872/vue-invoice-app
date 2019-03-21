@@ -3,6 +3,8 @@ const routes = require('./routes')
 const cors = require('cors')
 const debug = require('debug')('invoice-app');
 
+// TODO: add morgan
+
 const app = express();
 debug('app initialized')
 
