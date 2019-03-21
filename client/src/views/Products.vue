@@ -34,6 +34,7 @@
 
         <VModal :showModal="showDetails" @closeModal="closeModal">
             <template v-slot:header>
+                <!-- TODO: computed prop -->
                 {{ selectedItem.name || 'name' }}
             </template>
             <template v-slot:body>
@@ -48,9 +49,6 @@
                         <span>{{ selectedItem[field] }}</span>
                     </div>
                 </div>
-            </template>
-            <template v-slot:footer>
-                <!-- {{ selectedItem }} -->
             </template>
         </VModal>
     </div>
@@ -128,6 +126,7 @@ export default {
         },
 
         deleteRow (prop, rowId) {
+
             this.deleteItem({ prop, id: rowId });
         },
 

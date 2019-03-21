@@ -39,7 +39,6 @@ export default {
                         'div', { class: 'modal__container' }, [
                         h('div', { class: 'modal__header', props: { name: 'header' } }, [header, closeModal]),
                         h('div', { class: 'modal__body', props: { name: 'body' } }, bodyContent),
-                        h('div', { class: 'modal__footer', props: { name: 'footer' } }, footer)
                     ])
                 ]
             )
@@ -109,11 +108,6 @@ export default {
 
         &__body {
             margin-bottom: 1.2rem;
-        }
-
-        &__footer {
-            margin-top: auto;
-            flex: 1 0 auto;
         }
     }
 
