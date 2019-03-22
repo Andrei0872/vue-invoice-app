@@ -124,10 +124,6 @@ export default {
             this.showDetails = true;
         },
 
-        toggleState () {
-            this.isCreating = !this.isCreating
-        },
-
         addRow () {
             this.addItem(this.createRandomObj());
         },
