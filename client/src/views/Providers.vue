@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- TODO: add notification :D - based on a vuex's state property -->
-        <VContent @addNewItems="addNewItems" v-if="everythingReady === true" entityName="provider">
+        <VContent v-if="everythingReady === true" entityName="provider">
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="items.length"
@@ -91,10 +91,6 @@ export default {
     }),
 
     methods: {
-
-        addNewItems () {
-            console.log('new items - provider')
-        },
 
         // TODO: add to utils / global mixin
         createRandomObj () {
