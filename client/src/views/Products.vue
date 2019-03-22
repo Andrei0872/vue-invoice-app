@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- TODO: add notification :D - based on a vuex's state property -->
-        <VContent @addNewItems="addNewItems" v-if="everythingReady === true" :entityName="entityName">
+        <VContent v-if="everythingReady === true" :entityName="entityName">
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="items.length"
@@ -68,7 +68,11 @@ import modalMixin from '../mixins/modalMixin';
 
 import uuidv1 from 'uuid/v1';
 
-import { mapActions, mapState } from 'vuex';
+const entityName = 'product';
+
+import { createNamespacedHelpers } from 'vuex';
+import * as common from '@/store/modules/common';
+const { mapState, mapActions } = createNamespacedHelpers(entityName)
 
 export default {
     name: 'products',
@@ -82,7 +86,7 @@ export default {
         entityName: 'product',
         isCreating: false,
         isAboutToDelete: false,
-        stateProp: null, // Either `items` or `newItems`
+        showDetails: false,
         createColumns: [
             "name",
             "category",
@@ -109,10 +113,6 @@ export default {
     }),
 
     methods: {
-        
-        addNewItems () {
-            console.log('new items - product')
-        },
 
         // TODO: add to utils / global mixin
         createRandomObj () {
@@ -153,13 +153,12 @@ export default {
         },
 
         addField ([rowId, fieldName, value]) {
-            console.log(rowId, fieldName, value)
             this.addFieldValue({ rowId, fieldName, value });
         },
 
         init () {
-            this.reset_arr({ prop: 'newItems' });
-            this.addItem(this.createRandomObj());
+            this.resetArr({ prop: 'newItems' });
+            this.addNewItem(this.createRandomObj());
         },
 
         update (changesArr) {
@@ -167,21 +166,25 @@ export default {
             this.updateItems(changesArr);
         },
 
-        ...mapActions('product', [
-            'fetchData', 'addItem', 'deleteItem', 'addFieldValue', 'reset_arr', 'updateItems'
-        ])
+        ...mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems'])
     },
 
     computed: {
-        ...mapState('product', ['items', 'fields', 'newItems']),
-        ...mapState(['everythingReady']),
         modalTitle () {
             return this.isAboutToDelete ? `Are you sure you want to delete ${this.selectedItem.name} ?` : `About ${this.selectedItem.name}`
-        }
+        },
+
+        everythingReady () {
+            return this.$store.state['everythingReady']
+        },
+
+        ...mapState(['items', 'newItems'])
     },
 
-    created () {
-        this.fetchData();
+    async created () {
+        !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
+
+        this.$store.dispatch('api/FETCH_DATA');
     }
 }
 </script>
