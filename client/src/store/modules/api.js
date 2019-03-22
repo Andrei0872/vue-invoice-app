@@ -15,16 +15,17 @@ export const getters = {
 
 // TODO: make one action to perform the request
 export const actions = {
-    FETCH_DATA: async ({ getters, rootState, dispatch, commit }, avoidChangingState = false) => {
+    FETCH_DATA: async ({ getters, rootState, dispatch, commit }, { avoidChangingState = false, anotherEntity = null } = {}) => {
         const moduleName = rootState.currentEntity.slice(0, -1);
-        const url = `${getters.mainURL}/${rootState.currentEntity}`;
+        const url = `${getters.mainURL}/${!(anotherEntity) ? rootState.currentEntity : anotherEntity}`;
 
+        console.log(url)
         try {
             !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
 
             const { data } = await dispatch('makeRequest', { url, config: getters.config })
             
-            dispatch(`${moduleName}/setItems`, data, { root: true });
+            dispatch(`${!(anotherEntity) ? moduleName : anotherEntity.slice(0, -1)}/setItems`, data, { root: true });
             !(avoidChangingState)  && commit('CHANGE_STATE', true, { root: true });
         } catch {
             commit('CHANGE_STATE', null, { root: true });
@@ -39,7 +40,7 @@ export const actions = {
         try {
             await dispatch('makeRequest', { url, config });
             
-            dispatch("FETCH_DATA", true);
+            dispatch("FETCH_DATA", { avoidChangingState: true });
         } catch (err) {
             console.error(err)
         }
