@@ -9,7 +9,6 @@ class Database {
     constructor() {
         debug('Database constructor');
         // TODO: make this an object so that subclasses can send the columns if the the a tables is empty
-
         (!!this.isConnecting) || this.connect()
     }
 
@@ -102,12 +101,11 @@ class Database {
     }
 
     // TODO: change name to insertMany...
-    // TODO: perform logic in service
-    async insertOne(params) {
+    async insertOne(keys, values) {
         return await this._promisify(
-            `INSERT INTO ${this.currentTable} (${Object.keys(params[0]).join(', ')}) VALUES ?`,
-            [params.map(row => Object.values(row))]
-        );
+            `INSERT INTO ${this.currentTable} (${keys}) VALUES ?`,
+            [values]
+        )
     }
 
     async getAll () {
