@@ -71,9 +71,10 @@ export default {
 
             const entityName = this.currentEntity.slice(0, -1);
 
-            this.$store.dispatch(`${entityName}/insertItem`, this.newItems)
+            this.$store.dispatch('api/insertItem', this.newItems);
 
             this.isCreating = false
+
             // const allValid = this.filterNewItems(this.newItems)
 
             // allValid && (this.isCreating = false, console.log('creating data..'))
