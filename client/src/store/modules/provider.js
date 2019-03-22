@@ -22,20 +22,20 @@ export const mutations = {
 }
 
 export const actions = {
-    fetchData: async ({ state, commit, dispatch }, avoidChangingState = false) => {
+    // fetchData: async ({ state, commit, dispatch }, avoidChangingState = false) => {
         
-        !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
+    //     !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
 
-        try {
-            const { data } = await dispatch('api/FETCH_DATA', state.url, { root: true });
+    //     try {
+    //         const { data } = await dispatch('api/FETCH_DATA', state.url, { root: true });
 
-            commit('UPDATE_DATA', data);
+    //         commit('UPDATE_DATA', data);
 
-            !(avoidChangingState)  && commit('CHANGE_STATE', true, { root: true })
-        } catch {
-            commit('CHANGE_STATE', null, { root: true })
-        }
-    },
+    //         !(avoidChangingState)  && commit('CHANGE_STATE', true, { root: true })
+    //     } catch {
+    //         commit('CHANGE_STATE', null, { root: true })
+    //     }
+    // },
 
     addItem: ({ state, commit }, payload) => commit('ADD_ITEM', { state, prop: 'newItems', payload }, { root: true }),
 
@@ -52,12 +52,12 @@ export const actions = {
 
     reset_arr: ({ commit }, payload) => commit('RESET_ARR', payload),
 
-    updateItems: ({ state, commit }, [id, changes]) => {
+    updateItems: ({ state, commit }, { id, changes }) => {
         const indexRow = state.items.findIndex(item => item.id === id);
         const itemsCopy = JSON.parse(JSON.stringify(state.items))
 
-        itemsCopy[indexRow] = {... itemsCopy[indexRow], ...changes}
-        
+        itemsCopy[indexRow] = { ...itemsCopy[indexRow], ...changes }
+
         commit('UPDATE_DATA', itemsCopy)
-    }
+    },
 }
