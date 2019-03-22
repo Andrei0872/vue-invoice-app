@@ -1,27 +1,16 @@
-
-import { getRidOfObjProp } from "../../../utils/index";
-
 export const namespaced = true;
 
 export const state = () => ({
     items: [],
-    fields: [],
     newItems: [],
 })
 
-export const getters = {
-    insertOneUrl: state => `${state.url}/insert`
-}
-
-// TODO: remove logic from here and add it to actions
 export const mutations = {
     SET_ITEMS: (state, payload) => state.items = payload,
 
     ADD_NEW_ITEM: (state, payload) => state.newItems.push(payload),
 
     UPDATE_NEW_DATA: (state, payload) => state.newItems = payload,
-    
-    UPDATE_FIELDS: (state, payload) => state.fields = payload,
     
     DELETE_ITEM: (state, { prop, id }) => state[prop] = state[prop].filter(item => item.id !== id),
 
@@ -30,7 +19,7 @@ export const mutations = {
 
 export const actions = {
 
-    addNewItem: ({ state, commit }, payload) => commit('ADD_NEW_ITEM', payload),
+    addNewItem: ({ commit }, payload) => commit('ADD_NEW_ITEM', payload),
 
     deleteItem: ({ commit }, payload) => commit('DELETE_ITEM', payload),
 
