@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- TODO: add notification :D - based on a vuex's state property -->
-        <VContent v-if="everythingReady === true" :entityName="entityName">
+        <VContent v-if="everythingReady === true" entityName="product">
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="items.length"
@@ -64,9 +64,9 @@ import VContent from '../components/VContent';
 import VModal from '../components/VModal';
 import VTableCreate from '../components/VTableCreate';
 import VTableRead from '../components/VTableRead';
-import modalMixin from '../mixins/modalMixin';
 
-import uuidv1 from 'uuid/v1';
+import modalMixin from '../mixins/modalMixin';
+import commonMixin from '../mixins/commonMixin';
 
 const entityName = 'product';
 
@@ -79,14 +79,9 @@ export default {
 
     components: { VContent, VModal, VTableCreate, VTableRead },
 
-    mixins: [modalMixin],
+    mixins: [modalMixin, commonMixin],
 
     data: () => ({
-        selectedItem: {},
-        entityName: 'product',
-        isCreating: false,
-        isAboutToDelete: false,
-        showDetails: false,
         createColumns: [
             "name",
             "category",
@@ -112,74 +107,9 @@ export default {
         ]
     }),
 
-    methods: {
+    methods: mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
 
-        // TODO: add to utils / global mixin
-        createRandomObj () {
-            return Object.assign({}, ... (this.createColumns.map(field => ({ [field]: '' }))), { id: uuidv1() });
-        },
-
-        showInfo (row) {
-            this.selectedItem = {... row};
-            this.showDetails = true;
-        },
-
-        addRow () {
-            this.addItem(this.createRandomObj());
-        },
-
-        deleteRow (row) {
-            this.isAboutToDelete = true;
-            this.selectedItem = { ...row };
-            this.showDetails = true;
-        },
-
-        deleteRowInstantly (rowId) {
-            this.deleteItem({ prop: 'newItems', id: rowId });
-        },
-
-        confirmDelete () {
-            this.deleteItem({ prop: 'items', id: this.selectedItem.id });
-            this.resetModalContent();
-        },
-
-        cancelDelete () {
-            this.resetModalContent();
-        },
-
-        resetModalContent () {
-            this.showDetails = false;
-            this.isAboutToDelete = false;
-        },
-
-        addField ([rowId, fieldName, value]) {
-            this.addFieldValue({ rowId, fieldName, value });
-        },
-
-        init () {
-            this.resetArr({ prop: 'newItems' });
-            this.addNewItem(this.createRandomObj());
-        },
-
-        update (changesArr) {
-            console.log('changes obj:', changesArr)
-            this.updateItems(changesArr);
-        },
-
-        ...mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems'])
-    },
-
-    computed: {
-        modalTitle () {
-            return this.isAboutToDelete ? `Are you sure you want to delete ${this.selectedItem.name} ?` : `About ${this.selectedItem.name}`
-        },
-
-        everythingReady () {
-            return this.$store.state['everythingReady']
-        },
-
-        ...mapState(['items', 'newItems'])
-    },
+    computed: mapState(['items', 'newItems']),
 
     async created () {
         !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
