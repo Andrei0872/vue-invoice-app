@@ -1,9 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import * as product from './modules/product';
 import * as document from './modules/document';
-import * as provider from './modules/provider';
 import * as api from './modules/api';
 
 Vue.use(Vuex)
@@ -35,10 +33,8 @@ const store = new Vuex.Store({
     },
 
     modules: {
-        product,
         api,
         document,
-        // provider,
     }
 });
 
