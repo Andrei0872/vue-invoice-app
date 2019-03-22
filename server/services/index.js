@@ -10,23 +10,27 @@ class Service {
     }
 
     async insertOne (params) {
-        this.response = {};
+        let response = {};
+        params = params.map(({ id, ...row }) => row);
 
         try {
-            await this.table.insertOne(params);
+            const keys = Object.keys(params[0]).join(', ');
+            const values = params.map(Object.values);
             
-            this.response = {
+            await this.table.insertOne(keys, values);
+            response = {
                 message: `Inserted into ${this.tableName} successfully`,
                 status: 200
             }
         } catch (err) {
-            this.response = {
+            console.log(err)
+            response = {
                 message: `Failed to insert into ${this.tableName}`,
                 status: 400
             }
         }
 
-        return this.response;
+        return response;
     }
 
     async getAll () {

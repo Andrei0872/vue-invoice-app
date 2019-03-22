@@ -7,7 +7,6 @@ export const state = () => ({
     items: [],
     fields: [],
     newItems: [],
-    url: 'http://localhost:3000/products'
 })
 
 export const getters = {
@@ -16,7 +15,9 @@ export const getters = {
 
 // TODO: remove logic from here and add it to actions
 export const mutations = {
-    UPDATE_DATA: (state, payload) => state.items = payload,
+    SET_ITEMS: (state, payload) => state.items = payload,
+
+    ADD_NEW_ITEM: (state, payload) => state.newItems.push(payload),
 
     UPDATE_NEW_DATA: (state, payload) => state.newItems = payload,
     
@@ -28,22 +29,8 @@ export const mutations = {
 }
 
 export const actions = {
-    fetchData: async ({ state, commit, dispatch }, avoidChangingState = false) => {
-        
-        !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
 
-        try {
-            const { data } = await dispatch('api/FETCH_DATA', state.url, { root: true });
-
-            commit('UPDATE_DATA', data);
-
-            !(avoidChangingState)  && commit('CHANGE_STATE', true, { root: true })
-        } catch {
-            commit('CHANGE_STATE', null, { root: true })
-        }
-    },
-
-    addItem: ({ state, commit }, payload) => commit('ADD_ITEM', { state, prop: 'newItems', payload }, { root: true }),
+    addNewItem: ({ state, commit }, payload) => commit('ADD_NEW_ITEM', payload),
 
     deleteItem: ({ commit }, payload) => commit('DELETE_ITEM', payload),
 
@@ -56,7 +43,7 @@ export const actions = {
         commit('UPDATE_NEW_DATA', newItemsCopy);
     },
 
-    reset_arr: ({ commit }, payload) => commit('RESET_ARR', payload),
+    resetArr: ({ commit }, payload) => commit('RESET_ARR', payload),
 
     updateItems: ({ state, commit }, { id, ...changes }) => {
         const indexRow = state.items.findIndex(item => item.id === id);
@@ -67,15 +54,5 @@ export const actions = {
         commit('UPDATE_DATA', itemsCopy)
     }, 
 
-    // insertItem: async ({ getters, dispatch }, payload) => {
-    //     try {
-    //         // TODO: update array
-    //         payload = payload.map(row => getRidOfObjProp(row, 'id'))
-    //         await dispatch('api/insertItem', { url: getters.insertOneUrl, payload }, { root: true });
-
-    //         dispatch('fetchData', true);
-    //     } catch (err) {
-    //         console.error(err)
-    //     }
-    // },
+    setItems: ({ commit }, payload) => commit('SET_ITEMS', payload),
 }

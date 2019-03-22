@@ -8,41 +8,41 @@ export const getters = {
         method: "POST"
     }),
 
+    mainURL: () => 'http://localhost:3000',
     updateEndpoint: () => '/update',
     deleteEndpoint: () => '/delete'
 }
 
 // TODO: make one action to perform the request
 export const actions = {
-    FETCH_DATA: ({ getters }, url) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const initialResponse = await fetch(url, getters.config);
+    FETCH_DATA: async ({ getters, rootState, dispatch, commit }, avoidChangingState = false) => {
+        const moduleName = rootState.currentEntity.slice(0, -1);
+        const url = `${getters.mainURL}/${rootState.currentEntity}`;
 
-                if (!initialResponse.ok)
-                    throw initialResponse
-                
-                resolve((await initialResponse.json()))
-            } catch (err) {
-                reject(err)
-            }
-        });
+        try {
+            !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
+
+            const { data } = await dispatch('makeRequest', { url, config: getters.config })
+            
+            dispatch(`${moduleName}/setItems`, data, { root: true });
+            !(avoidChangingState)  && commit('CHANGE_STATE', true, { root: true });
+        } catch {
+            commit('CHANGE_STATE', null, { root: true });
+        }
     },
 
-    insertItem: ({ getters }, { url, payload }) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                
-                const initialResponse = await fetch(url, { ...getters.config, body: JSON.stringify(payload) });
+    insertItem: async ({ getters, rootState, dispatch },  payload ) => {
 
-                if (!initialResponse.ok)
-                    throw initialResponse
+        const url = `${getters.mainURL}/${rootState.currentEntity}/insert`
+        const config = { ...getters.config, body: JSON.stringify(payload) };
 
-                resolve((await initialResponse.json()))
-            } catch (err) {
-                reject(err)
-            }
-        })
+        try {
+            await dispatch('makeRequest', { url, config });
+            
+            dispatch("FETCH_DATA", true);
+        } catch (err) {
+            console.error(err)
+        }
     },
 
     updateItem: async ({ getters, dispatch }, { url, payload }) => {
