@@ -51,7 +51,7 @@ export const actions = {
 
         itemsCopy[indexRow] = {... itemsCopy[indexRow], ...changes}
         
-        commit('UPDATE_DATA', itemsCopy)
+        commit('SET_ITEMS', itemsCopy)
     }, 
 
     setItems: ({ commit }, payload) => commit('SET_ITEMS', payload),

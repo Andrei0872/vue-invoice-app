@@ -145,11 +145,10 @@ export default {
         },
 
         update (changesArr) {
-            console.log(changesArr)
             this.updateItems(changesArr);
         },
 
-        ...mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue'])
+        ...mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems'])
     },
 
     computed: {
