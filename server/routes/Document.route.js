@@ -4,6 +4,8 @@ const Controller = require('../controllers');
 const controller = new Controller('document');
 
 router.post('/', controller.getAll.bind(controller))
-// router.get('/:id(\\d+)', controller.selectOneByID.bind(controller))
+router.post('/insert', controller.insertOne.bind(controller))
+router.put('/update', controller.updateOne.bind(controller))
+router.delete('/delete', controller.deleteOne.bind(controller))
 
 module.exports = router;

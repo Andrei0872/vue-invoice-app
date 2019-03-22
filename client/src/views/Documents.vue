@@ -1,45 +1,44 @@
 <template>
     <div>
-        <VContent v-if="everythingReady === true" :entityName="entityName">
+        <!-- TODO: add notification :D - based on a vuex's state property -->
+        <VContent v-if="everythingReady === true" entityName="document">
             <template v-slot:existingItems>
                 <VTableRead 
-                    :fields="fields" 
+                    v-if="items.length"
+                    :fields="readColumns" 
                     :items="items" 
                     @update="update($event)"
                     @showInfo="showInfo($event)"
-                    @deleteRow="deleteRow('items', $event)"
-                />  
+                    @deleteRow="deleteRow($event)"
+                />
+                <div v-else class="no-items">
+                    There are no items!
+                </div>
             </template>
             <template v-slot:createItems>
-                <div class="existing-items">
-                    <span>Document Nr. {{ items.length }}</span>
-                </div>
-                <div @click="addRow" class="icon icon--add-row">
+                 <div @click="addRow" class="icon icon--add-row">
                     <font-awesome-icon icon="plus-circle" />
                 </div>
-                <VTableCreate
-                    @deleteRow="deleteRow('newItems', $event)" 
-                    :fields="fieldsWhenCreating" 
+                <VTableCreate 
+                    @deleteRow="deleteRowInstantly($event)" 
+                    :fields="createColumns" 
                     :items="newItems"
                     @addField="addField($event)"
                     @init="init"
                 />
             </template>
         </VContent>
-        <div v-else-if="everythingReady === false">
-            There are no items
-        </div>
-        <div v-else-if="everythingReady === null">
+        <div v-else-if="everythingReady !== 'pending'">
             Some other error happened
         </div>
 
-        <VModal :showModal="showDetails" @closeModal="closeModal">
+        <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
-                {{ selectedItem.name || 'name' }}
+                <span>{{ modalTitle }}</span>
             </template>
-            <template v-slot:body>
+            <template v-if="!isAboutToDelete" v-slot:body>
                 <div
-                    v-for="field in fields"
+                    v-for="field in readColumns"
                     :key="field"
                     class="modal-body__row"
                 >
@@ -50,8 +49,11 @@
                     </div>
                 </div>
             </template>
-            <template v-slot:footer>
-                <!-- {{ selectedItem }} -->
+            <template v-else v-slot:body>
+                <div class="c-modal-buttons">
+                    <button class="c-modal-buttons__button c-modal-buttons--yes" @click="confirmDelete">Yes</button>
+                    <button class="c-modal-buttons__button c-modal-buttons--no" @click="cancelDelete">No</button>
+                </div>
             </template>
         </VModal>
     </div>
@@ -62,96 +64,58 @@ import VContent from '../components/VContent';
 import VModal from '../components/VModal';
 import VTableCreate from '../components/VTableCreate';
 import VTableRead from '../components/VTableRead';
+
 import modalMixin from '../mixins/modalMixin';
+import commonMixin from '../mixins/commonMixin';
 
-import uuidv1 from 'uuid/v1';
+const entityName = 'document';
 
-import { mapActions, mapState } from 'vuex';
+import { createNamespacedHelpers } from 'vuex';
+import * as common from '@/store/modules/common';
+const { mapState, mapActions } = createNamespacedHelpers(entityName)
 
 export default {
     name: 'documents',
 
     components: { VContent, VModal, VTableCreate, VTableRead },
 
-    mixins: [modalMixin],
+    mixins: [modalMixin, commonMixin],
 
     data: () => ({
-        selectedItem: {},
-        entityName: 'document',
-        isCreating: false,
+        createColumns: [
+            "product_name",
+            "quantity",
+            "quantity_type",
+            "buy_price",
+            "markup",
+            "sell_price",
+        ],
+        readColumns: [
+            "provider_id",
+            "total_buy",
+            "total_sell",
+            "invoice_number",
+            "inserted_date"
+        ]
     }),
 
-    methods: {
+    methods: mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
 
-        // TODO: add to utils / global mixin
-        createRandomObj () {
-            return Object.assign({}, ... (this.fieldsWhenCreating.map(field => ({ [field]: field }))), { id: uuidv1() });
-        },
+    computed: mapState(['items', 'newItems']),
 
-        showInfo (row) {
-            this.selectedItem = {... row};
-            this.showDetails = true;
-        },
+    async created () {
+        !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
+        this.$store.dispatch('api/FETCH_DATA');
 
-        addRow () {
-            this.addItem(this.createRandomObj());
-        },
-
-        deleteRow (prop, rowId) {
-            this.deleteItem({ prop, id: rowId });
-        },
-
-        addField ([rowId, fieldName, value]) {
-            console.log(rowId, fieldName, value)
-            this.addFieldValue({ rowId, fieldName, value });
-        },
-
-        init () {
-            this.reset_arr({ prop: 'newItems' });
-            this.addItem(this.createRandomObj());
-        },
-
-        update (changesArr) {
-            console.log(changesArr)
-            this.updateItems(changesArr);
-        },
-
-        ...mapActions('document', [
-            'fetchData', 'addItem', 'deleteItem', 'addFieldValue', 'reset_arr', 'updateItems'
-        ]),
-        ...mapActions('product', { 'fetchProducts': 'fetchData' })
-    },
-
-    computed: {
-        ...mapState('document', ['items', 'fields', 'newItems', 'fieldsWhenCreating']),
-        ...mapState(['everythingReady']),
-        ...mapState('product', { 'products': 'items' })
-    },
-
-    created () {
-        this.fetchData();
-        
-        if (!this.products.length) {
-            this.fetchProducts(true);
-        }
+        !(this.store && this.$store.state['product']) 
+            && ((this.$store.registerModule('product', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }))
     }
 }
 </script>
 
 <style lang="scss" scoped>
     $modal-text-color: darken($color: #394263, $amount: 10%);
-    
+
     @import '../styles/common.scss';
     @import '../styles/modal.scss';
-
-    .existing-items {
-        margin-top: 3rem;
-        margin-left: 2rem;
-
-        span {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: $modal-text-color;
-        }
-    }
 </style>
