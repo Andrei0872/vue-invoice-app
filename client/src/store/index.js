@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import * as document from './modules/document';
 import * as api from './modules/api';
 
 Vue.use(Vuex)
@@ -18,7 +17,9 @@ const store = new Vuex.Store({
     getters: {
         getEntityNewItems: state => {
             const entityName = state.currentEntity.slice(0, -1)
-            return state[entityName].newItems
+            
+            if (state[entityName]) 
+                return state[entityName].newItems
         },
     },
 
@@ -34,7 +35,7 @@ const store = new Vuex.Store({
 
     modules: {
         api,
-        document,
+        // document,
     }
 });
 
