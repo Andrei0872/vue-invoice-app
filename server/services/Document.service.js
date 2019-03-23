@@ -30,11 +30,14 @@ class DocumentService extends mainService {
         return { keys, values }
     }
 
-    async insertOne (params) {        
-        const { keys, values } = this._processParams(params)
+    async insertOne ({ items, provider }) {        
+        const { keys, values } = this._processParams(items)
         // Compute the total values
+        // Use a procedure to create a document and retrieve the last inserted it
+        // After that, create a new record in the document_product table
         console.log(keys)
         console.log(values)
+        console.log(provider)
 
         // const responseFromDB = await this.table.insertOne(keys.document.join(', '), values.document)
         // console.log(responseFromDB)

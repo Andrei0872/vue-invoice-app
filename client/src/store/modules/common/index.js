@@ -26,7 +26,7 @@ export const actions = {
     addFieldValue: ({ commit, state }, { rowId, fieldName, value }) => {
         const newItemsCopy = JSON.parse(JSON.stringify(state.newItems))
         let rowIndex = newItemsCopy.findIndex(item => item.id === rowId);
-
+        
         newItemsCopy[rowIndex][fieldName] = value;
 
         commit('UPDATE_NEW_DATA', newItemsCopy);
