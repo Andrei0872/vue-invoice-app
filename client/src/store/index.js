@@ -11,6 +11,7 @@ const store = new Vuex.Store({
     state: {
         everythingReady: null,
         currentEntity: null,
+        selectedProvider: null,
         mainUrl: 'http://localhost:3000/',
     },
 
@@ -26,7 +27,8 @@ const store = new Vuex.Store({
     mutations: {
         CHANGE_STATE: (state, payload) => state.everythingReady = payload,
         ADD_ITEM: (_, { state, prop, payload }) => state[prop].push(payload),
-        CHANGE_ENTITY: (state, payload) => state.currentEntity = payload
+        CHANGE_ENTITY: (state, payload) => state.currentEntity = payload,
+        SET_PROVIDER: (state, payload) => state.selectedProvider = payload
     },
 
     actions: {
