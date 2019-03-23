@@ -56,8 +56,8 @@ export default {
         },
 
         selectItem () {
-            const itemName = this.filteredItems.find((_, index) => this.currentIndex === index).name
-            this.$emit('itemSelected', itemName);
+            const item = this.filteredItems.find((_, index) => this.currentIndex === index)
+            this.$emit('itemSelected', item);
         },
 
         updateItems () {
