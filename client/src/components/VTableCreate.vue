@@ -24,7 +24,7 @@
                     <tr :key="row.id + 'row'">
                         <td @click="focusInputChild($event)" v-for="field in fields" :key="field + 'td'">
                             <VInput 
-                                :key="row[field]"
+                                :key="typeof row[field] === 'object' ? row[field].id : row[field]"
                                 class="the-input"
                                 :placeholder="field"
                                 :value="row[field] !== field ? typeof row[field] === 'object' ? row[field].name : row[field] : ''"
