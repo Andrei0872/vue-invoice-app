@@ -15,9 +15,7 @@ export default {
         },
 
         showInfo(row) {
-            this.selectedItem = {
-                ...row
-            };
+            this.selectedItem = { ...row };
             this.showDetails = true;
         },
 
@@ -27,9 +25,7 @@ export default {
 
         deleteRow(row) {
             this.isAboutToDelete = true;
-            this.selectedItem = {
-                ...row
-            };
+            this.selectedItem = { ...row };
             this.showDetails = true;
         },
 
@@ -41,10 +37,7 @@ export default {
         },
 
         confirmDelete() {
-            this.deleteItem({
-                prop: 'items',
-                id: this.selectedItem.id
-            });
+            this.deleteItem({ prop: 'items', id: this.selectedItem.id });
             this.resetModalContent();
         },
 
@@ -58,17 +51,11 @@ export default {
         },
 
         addField([rowId, fieldName, value]) {
-            this.addFieldValue({
-                rowId,
-                fieldName,
-                value
-            });
+            this.addFieldValue({ rowId, fieldName, value });
         },
 
         init() {
-            this.resetArr({
-                prop: 'newItems'
-            });
+            this.resetArr({ prop: 'newItems' });
             this.addNewItem(this.createRandomObj());
         },
 
@@ -80,7 +67,9 @@ export default {
 
     computed: {
         modalTitle() {
-            return this.isAboutToDelete ? `Are you sure you want to delete ${this.selectedItem.name} ?` : `About ${this.selectedItem.name}`
+            return this.isAboutToDelete 
+                ? `Are you sure you want to delete ${this.selectedItem.name} ?` 
+                : `About ${this.selectedItem.name}`
         },
 
         everythingReady() {
