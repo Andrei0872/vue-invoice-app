@@ -89,9 +89,10 @@ export default {
             "buy_price",
             "markup",
             "sell_price",
+            "currency"
         ],
         readColumns: [
-            "provider_id",
+            "provider_name",
             "total_buy",
             "total_sell",
             "invoice_number",
@@ -105,7 +106,8 @@ export default {
 
     async created () {
         !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
-        this.$store.dispatch('api/FETCH_DATA');
+        
+        !(this.items.length) && this.$store.dispatch('api/FETCH_DATA');
 
         !(this.store && this.$store.state['product']) 
             && ((this.$store.registerModule('product', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }))

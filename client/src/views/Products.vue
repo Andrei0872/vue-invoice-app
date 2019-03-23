@@ -86,22 +86,14 @@ export default {
             "name",
             "category",
             "sub_category",
-            "price_buy",
-            "markup",
-            "price_sell",
             "comestible",
-            "currency",
             "expiration_date",
         ],
         readColumns: [
             "name",
             "category",
             "sub_category",
-            "price_buy",
-            "markup",
-            "price_sell",
             "comestible",
-            "currency",
             "expiration_date",
             "inserted_date"
         ]
@@ -114,7 +106,7 @@ export default {
     async created () {
         !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
 
-        this.$store.dispatch('api/FETCH_DATA');
+        !(this.items.length) && this.$store.dispatch('api/FETCH_DATA');
     }
 }
 </script>
