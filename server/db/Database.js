@@ -39,7 +39,7 @@ class Database {
     _initTables () {
         // TODO: do something with this hard-coded array...
         ['product', 'document', 'provider', 'document_product'].forEach(table => {
-            Database.prototype[table] = require(`./${capitalizeAndClean(table)}.js`);
+            Database.prototype[table] = require(`./${capitalizeAndClean(table)}Info.js`);
         })
     }
 
@@ -83,7 +83,7 @@ class Database {
 
         await this._promisify(sql, [mysql.raw(tableFields.join(', '))])
     }
-
+    
     _promisify (sql, params = null) {
         const neededParams = [sql];
         params !== null && neededParams.push(params);
@@ -130,4 +130,5 @@ class Database {
 
 }
 
+// FIXME: export new Database()
 module.exports = Database;
