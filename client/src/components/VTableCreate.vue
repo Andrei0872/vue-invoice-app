@@ -27,7 +27,7 @@
                                 :key="row[field]"
                                 class="the-input"
                                 :placeholder="field"
-                                :value="row[field] !== field ? row[field] : ''"
+                                :value="row[field] !== field ? typeof row[field] === 'object' ? row[field].name : row[field] : ''"
                                 @input="inputValue = $event"
                                 @focus.native="selectRow(row, field, $event)"
                                 @blur.native="addField(row, field, $event)"
@@ -120,15 +120,17 @@ export default {
             this.selectedFieldValue = row[field] || '';
         },
 
+        // Happends when a list item is selected, then altered and the user
+        // wants to get the initial item name
         needsAdditionalUpdate () {
             return this.items.some(
                 item => item.id === this.selectedRowId 
-                    && item[this.selectedField] === this.selectedItemFromList
+                    && item[this.selectedField] === this.selectedItemFromList.name
             )
         },
 
-        selectItem (val) {
-            this.selectedItemFromList = val;
+        selectItem (itemInfo) {
+            this.selectedItemFromList = { ...itemInfo };
 
             if (this.needsAdditionalUpdate()) {
                 console.log('new update')
@@ -136,7 +138,7 @@ export default {
             }
 
             setTimeout(() => {
-                this.$emit('addField', [this.selectedRowId, this.selectedField,  val]);
+                this.$emit('addField', [this.selectedRowId, this.selectedField, { id: itemInfo.id, name: itemInfo.name }]);
                 this.inputValue = null
             }, 0);
         }

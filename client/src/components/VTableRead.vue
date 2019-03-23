@@ -136,8 +136,8 @@ export default {
             ev.target.children[0].focus();
         },
 
-        selectItem (val) {
-            this.selectedItemFromList = val;
+        selectItem (itemInfo) {
+            this.selectedItemFromList = { ...itemInfo };
 
             if (this.needsAdditionalUpdate()) {
                 console.log('new update')
@@ -145,7 +145,7 @@ export default {
             }
 
             setTimeout(() => {
-                this.$emit('update', [this.selectedRowId, { [this.selectedField]: val }]);
+                this.$emit('update', [this.selectedRowId, { [this.selectedField]: itemInfo.name }]);
                 this.inputValue = null;
                 this.alreadyUpdated = true
             }, 0);
@@ -154,7 +154,7 @@ export default {
         needsAdditionalUpdate () {
             return this.items.some(
                 item => item.id === this.selectedRowId 
-                    && item[this.selectedField] === this.selectedItemFromList
+                    && item[this.selectedField] === this.selectedItemFromList.name
             )
         },
 
