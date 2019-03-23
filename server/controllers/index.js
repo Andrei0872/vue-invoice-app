@@ -1,6 +1,6 @@
 class Controller {
-    constructor (name) {
-        const Service = require('../services');
+    constructor (name, path = false) {
+        const Service = !path ? require('../services') : require(`../services/${path}.service`);
         this.service = new Service(name);
     }
 

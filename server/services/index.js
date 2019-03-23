@@ -11,9 +11,11 @@ class Service {
 
     async insertOne (params) {
         let response = {};
+
         params = params.map(({ id, ...row }) => row);
 
         try {
+
             const keys = Object.keys(params[0]).join(', ');
             const values = params.map(Object.values);
             
