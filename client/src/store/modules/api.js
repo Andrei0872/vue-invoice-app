@@ -17,9 +17,9 @@ export const getters = {
 export const actions = {
     FETCH_DATA: async ({ getters, rootState, dispatch, commit }, { avoidChangingState = false, anotherEntity = null } = {}) => {
         const moduleName = rootState.currentEntity.slice(0, -1);
+
         const url = `${getters.mainURL}/${!(anotherEntity) ? rootState.currentEntity : anotherEntity}`;
 
-        console.log(url)
         try {
             !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
 
@@ -35,6 +35,8 @@ export const actions = {
     insertItem: async ({ getters, rootState, dispatch },  payload ) => {
 
         const url = `${getters.mainURL}/${rootState.currentEntity}/insert`
+        !!(rootState.selectedProvider) 
+            && (payload = { items: payload, provider: rootState.selectedProvider })
         const config = { ...getters.config, body: JSON.stringify(payload) };
 
         try {
