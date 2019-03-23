@@ -1,3 +1,5 @@
+$main-color: #394263;
+
 .icon {
     
     &--add-row {
@@ -26,7 +28,7 @@
 
 .no-items {
     text-align: center;
-    color: #394263;
+    color: $main-color;
     font-size: 2rem;
     margin-top: 3rem;
 }
