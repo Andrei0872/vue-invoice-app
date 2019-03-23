@@ -16,8 +16,11 @@
                 </div>
             </template>
             <template v-slot:createItems>
-                 <div @click="addRow" class="icon icon--add-row">
-                    <font-awesome-icon icon="plus-circle" />
+                <div class="l-flex">
+                    <div @click="addRow" class="icon icon--add-row">
+                        <font-awesome-icon icon="plus-circle" />
+                    </div>
+                    <VSelect @addProvider="$store.commit('SET_PROVIDER', $event)" class="c-select" :items="providers" />
                 </div>
                 <VTableCreate 
                     @deleteRow="deleteRowInstantly($event)" 
@@ -64,20 +67,24 @@ import VContent from '../components/VContent';
 import VModal from '../components/VModal';
 import VTableCreate from '../components/VTableCreate';
 import VTableRead from '../components/VTableRead';
+import VSelect from '../components/VSelect';
 
 import modalMixin from '../mixins/modalMixin';
 import commonMixin from '../mixins/commonMixin';
 
 const entityName = 'document';
+const providerEntity = 'provider';
 
 import { createNamespacedHelpers } from 'vuex';
 import * as common from '@/store/modules/common';
-const { mapState, mapActions } = createNamespacedHelpers(entityName)
+const { mapState, mapActions } = createNamespacedHelpers(entityName);
+const { mapState: mapStateProvider } = createNamespacedHelpers(providerEntity);
+
 
 export default {
     name: 'documents',
 
-    components: { VContent, VModal, VTableCreate, VTableRead },
+    components: { VContent, VModal, VTableCreate, VTableRead, VSelect },
 
     mixins: [modalMixin, commonMixin],
 
@@ -102,7 +109,15 @@ export default {
 
     methods: mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
 
-    computed: mapState(['items', 'newItems']),
+    computed: {
+        ...mapState(['items', 'newItems']),
+        ...mapStateProvider({ providers: 'items' })
+    },
+
+    beforeRouteLeave (to, from, next) {
+        this.$store.commit('SET_PROVIDER', null);
+        next();   
+    },
 
     async created () {
         !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
@@ -110,8 +125,11 @@ export default {
         !(this.items.length) && this.$store.dispatch('api/FETCH_DATA');
 
         !(this.store && this.$store.state['product']) 
-            && ((this.$store.registerModule('product', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }))
-    }
+            && ((this.$store.registerModule('product', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
+
+        !(this.store && this.$store.state['provider']) 
+            && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
+    },
 }
 </script>
 
@@ -120,4 +138,19 @@ export default {
 
     @import '../styles/common.scss';
     @import '../styles/modal.scss';
+
+    .l-flex {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-end;
+
+        & .c-select {
+            margin-left: 5rem;
+            padding: 7px;
+            border: 1px solid $main-color;
+            outline: none;
+            background-color: rgba($color: $main-color, $alpha: .1);
+            border-radius: 7px;
+        }
+    }
 </style>
