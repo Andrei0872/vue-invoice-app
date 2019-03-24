@@ -21,6 +21,7 @@
                         <font-awesome-icon icon="plus-circle" />
                     </div>
                     <VSelect @addProvider="$store.commit('SET_PROVIDER', $event)" class="c-select" :items="providers" />
+                    <VInput @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" placeholder="Invoice Nr." class="c-input" />
                 </div>
                 <VTableCreate 
                     @deleteRow="deleteRowInstantly($event)" 
@@ -68,6 +69,7 @@ import VModal from '../components/VModal';
 import VTableCreate from '../components/VTableCreate';
 import VTableRead from '../components/VTableRead';
 import VSelect from '../components/VSelect';
+import VInput from '../components/VInput';
 
 import modalMixin from '../mixins/modalMixin';
 import commonMixin from '../mixins/commonMixin';
@@ -84,7 +86,7 @@ const { mapState: mapStateProvider } = createNamespacedHelpers(providerEntity);
 export default {
     name: 'documents',
 
-    components: { VContent, VModal, VTableCreate, VTableRead, VSelect },
+    components: { VContent, VModal, VTableCreate, VTableRead, VSelect, VInput },
 
     mixins: [modalMixin, commonMixin],
 
@@ -151,6 +153,13 @@ export default {
             outline: none;
             background-color: rgba($color: $main-color, $alpha: .1);
             border-radius: 7px;
+        }
+
+        & .c-input {
+            border-radius: 7px;
+            margin-left: 5rem;
+            padding: .3rem;
+            border: 1px solid #303753;
         }
     }
 </style>
