@@ -4,7 +4,7 @@
             v-for="(item, index) in filteredItems"
             :class="['list__row', index === currentIndex ? 'selected-row' : null ]"
             :key="item.id"
-            @click="currentIndex = index; selectItem()"
+            @click="selectItem(index)"
         >   
             {{ item.name }}
         </div>
@@ -40,7 +40,9 @@ export default {
     },
 
     methods: {
+
         handleKeys (ev) {
+
             if (ev.which === 13) {
                 this.selectItem();
                 return;
@@ -55,9 +57,10 @@ export default {
                 this.currentIndex = 0;
         },
 
-        selectItem () {
-            const item = this.filteredItems.find((_, index) => this.currentIndex === index)
-            this.$emit('itemSelected', item);
+        selectItem (index = null) {
+            index && (this.currentIndex = index);
+
+            this.$emit('itemSelected', this.filteredItems[index || this.currentIndex]);
         },
 
         updateItems () {
