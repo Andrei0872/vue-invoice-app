@@ -3,44 +3,43 @@ const mainService = require('./index');
 class DocumentService extends mainService {
     constructor (name) {
         super(name);
+        this.documentTableColumns = { provider_id: null, provider_name: null, total_buy: 0, total_sell: 0, invoice_number: null };
+        this.documentProductTableColumns = ['document_id', 'product_id', 'quantity', 'quantity_type', 'buy_price', 'markup', 'sell_price','currency'];
     }
 
-    _processParams (params) {
-        const documentRows = [];
-        const documentProductRows = [];
+    async insertOne ({ items, provider: { id: provider_id, invoiceNr, name: provider_name } }) {
+        const documentValues = { ...this.documentTableColumns };
+        
+        const sanitizedItems = items.map(({ id, product_name: { id: product_id }, ...rest }) => {
+            documentValues['total_buy'] += +rest['buy_price'];
+            documentValues['total_sell'] += +rest['sell_price'];
+            
+            return { product_id, ...rest }
+        });
+        documentValues['invoice_number'] = invoiceNr;
+        documentValues['provider_name'] = provider_name;
+        documentValues['provider_id'] = provider_id;
 
-        params.reduce((memo, row) => {
-            const { product_name: { id: ProductId }, id, ...rest } = row;
+        try {
+            const { insertId: lastInsertId } = await this.table.insertOne(
+                Object.keys(documentValues).join(', '),
+                [Object.values(documentValues)]
+            );
 
-            memo.documentRows.push(rest);
-            memo.documentProductRows.push(ProductId);
+            this.table.currentTable = 'document_product';
+            await this.table.insertOne(
+                this.documentProductTableColumns.join(', '),
+                sanitizedItems.map(row => [lastInsertId, ...Object.values(row)])
+            );
 
-            return memo;
-        }, { documentRows, documentProductRows })
-
-        const keys = {
-            document: Object.keys(documentRows[0]),
-            product: 'id'
+            return { message: 'success' }
+        } catch (err) {
+            console.error(err)
+            return { message: `something went wrong:${err}` }
+        } finally {
+            this.table.currentTable = 'document';
         }
-        const values = {
-            document: documentRows.map(Object.values),
-            product: documentProductRows
-        }
-
-        return { keys, values }
-    }
-
-    async insertOne ({ items, provider }) {        
-        const { keys, values } = this._processParams(items)
-        // Compute the total values
-        // Use a procedure to create a document and retrieve the last inserted it
-        // After that, create a new record in the document_product table
-        console.log(keys)
-        console.log(values)
-        console.log(provider)
-
-        // const responseFromDB = await this.table.insertOne(keys.document.join(', '), values.document)
-        // console.log(responseFromDB)
+        
     }
 }
 
