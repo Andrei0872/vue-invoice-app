@@ -74,38 +74,44 @@ export default {
             return this.$store.state['currentEntity'] === 'documents' 
                 ? () => import('./VList.vue') 
                 : false
+        },
+
+        currentFieldValue () {
+            return typeof this.selectedFieldValue  === 'object' 
+                ? this.selectedFieldValue.name
+                : this.selectedFieldValue
         }
     },
 
     methods: {
         addField (row, fieldName, ev) {
-            const val = ev.target ? ev.target.value : ev;
-            
-            if (this.selectedFieldValue.trim() === val.trim()) {
-                return
-            }
-            
-            if (!!this.VList === false) {
-                this.$emit('addField', [row.id, fieldName,  val])
-                return;
-            }
+            // Because when the user clicks on a list item, the first event that will be triggered will be `blur`, and then `click`
+            // When the user uses the arrow keys and presses ENTER, the `blur` event will come second and the first event will be the one emitted by another component
+            setTimeout(() => {
+                console.log('second')
+                const val = ev.target ? ev.target.value : ev;
+                
+                if (this.currentFieldValue.trim() === val.trim() || !!(this.selectedItemFromList)) {
+                    this.selectedItemFromList = null
+                    return
+                }
+                
+                if (!!this.VList === false) {
+                    this.$emit('addField', [row.id, fieldName,  val])
+                    return;
+                }
 
-            if (this.selectedItemFromList) {
-                this.selectedItemFromList = null
-            } else {
+                console.log('danger zone!')
                 this.$emit('addField', [row.id, fieldName,  val])
-                // Give enough time to update the items after the user has chosen an item from the list
-                setTimeout(() => {
-                    this.inputValue = null
-                }, 100)
-            }
+
+            }, 300);
         },
 
         focusInputChild (ev) {
             if (ev.currentTarget !== ev.target) 
                 return
 
-            ev.target.children[0].focus();
+            ev.target.children[0].focus(); 
         },
 
         deleteRow (rowId) {
@@ -120,27 +126,31 @@ export default {
             this.selectedFieldValue = row[field] || '';
         },
 
-        // Happends when a list item is selected, then altered and the user
+        // Happens when a list item is selected, then altered and the user
         // wants to get the initial item name
         needsAdditionalUpdate () {
             return this.items.some(
                 item => item.id === this.selectedRowId 
                     && item[this.selectedField] === this.selectedItemFromList.name
+                    || typeof item[this.selectedField] === 'object' && item[this.selectedField].name === this.selectedItemFromList.name
             )
         },
 
         selectItem (itemInfo) {
+            console.log('first')
             this.selectedItemFromList = { ...itemInfo };
 
+            // If the user had chosen an item, altered the its name, but then decided to choose the same item
             if (this.needsAdditionalUpdate()) {
                 console.log('new update')
-                this.$emit('addField', [this.selectedRowId, this.selectedField,  this.inputValue])
+                this.$emit('addField', [this.selectedRowId, this.selectedField,  this.inputValue]);
             }
 
+            // Make it reactive
             setTimeout(() => {
-                this.$emit('addField', [this.selectedRowId, this.selectedField, { id: itemInfo.id, name: itemInfo.name }]);
-                this.inputValue = null
-            }, 0);
+                this.$emit('addField', [this.selectedRowId, this.selectedField, { id: this.selectedItemFromList.id, name: this.selectedItemFromList.name }]);
+                this.inputValue = null;
+            }, 100);
         }
     },
 
