@@ -27,7 +27,7 @@ export default {
 
     watch: {
         theValue (newVal) {
-            this.widthValue = `${((newVal.trim().length || this.placeholder.length) + 1) * 8}px`
+            this.widthValue = `${((newVal.trim().length || this.placeholder.length) + 4) * 8}px`
         }
     },
 
