@@ -100,10 +100,6 @@ class Database {
         });
     }
 
-    async _initProcedure () {
-
-    }
-
     // TODO: change name to insertMany...
     async insertOne(keys, values) {
         return await this._promisify(
