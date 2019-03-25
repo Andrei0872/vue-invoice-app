@@ -125,10 +125,12 @@ export default {
         !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
         
         !(this.items.length) && this.$store.dispatch('api/FETCH_DATA');
-
+        
+        // TODO: make it available only when editing / updating
         !(this.store && this.$store.state['product']) 
             && ((this.$store.registerModule('product', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
 
+        // TODO: make it available only when editing / updating
         !(this.store && this.$store.state['provider']) 
             && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
     },

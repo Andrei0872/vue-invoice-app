@@ -21,11 +21,7 @@ class DocumentService extends mainService {
         documentValues['provider_id'] = provider_id;
 
         try {
-            // TODO: totals can be computed on client side
-            /* 
-            IDEAS
-            When updating, do it locally, only when the user leaves the page or does a specific action, perfom the request
-            */
+            // select SUM(buy_price) as total_buy, SUM(sell_price) as total_sell from document_product group by document_id;
             const { insertId: lastInsertId } = await this.table.insertOne(
                 Object.keys(documentValues).join(', '),
                 [Object.values(documentValues)]
