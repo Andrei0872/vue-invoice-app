@@ -71,6 +71,12 @@ class DocumentService extends mainService {
             }
         }
     }
+
+    async deleteOne ({ id }) {
+        return await this.table._promisify(
+            `call remove_document(${id})`
+        )
+    }
 }
 
 module.exports = DocumentService;
