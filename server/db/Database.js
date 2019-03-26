@@ -26,14 +26,20 @@ class Database {
         try {
             this._initTables();
             await this._promisifyConn();
+            this._initTablesAndProcedures();
 
-            !(await this._tablesExist()) && this._createTables();
+            !(await this._tablesExist()) && this._initTablesAndProcedures();
 
             Database.prototype.isConnecting = false;
             Database.prototype.connection = this.connection;
         } catch (err) {
             console.error(err)
         }
+    }
+
+    async _initTablesAndProcedures () {
+        await this._createTables();
+        await this._initProcedure();
     }
 
     _initTables () {
@@ -51,6 +57,25 @@ class Database {
                 resolve(data)
             })
         })
+    }
+
+    async _initProcedure () {
+        await this._promisify('drop procedure if exists remove_document');
+
+        await this._promisify(
+            `
+            create procedure remove_document(
+                in doc_id int(8)
+            )
+            begin
+            
+            delete from document_product
+            where document_product.document_id = doc_id;
+
+            delete from document where document.id = doc_id;
+            end;
+            `
+        )
     }
 
     async _createTables () {
