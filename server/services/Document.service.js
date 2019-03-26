@@ -39,8 +39,37 @@ class DocumentService extends mainService {
             return { message: `something went wrong:${err}` }
         } finally {
             this.table.currentTable = 'document';
+        }   
+    }
+
+    // TODO: make joinTables() method
+    async getAll () {
+        const sql = `
+            select
+            document.provider_name,
+                SUM(document_product.buy_price) as total_buy, SUM(document_product.sell_price) as total_sell,
+                document.invoice_number, document.provider_id, document.inserted_date, document.id as id
+            from document
+            inner join document_product
+            on document.id = document_product.document_id
+            group by document_id
+        `;
+
+        try {
+            const data = await this.table._promisify(sql);
+            
+            return {
+                message: `Fetched from ${this.table.currentTable} successfully`,
+                status: 200,
+                data,
+            }
+        } catch (err) {
+            response = {
+                message: `Failed to fetch from ${this.table.currentTable}`,
+                reason: err.message,
+                status: 400
+            }
         }
-        
     }
 }
 
