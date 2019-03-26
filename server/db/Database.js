@@ -128,6 +128,9 @@ class Database {
         )
     }
 
+    // async joinTables (t1, t2, ) {
+
+    // }
 }
 
 // FIXME: export new Database()
