@@ -84,11 +84,14 @@ export default {
     },
 
     methods: {
-        addField (row, fieldName, ev) {
+        async addField (row, fieldName, ev) {
             // Because when the user clicks on a list item, the first event that will be triggered will be `blur`, and then `click`
             // When the user uses the arrow keys and presses ENTER, the `blur` event will come second and the first event will be the one emitted by another component
-            setTimeout(() => {
-                console.log('second')
+            if (!!(this.VList)) {
+                await setTimeout(() => {}, 300);
+            }
+
+            console.log('second')
                 const val = ev.target ? ev.target.value : ev;
                 
                 if (this.currentFieldValue.trim() === val.trim() || !!(this.selectedItemFromList)) {
@@ -103,8 +106,6 @@ export default {
 
                 console.log('danger zone!')
                 this.$emit('addField', [row.id, fieldName,  val])
-
-            }, 300);
         },
 
         focusInputChild (ev) {

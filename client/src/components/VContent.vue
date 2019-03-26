@@ -70,7 +70,7 @@ export default {
                 return;
 
             const entityName = this.currentEntity.slice(0, -1);
-    
+
             this.$store.dispatch('api/insertItem', this.newItems);
 
             this.isCreating = false
