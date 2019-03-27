@@ -7,9 +7,7 @@
                     v-if="items.length"
                     :fields="readColumns" 
                     :items="items" 
-                    @update="update($event)"
                     @showInfo="showInfo($event)"
-                    @deleteRow="deleteRow($event)"
                 />
                 <div v-else class="no-items">
                     There are no items!
@@ -36,30 +34,6 @@
             Some other error happened
         </div>
 
-        <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
-            <template v-slot:header>
-                <span>{{ modalTitle }}</span>
-            </template>
-            <template v-if="!isAboutToDelete" v-slot:body>
-                <div
-                    v-for="field in readColumns"
-                    :key="field"
-                    class="modal-body__row"
-                >
-                    <div class="modal-body__prop"><span>{{ field }}</span></div>
-                    <div class="modal-body__arrow"><font-awesome-icon icon="arrow-right" /></div>
-                    <div class="modal-body__value">
-                        <span>{{ selectedItem[field] }}</span>
-                    </div>
-                </div>
-            </template>
-            <template v-else v-slot:body>
-                <div class="c-modal-buttons">
-                    <button class="c-modal-buttons__button c-modal-buttons--yes" @click="confirmDelete">Yes</button>
-                    <button class="c-modal-buttons__button c-modal-buttons--no" @click="cancelDelete">No</button>
-                </div>
-            </template>
-        </VModal>
     </div>
 </template>
 
@@ -73,6 +47,7 @@ import VInput from '../components/VInput';
 
 import modalMixin from '../mixins/modalMixin';
 import commonMixin from '../mixins/commonMixin';
+import documentMixin from '../mixins/documentMixin';
 
 const entityName = 'document';
 const providerEntity = 'provider';
@@ -88,28 +63,15 @@ export default {
 
     components: { VContent, VModal, VTableCreate, VTableRead, VSelect, VInput },
 
-    mixins: [modalMixin, commonMixin],
+    mixins: [modalMixin, commonMixin, documentMixin],
 
-    data: () => ({
-        createColumns: [
-            "product_name",
-            "quantity",
-            "quantity_type",
-            "buy_price",
-            "markup",
-            "sell_price",
-            "currency"
-        ],
-        readColumns: [
-            "provider_name",
-            "total_buy",
-            "total_sell",
-            "invoice_number",
-            "inserted_date"
-        ]
-    }),
+    methods: {
+        ...mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
 
-    methods: mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
+        showInfo ({ id }) {
+            this.$router.push({ name: 'documentEditOne', params: { id } });
+        }
+    },
 
     computed: {
         ...mapState(['items', 'newItems']),

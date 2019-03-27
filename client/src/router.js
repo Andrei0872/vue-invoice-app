@@ -26,7 +26,7 @@ const router = new Router({
     loadComp('/providers'),
     loadComp('/documents', [
       loadComp('', null, 'documents'),
-      { ...loadComp(':id(\\d+)', null, 'documentUpdateOne'), props: true }
+      { ...loadComp('edit/:id(\\d+)', null, 'documentEditOne'), props: true }
     ], undefined, 'DocumentHome'),
   ]
 })
