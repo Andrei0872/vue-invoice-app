@@ -10,7 +10,7 @@ export const getters = {
 }
 
 export const mutations = {
-    SET_ITEMS: (state, payload) => { state.items.push(...payload); console.log(state.items) },
+    SET_ITEMS: (state, payload) => state.items.push(...payload),
     
     SET_ID: (state, id) => state.currentId = id
 }
