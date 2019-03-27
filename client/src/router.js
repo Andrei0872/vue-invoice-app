@@ -6,12 +6,11 @@ import { capitalize } from './utils';
 
 const loadComp = (path = '/', children = null, name = path.slice(1), component = capitalize(name)) => {
   return {
-    path, 
-    name,
+    path,
     component: () => import(`./views/${component}`),
     ...{ hasChildren: children !== null }.hasChildren && {
       children
-    }
+    } || { name }
   }
 }
 
@@ -25,7 +24,10 @@ const router = new Router({
     loadComp('/settings'),
     loadComp('/products'),
     loadComp('/providers'),
-    loadComp('/documents'),
+    loadComp('/documents', [
+      loadComp('', null, 'documents'),
+      { ...loadComp(':id(\\d+)', null, 'documentUpdateOne'), props: true }
+    ], undefined, 'DocumentHome'),
   ]
 })
 
