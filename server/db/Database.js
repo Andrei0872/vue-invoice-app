@@ -26,7 +26,6 @@ class Database {
         try {
             this._initTables();
             await this._promisifyConn();
-            this._initTablesAndProcedures();
 
             !(await this._tablesExist()) && this._initTablesAndProcedures();
 
