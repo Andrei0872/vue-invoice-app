@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import * as api from './modules/api';
+import * as document_product from './modules/document_product';
 
 Vue.use(Vuex)
 
@@ -44,6 +45,7 @@ const store = new Vuex.Store({
 
     modules: {
         api,
+        document_product
     }
 });
 
