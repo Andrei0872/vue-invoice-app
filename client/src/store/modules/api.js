@@ -23,7 +23,7 @@ export const actions = {
         try {
             !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
 
-            const { data } = await dispatch('makeRequest', { url, config: getters.config })
+            const { data } = await dispatch('makeRequest', { url, config: { ...getters.config, method: "GET" } })
             
             dispatch(`${!(anotherEntity) ? moduleName : anotherEntity.slice(0, -1)}/setItems`, data, { root: true });
             !(avoidChangingState)  && commit('CHANGE_STATE', true, { root: true });
