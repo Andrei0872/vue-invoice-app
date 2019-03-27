@@ -159,6 +159,12 @@ export default {
         },
 
         updateRow (row) {
+            
+            if (this.$store.state['currentEntity'] === 'documents') {
+                this.$emit('update', row.id);
+                return;
+            }
+
             this.isUpdating = true;
             this.selectedRowId = row.id;
             this.selectedRow = { ...row };
