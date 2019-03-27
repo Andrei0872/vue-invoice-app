@@ -13,11 +13,11 @@
             </thead>
             <tbody :class="{ 'h-has-hover': !isUpdating }">
                 <template v-for="row in itemsFromProps">
-                    <div :key="row.id" class="icon h-has-two-buttons">
+                    <div v-if="shouldDisplayButtons" :key="row.id" class="icon h-has-two-buttons">
                         <template v-if="!isUpdating || isUpdating && selectedRowId !== row.id">
                             <font-awesome-icon 
                                 icon="pencil-alt" 
-                                class="pencil-alt" 
+                                class="pencil-alt"
                                 @click="updateRow(row)"
                             />
                             <font-awesome-icon 
@@ -114,6 +114,11 @@ export default {
             return this.$store.state['currentEntity'] === 'documents' && this.isUpdating
                 ? () => import('./VList.vue') 
                 : false
+        },
+
+        shouldDisplayButtons () {
+            return this.$store.state.currentEntity !== 'documents'
+                && this.$route.name !== 'documentEditOne';
         }
     },
 
