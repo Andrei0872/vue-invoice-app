@@ -41,7 +41,7 @@ export default {
     },
 
     mounted () {
-        this.widthValue = ((`${this.theValue}`.trim().length || this.placeholder.length) + 1) * 8 + 'px'; 
+        this.widthValue = ((`${this.theValue}`.trim().length || this.placeholder.length) + 4) * 8 + 'px'; 
     },
 
 }
