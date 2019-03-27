@@ -6,9 +6,11 @@ class DocumentController extends mainController {
     }
 
     async getAllByDocument (req, res) {
-        const { body } = req;
+        const { id } = req.body;
+        
+        const responseFromDB = await this.service.getAllByDocument(id);
 
-        console.log('body', body)
+        return res.json(responseFromDB)
     }
 }
 
