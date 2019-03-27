@@ -34,10 +34,17 @@ export default {
         ...mapActions(entity, ['setId'])
     },
 
-    created () {    
+    created () {
+
+        if (!this.$store.state.currentEntity) {
+            this.$router.push({ name: 'documents' });
+            // Avoid showing any errors
+            return;
+        }
+
         this.setId(this.id);
 
-        this.currentItem = this.$store.getters['getEntityItems'].find(item => item.id === this.id)
+        this.currentItem = this.$store.getters['getEntityItems'].find(item => item.id === this.id);
 
         this.items.length === 0 && this.$store.dispatch(`${entity}/fetchById`, this.id);
     }
