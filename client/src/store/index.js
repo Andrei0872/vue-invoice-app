@@ -16,12 +16,18 @@ const store = new Vuex.Store({
     },
 
     getters: {
+        getEntityName: state => state.currentEntity.slice(0, -1),
+
         getEntityNewItems: state => {
             const entityName = state.currentEntity.slice(0, -1)
             
             if (state[entityName]) 
                 return state[entityName].newItems
         },
+
+        getEntityItems: (state, getters) => {
+            return state[getters.getEntityName].items
+        }
     },
 
     mutations: {
