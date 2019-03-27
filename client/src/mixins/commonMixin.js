@@ -59,9 +59,14 @@ export default {
             this.addNewItem(this.createRandomObj());
         },
 
-        update(changesArr) {
-            console.log('changes obj:', changesArr)
-            this.updateItems(changesArr);
+        update(data) {
+            if (!Array.isArray(data)) {
+                // A document is being updated; this will open the selected doc in another page
+                this.$router.push({ name: 'documentUpdateOne', params: { id: data } })
+                return;
+            }
+            console.log('changes obj:', data)
+            this.updateItems(data);
         },
     },
 
