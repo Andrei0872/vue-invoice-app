@@ -74,6 +74,18 @@ class DocumentService extends mainService {
             `call remove_document(${id})`
         )
     }
+
+    async getAllByDocument (id) {
+        const data = await this.table._promisify(
+            `
+            select * from document_product
+            where document_id = ?
+            `,
+            id
+        );
+            
+        return data.map(({ id, ...rest }) => rest)
+    }
 }
 
 module.exports = DocumentService;
