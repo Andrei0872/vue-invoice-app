@@ -4,7 +4,7 @@
         {{ currentItem }}
         <br>
         {{ items }}
-        <button @click="$router.go(-1)">back</button>
+        <button @click="$router.push('/documents')">back</button>
     </div>
 </template>
 

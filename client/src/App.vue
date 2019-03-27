@@ -46,6 +46,7 @@ export default {
   }
 
   aside {
+    z-index: 2;
     grid-row: 1 / -1;
   }
 

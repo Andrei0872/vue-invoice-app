@@ -8,7 +8,6 @@
         <div class="l-sidebar__links">
             <ul class="c-list">
                 <router-link
-                    active-class="active"
                     exact
                     tag="li"
                     :to="link.route"

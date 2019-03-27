@@ -19,6 +19,7 @@ Vue.use(Router)
 
 const router = new Router({
   mode: 'history',
+  linkActiveClass: 'active',
   routes: [
     loadComp('/', null, 'dashboard'),
     loadComp('/settings'),
