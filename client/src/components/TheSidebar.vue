@@ -8,10 +8,10 @@
         <div class="l-sidebar__links">
             <ul class="c-list">
                 <router-link
-                    exact
                     tag="li"
                     :to="link.route"
-                    class="c-list__wrapper"
+                    exact
+                    :class="{'c-list__wrapper': true, 'active': isActive(link.route)}"
                     v-for="link in links"
                     :key="link.id"
                 >
@@ -34,7 +34,14 @@ export default {
     name: 'sidebar',
     data: () => ({
         links
-    })
+    }),
+
+    methods: {
+        isActive (input) {
+            return this.$route.matched.some(({ path }) => path.includes(input)) 
+                && input !== '/'
+        }
+    }
 }
 </script>
 
