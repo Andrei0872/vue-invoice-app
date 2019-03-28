@@ -1,22 +1,36 @@
 <template>
-    <div>
-        <h1>{{ $route.params.id }}</h1>
+    <div class="container">
+        <VTableRead 
+            :fields="createColumns"
+            :items="items"
+            @update="update"
+        />
         {{ currentItem }}
         <br>
-        {{ items }}
+        <!-- {{ items }} -->
+
         <button @click="$router.push('/documents')">back</button>
+
+        <!-- Add select component with providers -->
+        <!-- Final result -->
+        <!-- Add go back btn -->
+        <!-- Add confirm btn -->
     </div>
 </template>
 
 <script>
 import VTableRead from '../components/VTableRead';
 
-import { mapGetters, mapActions } from 'vuex'
+import documentMixin from '../mixins/documentMixin';
+
+import { mapGetters, mapActions, mapState } from 'vuex'
 
 const entity = 'document_product'
 
 export default {
     components: { VTableRead },
+
+    mixins: [documentMixin],
 
     data: () => ({
         currentItem: null,
@@ -31,8 +45,17 @@ export default {
     },
 
     methods: {
-        ...mapActions(entity, ['setId'])
+        ...mapActions(entity, ['setId']),
+
+        update (data) {
+            console.log('updating', data)
+        }
     },
+
+    // beforeRouteLeave (to, from, next) {
+    //     console.log(to)
+    //     // this.$router.push('/providers')
+    // },
 
     created () {
 
@@ -50,3 +73,9 @@ export default {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+    .container {
+        padding: .3rem 1rem;
+    }
+</style>
