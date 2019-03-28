@@ -44,7 +44,12 @@
                         :class="isUpdating && selectedRowId === row.id ? 'selected' : isUpdating ? 'blurred' : null"
                         v-on="{ click: !isUpdating ? showInfo.bind(null, row) : () => {} }"
                     >
-                        <td @click="focusInputChild($event)" v-for="field in fields" :key="field + 'td'">
+                        <td 
+                            @click="focusInputChild($event)" 
+                            v-for="field in fields" 
+                            :key="field + 'td'"
+                            :class="{ 'blurred': isUpdating && selectedRowId === row.id && field === 'product_name' }"
+                        >
                             <VInput 
                                 :key="row[field]"
                                 class="the-input"
@@ -118,13 +123,13 @@ export default {
 
         shouldDisplayButtons () {
             return this.$store.state.currentEntity !== 'documents'
-                && this.$route.name !== 'documentEditOne';
+                || this.$route.name === 'documentEditOne';
         }
     },
 
     methods: {
         handleFocus (rowId, field, ev) {
-            if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId) {
+            if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId || field === 'product_name') {
                 ev.target.blur();
                 return;
             }
@@ -164,8 +169,7 @@ export default {
         },
 
         updateRow (row) {
-            
-            if (this.$store.state['currentEntity'] === 'documents') {
+            if (this.$store.state['currentEntity'] === 'documents' && this.$route.name !== 'documentEditOne') {
                 this.$emit('update', row.id);
                 return;
             }
