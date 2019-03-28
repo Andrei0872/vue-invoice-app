@@ -86,6 +86,10 @@ class DocumentService extends mainService {
             
         return data;
     }
+
+    async updateOne () {
+        // Whenever you're ready.. :D
+    }
 }
 
 module.exports = DocumentService;

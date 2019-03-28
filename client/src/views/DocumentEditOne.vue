@@ -1,19 +1,20 @@
 <template>
-    <div class="container">
+    <div class="container" v-if="currentId !== null">
         <VTableRead 
             :fields="createColumns"
             :items="items"
-            @update="update"
+            @update="setChange($event)"
         />
 
-        <VTableRead :fields="readColumns" :readonly="true" :items="[currentItem]" />
-        <!-- {{ items }} -->
+        <VTableRead :fields="readColumns" :readonly="true" :items="[results]" />
 
         <button @click="$router.push('/documents')">back</button>
+        <button @click="sendUpdates">confirm</button>
 
+        <br>
+        <br>
         <!-- Add select component with providers -->
             <!-- The first provider should be the current one -->
-        <!-- Final result -->
         <!-- Add go back btn -->
         <!-- Add confirm btn -->
     </div>
@@ -42,21 +43,31 @@ export default {
             return this.$route.params.id
         },
 
-        ...mapGetters(entity, { items: 'getItemsById' }),
+        ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges' }),
+
+        results () {
+            const { total_buy, total_sell } = this.items.reduce((memo, item) => {
+                memo['total_buy'] += +(this.changes[item.id] && this.changes[item.id]['buy_price'] || item['buy_price'])
+                memo['total_sell'] += +(this.changes[item.id] && this.changes[item.id]['sell_price'] || item['sell_price'])
+
+                return memo;
+            }, { total_buy: 0, total_sell: 0 })
+
+            return { ...this.currentItem, total_buy, total_sell };
+        },
+
+        ...mapState(entity, ['currentId'])
     },
 
     methods: {
-        ...mapActions(entity, ['setId']),
+        ...mapActions(entity, ['setId', 'setChange']),
 
-        update (data) {
-            console.log('updating', data)
+        sendUpdates () {
+            if (!(Object.keys(this.changes).length))
+                return;
+            // Go on..
         }
     },
-
-    // beforeRouteLeave (to, from, next) {
-    //     console.log(to)
-    //     // this.$router.push('/providers')
-    // },
 
     created () {
 
@@ -66,6 +77,7 @@ export default {
             return;
         }
 
+        this.setChange({})
         this.setId(this.id);
 
         this.currentItem = this.$store.getters['getEntityItems'].find(item => item.id === this.id);
@@ -76,7 +88,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    
     .container {
         padding: .3rem 1rem;
     }
+
+
 </style>
