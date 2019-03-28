@@ -6,7 +6,8 @@
                 <VTableRead 
                     v-if="items.length"
                     :fields="readColumns" 
-                    :items="items" 
+                    :items="items"
+                    :readonly="true"
                     @showInfo="showInfo($event)"
                 />
                 <div v-else class="no-items">
@@ -69,7 +70,7 @@ export default {
         ...mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
 
         showInfo ({ id }) {
-            this.$router.push({ name: 'documentEditOne', params: { id } });
+            this.$router.replace({ name: 'documentEditOne', params: { id } });
         }
     },
 

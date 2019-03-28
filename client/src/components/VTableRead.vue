@@ -11,7 +11,7 @@
                     </th>
                 </tr>
             </thead>
-            <tbody :class="{ 'h-has-hover': !isUpdating }">
+            <tbody :class="{ 'h-has-hover': !isUpdating, 'h-readonly': $route.name === 'documentEditOne' && readonly  }">
                 <template v-for="row in itemsFromProps">
                     <div v-if="shouldDisplayButtons" :key="row.id" class="icon h-has-two-buttons">
                         <template v-if="!isUpdating || isUpdating && selectedRowId !== row.id">
@@ -81,7 +81,11 @@ import VInput from '../components/VInput';
 export default {
     props: {
         fields: Array,
-        items: Array
+        items: Array,
+        readonly: {
+            type: Boolean,
+            default: false
+        }
     },
 
     components: { VInput },
@@ -122,8 +126,7 @@ export default {
         },
 
         shouldDisplayButtons () {
-            return this.$store.state.currentEntity !== 'documents'
-                || this.$route.name === 'documentEditOne';
+            return !this.readonly
         }
     },
 
@@ -383,6 +386,16 @@ export default {
         input {
             background: transparent;
             cursor: pointer;
+        }
+    }
+}
+
+.h-readonly {
+    tr:hover {
+        cursor: default;
+
+        input {
+            cursor: default;
         }
     }
 }

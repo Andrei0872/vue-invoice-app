@@ -5,13 +5,14 @@
             :items="items"
             @update="update"
         />
-        {{ currentItem }}
-        <br>
+
+        <VTableRead :fields="readColumns" :readonly="true" :items="[currentItem]" />
         <!-- {{ items }} -->
 
         <button @click="$router.push('/documents')">back</button>
 
         <!-- Add select component with providers -->
+            <!-- The first provider should be the current one -->
         <!-- Final result -->
         <!-- Add go back btn -->
         <!-- Add confirm btn -->
