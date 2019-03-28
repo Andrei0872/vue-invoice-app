@@ -264,6 +264,10 @@ export default {
     }
 }
 
+td.blurred {
+    filter: blur(0);
+}
+
 .placeholder {
     color: #ccc;
 }
