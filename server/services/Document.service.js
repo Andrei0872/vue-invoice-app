@@ -84,7 +84,7 @@ class DocumentService extends mainService {
             id
         );
             
-        return data.map(({ id, ...rest }) => rest)
+        return data;
     }
 }
 
