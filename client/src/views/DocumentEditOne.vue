@@ -17,6 +17,7 @@
             <!-- The first provider should be the current one -->
         <!-- Add go back btn -->
         <!-- Add confirm btn -->
+        <!-- Handle deletion -->
     </div>
 </template>
 
