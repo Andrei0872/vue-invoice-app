@@ -3,6 +3,7 @@
         <VTableRead 
             :fields="createColumns"
             :items="items"
+            @deleteRow="deleteRow($event)"
             @update="setChange($event)"
         />
 
@@ -17,23 +18,38 @@
             <!-- The first provider should be the current one -->
         <!-- Add go back btn -->
         <!-- Add confirm btn -->
+        
         <!-- Handle deletion -->
+        <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
+            <template v-slot:header>
+                <span>{{ modalTitle }}</span>
+            </template>
+            <template v-slot:body>
+                <div class="c-modal-buttons">
+                    <button class="c-modal-buttons__button c-modal-buttons--yes" @click="confirmDelete">Yes</button>
+                    <button class="c-modal-buttons__button c-modal-buttons--no" @click="cancelDelete">No</button>
+                </div>
+            </template>
+        </VModal>
     </div>
 </template>
 
 <script>
 import VTableRead from '../components/VTableRead';
+import VModal from '../components/VModal';
 
 import documentMixin from '../mixins/documentMixin';
+import commonMixin from '../mixins/commonMixin';
+import modalMixin from '../mixins/modalMixin';
 
 import { mapGetters, mapActions, mapState } from 'vuex'
 
 const entity = 'document_product'
 
 export default {
-    components: { VTableRead },
+    components: { VTableRead, VModal },
 
-    mixins: [documentMixin],
+    mixins: [documentMixin, commonMixin, modalMixin],
 
     data: () => ({
         currentItem: null,
@@ -61,7 +77,7 @@ export default {
     },
 
     methods: {
-        ...mapActions(entity, ['setId', 'setChange', 'updateItems']),
+        ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc']),
 
         async sendUpdates () {
             if (!(Object.keys(this.changes).length))
@@ -71,6 +87,13 @@ export default {
             console.log(resp)
 
             this.$router.push('/documents');
+        },
+
+        confirmDelete () {
+            // this.selectedItem.id
+            // Send a different request in order to only delete this item from its documnet
+            this.deleteFromDoc(this.selectedItem.id)
+            this.closeModal();
         }
     },
 
@@ -93,7 +116,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    
+    $modal-text-color: darken($color: #394263, $amount: 10%);
+
+    @import '../styles/modal.scss';
+
     .container {
         padding: .3rem 1rem;
     }

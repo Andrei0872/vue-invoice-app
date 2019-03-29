@@ -50,7 +50,7 @@ export const actions = {
         commit('SET_CHANGES', changesObj);
     },
 
-    updateItems: async ({ commit, dispatch, rootState, rootGetters, state }, payload) => {
+    updateItems: async ({ dispatch, rootState, rootGetters }, payload) => {
         const url = `${rootState.mainUrl}documents/update`
         const config = {
             ...rootGetters['api/config'], 
@@ -63,5 +63,11 @@ export const actions = {
         await dispatch('api/FETCH_DATA', undefined, { root: true });
         
         return response;
+    },
+
+    // TODO: add subscribeAction
+    deleteFromDoc: async ({ dispatch, rootGetters }, id) => {
+        const url = `${rootGetters.mainUrl}`
+        // TODO: init the new procedure
     }
 }

@@ -20,6 +20,10 @@ class DocumentController extends mainController {
 
         return res.json(responseFromDB)
     }
+
+    async deleteFromDoc ({ body: { id } }, res) {
+        console.log(body)
+    }
 }
 
 module.exports = DocumentController
