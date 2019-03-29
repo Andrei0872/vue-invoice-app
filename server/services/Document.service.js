@@ -23,18 +23,7 @@ class DocumentService extends mainService {
             ...this.documentTableColumns
         };
 
-        const sanitizedItems = items.map(({
-            id,
-            product_name: {
-                id: product_id
-            },
-            ...rest
-        }) => {
-            return {
-                product_id,
-                ...rest
-            }
-        });
+        const sanitizedItems = items.map(({ id, product_name: { id: product_id }, ...rest }) => ({ product_id, ...rest }));
 
         documentValues['invoice_number'] = invoiceNr;
         documentValues['provider_name'] = provider_name;
@@ -97,9 +86,7 @@ class DocumentService extends mainService {
         }
     }
 
-    async deleteOne({
-        id
-    }) {
+    async deleteOne({ id }) {
         return await this.table._promisify(
             `call remove_document(${id})`
         )
