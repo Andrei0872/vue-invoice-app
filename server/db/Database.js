@@ -26,6 +26,7 @@ class Database {
         try {
             this._initTables();
             await this._promisifyConn();
+            // await this._initProcedure();
 
             !(await this._tablesExist()) && this._initTablesAndProcedures();
 
@@ -64,14 +65,21 @@ class Database {
         await this._promisify(
             `
             create procedure remove_document(
-                in doc_id int(8)
+                in doc_id int(8), product_id int(8)
             )
             begin
             
-            delete from document_product
-            where document_product.document_id = doc_id;
+            if product_id != -1 then
+                delete from document_product 
+                where document_product.id = product_id;
 
-            delete from document where document.id = doc_id;
+                select * from document_product;
+            else
+                delete from document_product
+                where document_product.document_id = doc_id;
+
+                delete from document where document.id = doc_id;
+            end if;
             end;
             `
         )

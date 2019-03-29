@@ -88,7 +88,7 @@ class DocumentService extends mainService {
 
     async deleteOne({ id }) {
         return await this.table._promisify(
-            `call remove_document(${id})`
+            `call remove_document(${id}, -1)`
         )
     }
 
