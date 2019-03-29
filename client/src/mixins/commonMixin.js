@@ -67,9 +67,13 @@ export default {
 
     computed: {
         modalTitle () {
+            // If we are editing a document(this.$route.name !== 'documentEditOne')
+            // make sure to display the name of the product
             return this.isAboutToDelete
                 ? `Are you sure you want to delete ${
-                    this.$store.state.currentEntity === 'documents' ? 'this document' : this.selectedItem.name 
+                    this.$store.state.currentEntity === 'documents' && this.$route.name !== 'documentEditOne' 
+                        ? 'this document' 
+                        : this.selectedItem.name || (this.$route.name === 'documentEditOne' && this.selectedItem.product_name)  
                 } ?` 
                 : `About ${this.selectedItem.name}`
         },
