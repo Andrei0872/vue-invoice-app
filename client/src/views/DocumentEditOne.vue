@@ -7,8 +7,12 @@
             @update="setChange($event)"
         />
 
-        <VTableRead :fields="readColumns" :readonly="true" :items="[results]" />
+        <div class="c-provider-info">
+            <VSelect @addProvider="$store.commit('SET_PROVIDER', $event)" class="c-select" :items="providers" />
+        </div>
 
+        <VTableRead :fields="readColumns" :readonly="true" :items="[results]" />
+        {{ currentItem }}
         <button @click="$router.push('/documents')">back</button>
         <button @click="sendUpdates">confirm</button>
 
@@ -16,10 +20,10 @@
         <br>
         <!-- Add select component with providers -->
             <!-- The first provider should be the current one -->
+
         <!-- Add go back btn -->
         <!-- Add confirm btn -->
         
-        <!-- Handle deletion -->
         <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
                 <span>{{ modalTitle }}</span>
@@ -37,6 +41,7 @@
 <script>
 import VTableRead from '../components/VTableRead';
 import VModal from '../components/VModal';
+import VSelect from '../components/VSelect';
 
 import documentMixin from '../mixins/documentMixin';
 import commonMixin from '../mixins/commonMixin';
@@ -47,7 +52,7 @@ import { mapGetters, mapActions, mapState } from 'vuex'
 const entity = 'document_product'
 
 export default {
-    components: { VTableRead, VModal },
+    components: { VTableRead, VModal, VSelect },
 
     mixins: [documentMixin, commonMixin, modalMixin],
 
@@ -61,6 +66,7 @@ export default {
         },
 
         ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges' }),
+        ...mapState('provider', { providers: 'items' }),
 
         results () {
             const { total_buy, total_sell } = this.items.reduce((memo, item) => {
@@ -70,7 +76,7 @@ export default {
                 return memo;
             }, { total_buy: 0, total_sell: 0 })
 
-            return { ...this.currentItem, total_buy, total_sell };
+            return { ...this.currentItem, total_buy, total_sell, };
         },
 
         ...mapState(entity, ['currentId'])
@@ -111,7 +117,12 @@ export default {
         this.currentItem = this.$store.getters['getEntityItems'].find(item => item.id === this.id);
 
         this.items.length === 0 && this.$store.dispatch(`${entity}/fetchById`, this.id);
-    }
+    },
+
+    beforeRouteLeave (to, from, next) {
+        this.$store.commit('SET_PROVIDER', null);
+        next();   
+    },
 }
 </script>
 
