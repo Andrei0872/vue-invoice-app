@@ -7,8 +7,9 @@
                     v-if="items.length"
                     :fields="readColumns" 
                     :items="items"
-                    :readonly="true"
+                    showDelete
                     @showInfo="showInfo($event)"
+                    @deleteRow="deleteRow($event)"
                 />
                 <div v-else class="no-items">
                     There are no items!
@@ -35,6 +36,29 @@
             Some other error happened
         </div>
 
+        <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
+            <template v-slot:header>
+                <span>{{ modalTitle }}</span>
+            </template>
+            <template v-slot:body>
+                <div
+                    v-for="keyVal in Object.entries(selectedItem)"
+                    :key="keyVal[1].id"
+                    class="modal-body__row"
+                >
+                    <div class="modal-body__prop"><span>{{ keyVal[0] }}</span></div>
+                    <div class="modal-body__arrow"><font-awesome-icon icon="arrow-right" /></div>
+                    <div class="modal-body__value">
+                        <span>{{ keyVal[1] }}</span>
+                    </div>
+                </div>
+
+                <div class="c-modal-buttons">
+                    <button class="c-modal-buttons__button c-modal-buttons--yes" @click="confirmDelete">Yes</button>
+                    <button class="c-modal-buttons__button c-modal-buttons--no" @click="cancelDelete">No</button>
+                </div>
+            </template>
+        </VModal>
     </div>
 </template>
 

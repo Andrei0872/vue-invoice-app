@@ -14,61 +14,63 @@ export default {
             return Object.assign({}, ... (this.createColumns.map(field => ({ [field]: '' }))), { id: uuidv1() });
         },
 
-        showInfo(row) {
+        showInfo (row) {
             this.selectedItem = { ...row };
             this.showDetails = true;
         },
 
-        addRow() {
+        addRow () {
             this.addNewItem(this.createRandomObj());
         },
 
-        deleteRow(row) {
+        deleteRow (row) {
             this.isAboutToDelete = true;
             this.selectedItem = { ...row };
             this.showDetails = true;
         },
 
-        deleteRowInstantly(rowId) {
+        deleteRowInstantly (rowId) {
             this.deleteItem({
                 prop: 'newItems',
                 id: rowId
             });
         },
 
-        confirmDelete() {
+        confirmDelete () {
             this.deleteItem({ prop: 'items', id: this.selectedItem.id });
             this.resetModalContent();
         },
 
-        cancelDelete() {
+        cancelDelete () {
             this.resetModalContent();
         },
 
-        resetModalContent() {
+        resetModalContent () {
             this.showDetails = false;
             this.isAboutToDelete = false;
         },
 
-        addField([rowId, fieldName, value]) {
+        addField ([rowId, fieldName, value]) {
             this.addFieldValue({ rowId, fieldName, value });
         },
 
-        init() {
+        init () {
             this.resetArr({ prop: 'newItems' });
             this.addNewItem(this.createRandomObj());
         },
 
-        update(data) {
+        update (data) {
             console.log('changes obj:', data)
             this.updateItems(data);
         },
     },
 
     computed: {
-        modalTitle() {
-            return this.isAboutToDelete 
-                ? `Are you sure you want to delete ${this.selectedItem.name} ?` 
+        modalTitle () {
+            return this.isAboutToDelete
+                ? `Are you sure you want to delete ${
+                    this.$store.state.currentEntity === 'documents' ? 'this document' : this.selectedItem.name 
+                } ?` 
                 : `About ${this.selectedItem.name}`
         },
 

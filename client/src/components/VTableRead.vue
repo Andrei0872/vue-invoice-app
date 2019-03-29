@@ -16,11 +16,13 @@
                     <div v-if="shouldDisplayButtons" :key="row.id" class="icon h-has-two-buttons">
                         <template v-if="!isUpdating || isUpdating && selectedRowId !== row.id">
                             <font-awesome-icon 
+                                v-if="!showDelete"
                                 icon="pencil-alt" 
                                 class="pencil-alt"
                                 @click="updateRow(row)"
                             />
-                            <font-awesome-icon 
+                            <font-awesome-icon
+                                :style="{ 'margin-top': showDelete ? '13px' : undefined }" 
                                 icon="minus-circle" 
                                 class="minus-circle" 
                                 @click="deleteRow(row)"    
@@ -83,6 +85,10 @@ export default {
         fields: Array,
         items: Array,
         readonly: {
+            type: Boolean,
+            default: false
+        },
+        showDelete: {
             type: Boolean,
             default: false
         }
