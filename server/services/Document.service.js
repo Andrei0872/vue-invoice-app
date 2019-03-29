@@ -1,17 +1,39 @@
 const mainService = require('./index');
 
 class DocumentService extends mainService {
-    constructor (name) {
+    constructor(name) {
         super(name);
-        this.documentTableColumns = { provider_id: null, provider_name: null, invoice_number: null };
-        this.documentProductTableColumns = ['document_id', 'product_id', 'quantity', 'quantity_type', 'buy_price', 'markup', 'sell_price','currency'];
+        this.documentTableColumns = {
+            provider_id: null,
+            provider_name: null,
+            invoice_number: null
+        };
+        this.documentProductTableColumns = ['document_id', 'product_id', 'quantity', 'quantity_type', 'buy_price', 'markup', 'sell_price', 'currency'];
     }
 
-    async insertOne ({ items, provider: { id: provider_id, invoiceNr, name: provider_name } }) {
-        const documentValues = { ...this.documentTableColumns };
-        
-        const sanitizedItems = items.map(({ id, product_name: { id: product_id }, ...rest }) => {
-            return { product_id, ...rest }
+    async insertOne({
+        items,
+        provider: {
+            id: provider_id,
+            invoiceNr,
+            name: provider_name
+        }
+    }) {
+        const documentValues = {
+            ...this.documentTableColumns
+        };
+
+        const sanitizedItems = items.map(({
+            id,
+            product_name: {
+                id: product_id
+            },
+            ...rest
+        }) => {
+            return {
+                product_id,
+                ...rest
+            }
         });
 
         documentValues['invoice_number'] = invoiceNr;
@@ -19,7 +41,9 @@ class DocumentService extends mainService {
         documentValues['provider_id'] = provider_id;
 
         try {
-            const { insertId: lastInsertId } = await this.table.insertOne(
+            const {
+                insertId: lastInsertId
+            } = await this.table.insertOne(
                 Object.keys(documentValues).join(', '),
                 [Object.values(documentValues)]
             );
@@ -30,17 +54,21 @@ class DocumentService extends mainService {
                 sanitizedItems.map(row => [lastInsertId, ...Object.values(row)])
             );
 
-            return { message: 'success' }
+            return {
+                message: 'success'
+            }
         } catch (err) {
             console.error(err)
-            return { message: `something went wrong:${err}` }
+            return {
+                message: `something went wrong:${err}`
+            }
         } finally {
             this.table.currentTable = 'document';
-        }   
+        }
     }
 
     // TODO: make joinTables() method
-    async getAll () {
+    async getAll() {
         const sql = `
             select
             document.provider_name,
@@ -54,7 +82,7 @@ class DocumentService extends mainService {
 
         try {
             const data = await this.table._promisify(sql);
-            
+
             return {
                 message: `Fetched from ${this.table.currentTable} successfully`,
                 status: 200,
@@ -69,13 +97,15 @@ class DocumentService extends mainService {
         }
     }
 
-    async deleteOne ({ id }) {
+    async deleteOne({
+        id
+    }) {
         return await this.table._promisify(
             `call remove_document(${id})`
         )
     }
 
-    async getAllByDocument (id) {
+    async getAllByDocument(id) {
         const data = await this.table._promisify(
             `
             select * from document_product
@@ -83,12 +113,55 @@ class DocumentService extends mainService {
             `,
             id
         );
-            
+
         return data;
     }
 
-    async updateOne () {
-        // Whenever you're ready.. :D
+    async updateOne(data) {
+        // TODO: only use the used columns
+        const [, , ...columns] = this.documentProductTableColumns;
+        const columnValues = Object.entries(data).map(([rowId, fields], i) => {
+            const vals = columns.map(column => fields[column] || 'null')
+            let query = ``;
+                
+            if (i === 0) {
+                const firstLine = columns.map(column => `${fields[column] || 'null'} as new_${column}`);
+                firstLine.push(`${rowId} as id`);
+                query = `
+                    select ${firstLine.join(', ')}
+                `
+            } else {
+                vals.push(rowId)
+                query = `
+                    union all
+                    select ${vals.join(', ')}
+                ` 
+            }
+            
+            return query
+        });
+
+        const setValues = columns.map(column => {
+            return `
+                ${column} = case when new_${column} is not null then new_${column} else dp.${column} end 
+            `
+        });
+
+        const sql = `
+        update document_product dp
+        join (
+            ${columnValues.join(' ')}
+        ) vals on vals.id = dp.id
+        set ${setValues.join(', ')}
+        `;
+
+        try {
+            await this.table._promisify(sql);
+
+            return { message: 'Successfully updated!' }
+        } catch {
+            return { message: 'An error has occurred when updating!' }
+        }
     }
 }
 

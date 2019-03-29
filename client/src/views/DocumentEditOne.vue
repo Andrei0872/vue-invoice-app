@@ -60,12 +60,16 @@ export default {
     },
 
     methods: {
-        ...mapActions(entity, ['setId', 'setChange']),
+        ...mapActions(entity, ['setId', 'setChange', 'updateItems']),
 
-        sendUpdates () {
+        async sendUpdates () {
             if (!(Object.keys(this.changes).length))
                 return;
-            // Go on..
+            
+            const resp = await this.updateItems(this.changes);
+            console.log(resp)
+
+            this.$router.push('/documents');
         }
     },
 

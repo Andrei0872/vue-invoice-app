@@ -12,6 +12,14 @@ class DocumentController extends mainController {
 
         return res.json(responseFromDB)
     }
+
+    async updateOne (req, res) {
+        const { body } = req;
+
+        const responseFromDB = (await this.service.updateOne(body));
+
+        return res.json(responseFromDB)
+    }
 }
 
 module.exports = DocumentController
