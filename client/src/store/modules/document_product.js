@@ -66,8 +66,12 @@ export const actions = {
     },
 
     // TODO: add subscribeAction
-    deleteFromDoc: async ({ dispatch, rootGetters }, id) => {
-        const url = `${rootGetters.mainUrl}`
-        // TODO: init the new procedure
+    deleteFromDoc: async ({ dispatch, rootState, rootGetters, state }, id) => {
+        const url = `${rootState.mainUrl}documents/delete_from_doc`;
+        const config = { ...rootGetters['api/config'], method: "DELETE", body: JSON.stringify({ id, docId: state.currentId }) };
+        
+        const dataAfterDeletion = await dispatch('api/makeRequest', { url, config }, { root: true });
+
+        console.log(dataAfterDeletion || 'nope')
     }
 }

@@ -150,6 +150,12 @@ class DocumentService extends mainService {
             return { message: 'An error has occurred when updating!' }
         }
     }
+
+    async deleteFromDoc (id, docId) {
+        return await this.table._promisify(
+            `call remove_document(${docId}, ${id})`
+        )
+    }
 }
 
 module.exports = DocumentService;

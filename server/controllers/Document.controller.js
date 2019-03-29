@@ -16,13 +16,15 @@ class DocumentController extends mainController {
     async updateOne (req, res) {
         const { body } = req;
 
-        const responseFromDB = (await this.service.updateOne(body));
+        const responseFromDB = await this.service.updateOne(body);
 
         return res.json(responseFromDB)
     }
 
-    async deleteFromDoc ({ body: { id } }, res) {
-        console.log(body)
+    async deleteFromDoc ({ body: { id, docId } }, res) {
+        const responseFromDB = await this.service.deleteFromDoc(id, docId);
+
+        return res.json(responseFromDB);
     }
 }
 

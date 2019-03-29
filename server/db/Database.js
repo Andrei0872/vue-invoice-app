@@ -26,7 +26,6 @@ class Database {
         try {
             this._initTables();
             await this._promisifyConn();
-            // await this._initProcedure();
 
             !(await this._tablesExist()) && this._initTablesAndProcedures();
 
@@ -73,7 +72,7 @@ class Database {
                 delete from document_product 
                 where document_product.id = product_id;
 
-                select * from document_product;
+                select * from document_product where document_product.document_id = doc_id;
             else
                 delete from document_product
                 where document_product.document_id = doc_id;
