@@ -71,6 +71,7 @@ export default {
 
             const entityName = this.currentEntity.slice(0, -1);
 
+            console.log(this.newItems)
             this.$store.dispatch('api/insertItem', this.newItems);
 
             this.isCreating = false

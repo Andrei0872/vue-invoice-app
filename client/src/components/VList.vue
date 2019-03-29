@@ -21,7 +21,7 @@ export default {
         filterKey: {
             type: String,
             default: ''
-        }
+        },
     },
 
     data: () => ({
@@ -32,7 +32,7 @@ export default {
     watch: {
         filterKey (newVal) {
             this.updateItems();
-        }
+        },
     },
 
     destroyed() {
@@ -67,6 +67,8 @@ export default {
             this.filteredItems = this.items.filter(
                 ({ name }) => ~(name.toLowerCase().indexOf(this.filterKey.toLowerCase()))
             )
+
+            this.$parent.listVisible = (this.filteredItems.length !== 0)
         }
     },
 

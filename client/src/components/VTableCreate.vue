@@ -37,7 +37,7 @@
                                 v-if="field === 'product_name' && selectedField === 'product_name' && inputValue && row.id === selectedRowId"
                                 :is="VList"
                                 :filterKey="inputValue"
-                                :key="row.id + 'uniq'"
+                                :key="row.id"
                             />
                         </td>
                     </tr>
@@ -64,7 +64,8 @@ export default {
             selectedRowId: null,
             selectedItemFromList: null,
             selectedField: null,
-            selectedFieldValue: ''
+            selectedFieldValue: '',
+            listVisible: false,
         }
     },
 
@@ -83,29 +84,19 @@ export default {
         }
     },
 
+    watch: {
+        inputValue (newVal) {
+            (newVal === null || newVal.trim() === '') && (this.listVisible = false)
+        }
+    },
+
     methods: {
         async addField (row, fieldName, ev) {
-            // Because when the user clicks on a list item, the first event that will be triggered will be `blur`, and then `click`
-            // When the user uses the arrow keys and presses ENTER, the `blur` event will come second and the first event will be the one emitted by another component
-            if (!!(this.VList)) {
-                await setTimeout(() => {}, 300);
-            }
+            if (this.listVisible)
+                return;
 
-            console.log('second')
-                const val = ev.target ? ev.target.value : ev;
-                
-                if (this.currentFieldValue.trim() === val.trim() || !!(this.selectedItemFromList)) {
-                    this.selectedItemFromList = null
-                    return
-                }
-                
-                if (!!this.VList === false) {
-                    this.$emit('addField', [row.id, fieldName,  val])
-                    return;
-                }
-
-                console.log('danger zone!')
-                this.$emit('addField', [row.id, fieldName,  val])
+            const val = ev.target ? ev.target.value : ev;
+            this.$emit('addField', [row.id, fieldName,  val])
         },
 
         focusInputChild (ev) {
@@ -138,7 +129,6 @@ export default {
         },
 
         selectItem (itemInfo) {
-            console.log('first')
             this.selectedItemFromList = { ...itemInfo };
 
             // If the user had chosen an item, altered the its name, but then decided to choose the same item
@@ -147,11 +137,9 @@ export default {
                 this.$emit('addField', [this.selectedRowId, this.selectedField,  this.inputValue]);
             }
 
-            // Make it reactive
-            setTimeout(() => {
-                this.$emit('addField', [this.selectedRowId, this.selectedField, { id: this.selectedItemFromList.id, name: this.selectedItemFromList.name }]);
-                this.inputValue = null;
-            }, 100);
+            this.inputValue += ' ';
+            // this.inputValue = null; // Not reactive
+            this.$emit('addField', [this.selectedRowId, this.selectedField, { id: this.selectedItemFromList.id, name: this.selectedItemFromList.name }]);
         }
     },
 
