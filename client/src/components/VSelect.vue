@@ -13,11 +13,19 @@
 <script>
 export default {
     props: {
-        items: Array
+        items: Array,
+        selectedFieldId: {
+            type: Number,
+            default: -1
+        }
     },
 
     created () {
-        this.$store.commit('SET_PROVIDER', this.items[0]);
+        this.$store.commit('SET_PROVIDER', (this.selectedFieldId !== -1 ? this.items.find(({ id }) => id === this.selectedFieldId) : this.items[0]));
+    },
+
+    mounted () {
+        this.selectedFieldId !== -1 && (this.$el.value = this.selectedFieldId)
     }
 }
 </script>
