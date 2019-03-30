@@ -156,6 +156,19 @@ class DocumentService extends mainService {
             `call remove_document(${docId}, ${id})`
         )
     }
+
+    async updateDocument ({ id, ...otherFields }) {
+        const keys = Object.keys(otherFields).join(' = ?, ') + ' = ?';
+        const values = [...Object.values(otherFields), id];
+        
+        try {
+            await this.table.updateOne(keys, values);
+
+            return { message: 'The document has been updated!' }
+        } catch {
+            return { message: 'There has been an error updating the document' }
+        }
+    }
 }
 
 module.exports = DocumentService;

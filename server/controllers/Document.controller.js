@@ -26,6 +26,12 @@ class DocumentController extends mainController {
 
         return res.json(responseFromDB);
     }
+
+    async updateDocument ({ body }, res) {
+        const responseFromDB = (await this.service.updateDocument(body)) || { test: 'ok!' };
+
+        res.json(responseFromDB);
+    }
 }
 
 module.exports = DocumentController

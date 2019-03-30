@@ -3,7 +3,8 @@ export const namespaced = true;
 export const state = {
     items: [],
     changes: {},
-    currentId: null
+    currentId: null,
+    alreadyFetched: false
 }
 
 export const getters = {
@@ -17,7 +18,9 @@ export const mutations = {
     
     SET_ID: (state, id) => state.currentId = id,
 
-    SET_CHANGES: (state, payload) => state.changes = payload
+    SET_CHANGES: (state, payload) => state.changes = payload,
+
+    SET_ALREADY_FETCHED: (state, payload) => state.alreadyFetched = payload
 }
 
 export const actions = {
@@ -51,6 +54,10 @@ export const actions = {
     },
 
     updateItems: async ({ dispatch, rootState, rootGetters }, payload) => {
+        dispatch('setAlreadyFetched', true);
+
+        console.log('updating items!')
+        
         const url = `${rootState.mainUrl}documents/update_products`
         const config = {
             ...rootGetters['api/config'], 
@@ -73,5 +80,26 @@ export const actions = {
         const dataAfterDeletion = await dispatch('api/makeRequest', { url, config }, { root: true });
 
         console.log(dataAfterDeletion || 'nope')
-    }
+    },
+
+    updateDocument: async ({ dispatch, state, rootState, rootGetters }, payload) => {
+        console.log('updating document!')
+
+        const url = `${rootState.mainUrl}documents/update_document`;
+        const config = {
+            ...rootGetters['api/config'],
+            method: "PUT",
+            body: JSON.stringify(payload)
+        }
+
+        await dispatch('api/makeRequest', { url, config }, { root: true })
+        
+        if (!state.alreadyFetched) {
+            await dispatch('api/FETCH_DATA', undefined, { root: true });
+        } else {
+            dispatch('setAlreadyFetched', false);
+        }
+    },
+
+    setAlreadyFetched: ({ commit }, payload) => commit('SET_ALREADY_FETCHED', payload)
 }

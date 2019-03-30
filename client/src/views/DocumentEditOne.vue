@@ -8,21 +8,41 @@
         />
 
         <div class="c-provider-info">
-            <VSelect @addProvider="$store.commit('SET_PROVIDER', $event)" class="c-select" :items="providers" />
+            <VSelect
+                @change.native="$refs.invoiceNr.$el.value = ''"
+                @addProvider="$store.commit('SET_PROVIDER', $event)" 
+                class="c-select c-select--no-margin" 
+                :items="providers"
+                :selectedFieldId="currentItem.provider_id"
+            />
+            <VInput
+                ref="invoiceNr"
+                :key="currentItem.provider_id"
+                @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" 
+                placeholder="Invoice Nr."
+                class="c-input" 
+            />
         </div>
-
-        <VTableRead :fields="readColumns" :readonly="true" :items="[results]" />
+        {{ selectedProvider }}
+        <br>
+        <br>
         {{ currentItem }}
-        <button @click="$router.push('/documents')">back</button>
-        <button @click="sendUpdates">confirm</button>
-
         <br>
         <br>
-        <!-- Add select component with providers -->
-            <!-- The first provider should be the current one -->
+        <!-- {{ $store.getters['getEntityItems'] }} -->
+        <VTableRead
+            v-if="selectedProvider"
+            :fields="readColumns" 
+            :readonly="true" 
+            :items="[results]"
+        />
+        
+        <!-- {{ results }} -->
 
         <!-- Add go back btn -->
         <!-- Add confirm btn -->
+        <button @click="$router.push('/documents')">back</button>
+        <button @click="sendUpdates">confirm</button>
         
         <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
@@ -42,6 +62,7 @@
 import VTableRead from '../components/VTableRead';
 import VModal from '../components/VModal';
 import VSelect from '../components/VSelect';
+import VInput from '../components/VInput';
 
 import documentMixin from '../mixins/documentMixin';
 import commonMixin from '../mixins/commonMixin';
@@ -52,7 +73,7 @@ import { mapGetters, mapActions, mapState } from 'vuex'
 const entity = 'document_product'
 
 export default {
-    components: { VTableRead, VModal, VSelect },
+    components: { VTableRead, VModal, VSelect, VInput },
 
     mixins: [documentMixin, commonMixin, modalMixin],
 
@@ -66,7 +87,12 @@ export default {
         },
 
         ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges' }),
+
         ...mapState('provider', { providers: 'items' }),
+        
+        selectedProvider () {
+            return this.$store.state.selectedProvider
+        },
 
         results () {
             const { total_buy, total_sell } = this.items.reduce((memo, item) => {
@@ -76,28 +102,62 @@ export default {
                 return memo;
             }, { total_buy: 0, total_sell: 0 })
 
-            return { ...this.currentItem, total_buy, total_sell, };
+            return { 
+                ...this.currentItem, 
+                total_buy, 
+                total_sell, 
+                provider_name: this.selectedProvider.name, 
+                provider_id: this.selectedProvider.id,
+                invoice_number: this.selectedProvider.invoiceNr || this.currentItem.invoice_number
+            };
         },
 
-        ...mapState(entity, ['currentId'])
+        ...mapState(entity, ['currentId', 'alreadyFetched'])
     },
 
     methods: {
-        ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc']),
 
-        async sendUpdates () {
-            if (!(Object.keys(this.changes).length))
-                return;
+        ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc', 'updateDocument', 'setAlreadyFetched']),
+
+        shouldUpdateDocument () {
+            const changes = {};
+            let changeFound = false;
+
+            for (const key of Object.keys(this.selectedProvider)) {
+                if (key === 'inserted_date' || key === 'URC')
+                    continue;
+
+                const currentItemKey = key === 'id' 
+                    ? 'provider_id' 
+                    : key === 'invoiceNr' 
+                        ? 'invoice_number'
+                        : key === 'id'
+                            ? 'provider_id'
+                            : key === 'name'
+                                ? 'provider_name'
+                                : key
+
+                if (this.selectedProvider[key] !== this.currentItem[currentItemKey]) {
+                    changes[currentItemKey] = this.selectedProvider[key];
+                    changeFound = true;
+                }
+            }
+
+            return changeFound ? changes : changeFound;
+        },
+
+        sendUpdates () {
+            (Object.keys(this.changes).length) && this.updateItems(this.changes)
             
-            const resp = await this.updateItems(this.changes);
-            console.log(resp)
+            let changes = null;
+            (changes = this.shouldUpdateDocument()) &&  this.updateDocument({ ...changes, id: this.currentItem.id });
 
+            this.alreadyFetched && this.setAlreadyFetched(false)
             this.$router.push('/documents');
         },
 
         confirmDelete () {
-            // this.selectedItem.id
-            // Send a different request in order to only delete this item from its documnet
+            // Send a different request in order to only delete this item from its document
             this.deleteFromDoc(this.selectedItem.id)
             this.closeModal();
         }
@@ -114,7 +174,7 @@ export default {
         this.setChange({})
         this.setId(this.id);
 
-        this.currentItem = this.$store.getters['getEntityItems'].find(item => item.id === this.id);
+        this.currentItem = { ...this.$store.getters['getEntityItems'].find(item => item.id === this.id) };
 
         this.items.length === 0 && this.$store.dispatch(`${entity}/fetchById`, this.id);
     },
@@ -128,6 +188,7 @@ export default {
 
 <style lang="scss" scoped>
     $modal-text-color: darken($color: #394263, $amount: 10%);
+    $main-color: #394263;
 
     @import '../styles/modal.scss';
 
@@ -135,5 +196,29 @@ export default {
         padding: .3rem 1rem;
     }
 
+    .c-provider-info {
+        display: flex;
+        justify-content: flex-start;
+
+        .c-select {
+            margin-left: 5rem;
+            padding: 7px;
+            border: 1px solid $main-color;
+            outline: none;
+            background-color: rgba($color: $main-color, $alpha: .1);
+            border-radius: 7px;
+
+            &--no-margin {
+                margin-left: 2rem;
+            }
+        }
+
+        .c-input {
+            border-radius: 7px;
+            margin-left: 5rem;
+            padding: .3rem;
+            border: 1px solid #303753;
+        }
+    }
 
 </style>
