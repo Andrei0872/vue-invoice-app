@@ -13,10 +13,10 @@ class DocumentController extends mainController {
         return res.json(responseFromDB)
     }
 
-    async updateOne (req, res) {
+    async updateProducts(req, res) {
         const { body } = req;
 
-        const responseFromDB = await this.service.updateOne(body);
+        const responseFromDB = await this.service.updateProducts(body);
 
         return res.json(responseFromDB)
     }

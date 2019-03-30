@@ -51,7 +51,7 @@ export const actions = {
     },
 
     updateItems: async ({ dispatch, rootState, rootGetters }, payload) => {
-        const url = `${rootState.mainUrl}documents/update`
+        const url = `${rootState.mainUrl}documents/update_products`
         const config = {
             ...rootGetters['api/config'], 
             method: "PUT",

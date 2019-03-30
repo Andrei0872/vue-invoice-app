@@ -104,7 +104,7 @@ class DocumentService extends mainService {
         return data;
     }
 
-    async updateOne(data) {
+    async updateProducts (data) {
         // TODO: only use the used columns
         const [, , ...columns] = this.documentProductTableColumns;
         const columnValues = Object.entries(data).map(([rowId, fields], i) => {
