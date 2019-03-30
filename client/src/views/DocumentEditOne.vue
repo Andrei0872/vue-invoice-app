@@ -1,11 +1,15 @@
 <template>
     <div class="container" v-if="currentId !== null">
-        <VTableRead 
+        <VTableRead
+            v-if="this.items.length"
             :fields="createColumns"
             :items="items"
             @deleteRow="deleteRow($event)"
             @update="setChange($event)"
         />
+        <div v-else>
+            There are no items left!
+        </div>
 
         <div class="c-provider-info">
             <VSelect
@@ -23,13 +27,7 @@
                 class="c-input" 
             />
         </div>
-        {{ selectedProvider }}
-        <br>
-        <br>
-        {{ currentItem }}
-        <br>
-        <br>
-        <!-- {{ $store.getters['getEntityItems'] }} -->
+
         <VTableRead
             v-if="selectedProvider"
             :fields="readColumns" 
@@ -37,8 +35,6 @@
             :items="[results]"
         />
         
-        <!-- {{ results }} -->
-
         <!-- Add go back btn -->
         <!-- Add confirm btn -->
         <button @click="$router.push('/documents')">back</button>
@@ -81,6 +77,12 @@ export default {
         currentItem: null,
     }),
 
+    watch: {
+        'items.length' (len) {
+            !len && this.$router.push('/documents');
+        }
+    },
+
     computed: {
         id () {
             return this.$route.params.id
@@ -108,7 +110,8 @@ export default {
                 total_sell, 
                 provider_name: this.selectedProvider.name, 
                 provider_id: this.selectedProvider.id,
-                invoice_number: this.selectedProvider.invoiceNr || this.currentItem.invoice_number
+                invoice_number: this.selectedProvider.invoiceNr || this.currentItem.invoice_number,
+                nr_products: this.items.length
             };
         },
 
@@ -127,6 +130,7 @@ export default {
                 if (key === 'inserted_date' || key === 'URC')
                     continue;
 
+                // FIXME: switch
                 const currentItemKey = key === 'id' 
                     ? 'provider_id' 
                     : key === 'invoiceNr' 
@@ -181,6 +185,7 @@ export default {
 
     beforeRouteLeave (to, from, next) {
         this.$store.commit('SET_PROVIDER', null);
+        this.$store.commit('document_product/SET_LAST_DELETED_DOC_ID', -1);
         next();   
     },
 }

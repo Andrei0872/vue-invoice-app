@@ -14,7 +14,8 @@ export default {
                 "total_buy",
                 "total_sell",
                 "invoice_number",
-                "inserted_date"
+                "inserted_date",
+                "nr_products"
             ]
     })
 }

@@ -62,7 +62,8 @@ class DocumentService extends mainService {
             select
             document.provider_name,
                 SUM(document_product.buy_price) as total_buy, SUM(document_product.sell_price) as total_sell,
-                document.invoice_number, document.provider_id, document.inserted_date, document.id as id
+                document.invoice_number, document.provider_id, document.inserted_date, document.id as id,
+                count(document_product.id) as nr_products
             from document
             inner join document_product
             on document.id = document_product.document_id
@@ -78,7 +79,7 @@ class DocumentService extends mainService {
                 data,
             }
         } catch (err) {
-            response = {
+            return {
                 message: `Failed to fetch from ${this.table.currentTable}`,
                 reason: err.message,
                 status: 400
@@ -152,9 +153,9 @@ class DocumentService extends mainService {
     }
 
     async deleteFromDoc (id, docId) {
-        return await this.table._promisify(
+        return (await this.table._promisify(
             `call remove_document(${docId}, ${id})`
-        )
+        ))[0]
     }
 
     async updateDocument ({ id, ...otherFields }) {
