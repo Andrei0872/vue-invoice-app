@@ -4,7 +4,8 @@ export const state = {
     items: [],
     changes: {},
     currentId: null,
-    alreadyFetched: false
+    alreadyFetched: false,
+    lastDeletedDocId: -1
 }
 
 export const getters = {
@@ -20,7 +21,9 @@ export const mutations = {
 
     SET_CHANGES: (state, payload) => state.changes = payload,
 
-    SET_ALREADY_FETCHED: (state, payload) => state.alreadyFetched = payload
+    SET_ALREADY_FETCHED: (state, payload) => state.alreadyFetched = payload,
+
+    SET_LAST_DELETED_DOC_ID: (state, payload) => state.lastDeletedDocId = payload
 }
 
 export const actions = {
@@ -32,7 +35,6 @@ export const actions = {
 
         const products = rootState.product.items
             .reduce((memo, product) => (memo[product.id] = product.name, memo), {})
-
 
         commit('SET_ID', id);
         commit('SET_ITEMS', data.map(item => ({ ...item, product_name: products[item.product_id] })));
@@ -73,13 +75,17 @@ export const actions = {
     },
 
     // TODO: add subscribeAction
-    deleteFromDoc: async ({ dispatch, rootState, rootGetters, state }, id) => {
+    deleteFromDoc: async ({ dispatch, commit, rootState, rootGetters, state }, id) => {
         const url = `${rootState.mainUrl}documents/delete_from_doc`;
         const config = { ...rootGetters['api/config'], method: "DELETE", body: JSON.stringify({ id, docId: state.currentId }) };
         
         const dataAfterDeletion = await dispatch('api/makeRequest', { url, config }, { root: true });
 
-        console.log(dataAfterDeletion || 'nope')
+        commit('SET_LAST_DELETED_DOC_ID', state.currentId);
+        const products = rootState.product.items
+            .reduce((memo, product) => (memo[product.id] = product.name, memo), {})
+
+        commit('SET_ITEMS', dataAfterDeletion.map(item => ({ ...item, product_name: products[item.product_id] })));
     },
 
     updateDocument: async ({ dispatch, state, rootState, rootGetters }, payload) => {
