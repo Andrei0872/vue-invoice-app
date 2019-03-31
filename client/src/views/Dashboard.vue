@@ -14,11 +14,14 @@
         :card-info="{ icon: 'file', title: 'products', value: 123 }"
       />
     </div>
-
     <div class="main-cards">
       <div>
         <div class="c-card c-history">
-          <div class="c-card__title">history</div>
+          <div class="c-card__title">
+            <div class="c-card__arrow"><font-awesome-icon icon="arrow-left" /></div>
+            <div>History</div>
+            <div class="c-card__arrow"><font-awesome-icon icon="arrow-right" /></div>
+          </div>
           <div class="c-card__content">
             <div class="c-row">
               <div class="c-row__title">titlu</div>
@@ -132,18 +135,41 @@ export default {
   }
 
   .c-history {
-    .c-card__content {
-      position: relative;
-    }
+    
+    .c-card {
 
-    .c-card__content::before {
-      position: absolute;
-      content: "";
-      width: 1px;
-      background-color: darken(#f3f3f3, 10%);
-      left: $row-title-length;
-      top: 0;
-      bottom: 0;
+      &__title {
+        max-height: 2.3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      &__arrow {
+        width: 2.2rem;
+        height: 2.2rem;
+        background-color: darken($color: $main-blue, $amount: 20%);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        color: #DADAE3;
+      }
+
+      &__content {
+        position: relative;
+
+        &::before {
+          position: absolute;
+          content: "";
+          width: 1px;
+          background-color: darken(#f3f3f3, 10%);
+          left: $row-title-length;
+          top: 0;
+          bottom: 0;
+        }
+      }
     }
   }
 
