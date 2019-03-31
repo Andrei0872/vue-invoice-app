@@ -48,11 +48,28 @@
       </div>
       <div>
         <div class="c-card c-card--small-half c-vat">
-          <div class="c-card__title">vat</div>
-          <div class="c-card__content">content</div>
+          <div class="c-card__title">VAT</div>
+          <div class="c-card__content">
+            <div class="c-vat__item">
+              <div class="c-vat__item--title">non-food VAT</div>
+              <div class="c-vat__item--content">
+                <input class="c-vat__input" type="text" placeholder="non-food VAT">
+                <button class="c-vat__button">OK</button>
+              </div>
+              <div class="c-vat__current">Current: </div>
+            </div>
+            <div class="c-vat__item">
+              <div class="c-vat__item--title">food VAT</div>
+                <div class="c-vat__item--content">
+                  <input class="c-vat__input" type="text" placeholder="food VAT">
+                  <button class="c-vat__button">OK</button>
+                </div>
+              <div class="c-vat__current">Current: </div>
+            </div>
+          </div>
         </div>
         <div class="c-card c-card--big-half c-document">
-          <div class="c-card__title">documents</div>
+          <div class="c-card__title">Documents</div>
           <div class="c-card__content">content</div>
         </div>
       </div>
@@ -79,6 +96,12 @@ export default {
 <style lang="scss" scoped>
   $row-title-length: 15rem;
   $main-blue: #394263;
+  $main-blue-border: rgba($color: $main-blue, $alpha: .4);
+
+  %title-style {
+    color: #fff;
+    background-color: lighten($color: $main-blue, $amount: 8%);
+  }
 
   .container {
     width: 100%;
@@ -109,9 +132,8 @@ export default {
       height: 100%;
 
       &__title {
+        @extend %title-style;
         flex-basis: 2rem;
-        color: #fff;
-        background-color: lighten($color: $main-blue, $amount: 8%);
         padding: 7px;
         text-align: center;
         letter-spacing: 1px;
@@ -124,11 +146,11 @@ export default {
       }
 
       &--small-half {
-        height: 100px;
+        height: 120px;
       }
 
       &--big-half {
-        margin-top: 70px;
+        margin-top: 50px;
         height: calc(100% - 170px);
       }
     }
@@ -211,4 +233,55 @@ export default {
     }
   }
 
+  .c-vat {
+    
+    .c-card__content {
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    &__item {
+      flex: 1;
+      text-align: center;
+      padding-top: 3px;
+
+      &:first-child {
+        border-right: 1px solid $main-blue-border;
+      }
+
+      &--title {
+        color: darken($color: $main-blue, $amount: 30%);
+        margin-bottom: 6px;
+        border-bottom: 1px solid $main-blue-border;
+      }
+
+      &--content {
+        padding-bottom: 4px;
+        border-bottom: 1px solid $main-blue-border;
+
+        .c-vat__input {
+          margin-right: 1rem;
+          padding: 2px;
+          border-radius: 10px;
+          border: 1px solid $main-blue-border;
+        }
+
+        .c-vat__button {
+          border-radius: 3px;
+          color: #fff;
+          background-color: $main-blue;
+          border: none;
+          padding: 3px;
+          cursor: pointer;
+        }
+      }
+    }
+
+    &__current {
+      @extend %title-style;
+      letter-spacing: 1px;
+      padding: 5px;
+      font-size: 1.12rem;
+    }
+  }
 </style>
