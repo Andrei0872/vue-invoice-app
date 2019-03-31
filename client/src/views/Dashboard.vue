@@ -70,7 +70,43 @@
         </div>
         <div class="c-card c-card--big-half c-document">
           <div class="c-card__title">Documents</div>
-          <div class="c-card__content">content</div>
+          <div class="c-card__content">
+            <div class="c-document__item">
+              <div class="c-document__title">title</div>
+              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
+              <div class="c-document__date">date</div>
+            </div>
+            <div class="c-document__item">
+              <div class="c-document__title">title</div>
+              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
+              <div class="c-document__date">date</div>
+            </div>
+            <div class="c-document__item">
+              <div class="c-document__title">title</div>
+              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
+              <div class="c-document__date">date</div>
+            </div>
+            <div class="c-document__item">
+              <div class="c-document__title">title</div>
+              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
+              <div class="c-document__date">date</div>
+            </div>
+            <div class="c-document__item">
+              <div class="c-document__title">title</div>
+              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
+              <div class="c-document__date">date</div>
+            </div>
+            <div class="c-document__item">
+              <div class="c-document__title">title</div>
+              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
+              <div class="c-document__date">date</div>
+            </div>
+            <div class="c-document__item">
+              <div class="c-document__title">title</div>
+              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
+              <div class="c-document__date">date</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -101,6 +137,16 @@ export default {
   %title-style {
     color: #fff;
     background-color: lighten($color: $main-blue, $amount: 8%);
+  }
+
+  %icon-dark-bg {
+    background-color: darken($color: $main-blue, $amount: 20%);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #DADAE3;
   }
 
   .container {
@@ -170,13 +216,7 @@ export default {
       &__arrow {
         width: 2.2rem;
         height: 2.2rem;
-        background-color: darken($color: $main-blue, $amount: 20%);
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        color: #DADAE3;
+        @extend %icon-dark-bg;
       }
 
       &__content {
@@ -282,6 +322,66 @@ export default {
       letter-spacing: 1px;
       padding: 5px;
       font-size: 1.12rem;
+    }
+  }
+
+  .c-document {
+    overflow: auto;
+
+    .c-card__content {
+      padding-top: .8rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    &__item {
+      background-color: $main-blue;
+      color: #fff;
+      flex: 0 0 115px;
+      margin: 10px;
+      transition: transform .3s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 150px;
+      max-height: 200px;
+
+      &:hover {
+        transform: translateY(-5px);
+      }
+
+    }
+
+    .icon-wrapper {
+      width: 3rem;
+      height: 3rem;
+      @extend %icon-dark-bg;
+    }
+
+    &__title {
+      padding-top: 8px;
+      font-style: italic;
+      letter-spacing: calc(1.7 * 1px);
+      font-size: .9rem;
+    }
+    
+    &__date {
+      padding-bottom: 8px;
+      font-weight: bold;
+    }
+
+
+    &__title, &__date {
+      flex-basis: 10%;
+    }
+
+    &__icon {
+      flex-basis: 80%;
+      display: flex;
+      align-items: center;
     }
   }
 </style>
