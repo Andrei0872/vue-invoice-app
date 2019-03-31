@@ -13,6 +13,7 @@ import {
   faTachometerAlt,
   faTimes,
   faArrowRight,
+  faArrowLeft,
   faPlusCircle,
   faMinusCircle,
   faPencilAlt,
@@ -23,7 +24,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // Add icons to the library
 library.add(
-  faIndustry, faCartPlus, faCog, faFile, faTachometerAlt, faTimes, faArrowRight, faPlusCircle, faMinusCircle, faPencilAlt, faCheck, faClipboardList
+  faIndustry, faCartPlus, faCog, faFile, faTachometerAlt, faTimes, faArrowRight, faPlusCircle, faMinusCircle, faPencilAlt, faCheck, faClipboardList,
+  faArrowLeft
 );
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
