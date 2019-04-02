@@ -6,9 +6,11 @@ class DashboardService extends mainService {
     }
 
     async getMainOverview () {
-        return (await this.db._promisify(
-            'call get_main_overview()'
-        ))[0];
+        return {
+            data: (await this.db._promisify(
+                'call get_main_overview()'
+            ))[0][0]
+        };
     }   
 }
 
