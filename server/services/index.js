@@ -3,10 +3,8 @@ const debug = require('debug')('service')
 class Service {
     constructor (name) {
         debug('new service', name)
-        this.table = require('../db').useTable(name);
-        this.table = new this.table();
-
-        this.response = {};
+        this[`${name ? 'table' : 'db'}`] = require('../db').useTable(name);
+        name && (this.table = new this.table());
     }
 
     async insertOne (params) {
