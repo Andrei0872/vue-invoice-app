@@ -13,7 +13,7 @@ class Database {
     }
 
     async connect () {
-        this.tables = ['product', 'document', 'provider', 'document_product', 'history'];
+        this.tables = ['product', 'document', 'provider', 'document_product', 'history', 'vat'];
         // Avoid connecting multiple times while awaiting for the first connection to resolve
         Database.prototype.isConnecting = true;
         debug('connecting to db')
