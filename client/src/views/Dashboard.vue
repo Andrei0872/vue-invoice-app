@@ -110,7 +110,6 @@
         </div>
       </div>
     </div>
-    
   </div>
 </template>
 
@@ -124,7 +123,13 @@ export default {
 
   data: () => ({
     icons: ['cart-plus', 'industry', 'file', 'clipboard-list'],
-  })
+    endpoints: ['dashboard', 'vat', 'history']
+  }),
+
+  methods: {
+    fetchFromEndpoint (endpoint) {},
+  },
+
 }
 </script>
 
