@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 
 import * as api from './modules/api';
 import * as document_product from './modules/document_product';
+import * as dashboard from './modules/dashboard';
 
 Vue.use(Vuex)
 
@@ -45,7 +46,8 @@ const store = new Vuex.Store({
 
     modules: {
         api,
-        document_product
+        document_product,
+        dashboard
     }
 });
 
