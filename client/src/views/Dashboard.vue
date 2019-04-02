@@ -15,27 +15,23 @@
             <div>History</div>
             <div class="c-card__arrow"><font-awesome-icon icon="arrow-right" /></div>
           </div>
-          <div class="c-card__content">
-            <div class="c-row">
-              <div class="c-row__title">titlu</div>
-              <div class="c-row__icon"><font-awesome-icon icon="industry" /></div>
-              <div class="c-row__content">Lorem <!-- ipsum dolor sit amet, consectetur adipisicing elit. Itaque fuga, aperiam non saepe, et vel atque cumque voluptatum dignissimos odit quae fugiat ipsam id sapiente doloremque minus temporibus quibusdam ad. --></div>
-            </div>
-            <div class="c-row">
-              <div class="c-row__title">titlu</div>
-              <div class="c-row__icon"><font-awesome-icon icon="industry" /></div>
-              <div class="c-row__content">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Inventore, distinctio.</div>
-            </div>
-            <div class="c-row">
-              <div class="c-row__title">titlu</div>
-              <div class="c-row__icon"><font-awesome-icon icon="industry" /></div>
-              <div class="c-row__content">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Inventore, distinctio.</div>
-            </div>
-            <div class="c-row">
-              <div class="c-row__title">titlu</div>
-              <div class="c-row__icon"><font-awesome-icon icon="industry" /></div>
-              <div class="c-row__content">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Inventore, distinctio.</div>
-            </div>
+          <div :class="{'c-card__content': true, 'vertical-line': historyData.length !== 0}">
+            <template v-if="historyData.length">
+              <div 
+                class="c-row"
+                v-for="item in historyData"
+                :key="item.id"
+              >
+                <div class="c-row__title">{{ item.entity }}</div>
+                <div class="c-row__icon"><font-awesome-icon icon="industry" /></div>
+                <div class="c-row__content">{{ item.message }}</div>
+              </div>
+            </template>
+            <template v-else>
+              <div class="h-centered">
+                <p>No history</p>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -159,6 +155,14 @@ export default {
     color: #DADAE3;
   }
 
+  .h-centered {
+    width: 100%;
+    height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   .container {
     width: 100%;
     height: 100%;
@@ -232,7 +236,7 @@ export default {
       &__content {
         position: relative;
 
-        &::before {
+        &.vertical-line::before {
           position: absolute;
           content: "";
           width: 1px;
