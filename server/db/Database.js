@@ -64,6 +64,7 @@ class Database {
 
     async _initProcedure () {
         await this._promisify('drop procedure if exists remove_document');
+        await this._promisify('drop procedure if exists get_main_overview');
 
         await this._promisify(
             `
@@ -86,6 +87,36 @@ class Database {
             end;
             `
         )
+
+        await this._promisify(
+            `
+            create procedure get_main_overview ()
+            begin
+
+            declare total_products int;
+            declare total_providers int;
+            declare total_documents int;
+            declare most_expensive_doc tinytext;
+
+            select count(*) into total_products from product;
+            select count(*) into total_providers from provider;
+            select count(*) into total_documents from document;
+            select concat(document_id, '|', sum(sell_price)) into most_expensive_doc
+            from document_product
+            group by document_id
+            having sum(sell_price) = (
+                select max(total_sell)
+                from (
+                    select sum(sell_price) as total_sell
+                    from document_product
+                    group by document_id
+                ) tab
+            );
+
+            select total_products, total_providers, total_documents, most_expensive_doc;
+            end;
+            `
+        );
     }
 
     async _createTables () {
