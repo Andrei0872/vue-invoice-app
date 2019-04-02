@@ -9,10 +9,11 @@ class Database {
     constructor() {
         debug('Database constructor');
         // TODO: make this an object so that subclasses can send the columns if the the a tables is empty
-        (!!this.isConnecting) || this.connect()
+        (!!this.isConnecting) || this.connect();
     }
 
     async connect () {
+        this.tables = ['product', 'document', 'provider', 'document_product', 'history'];
         // Avoid connecting multiple times while awaiting for the first connection to resolve
         Database.prototype.isConnecting = true;
         debug('connecting to db')
@@ -46,8 +47,7 @@ class Database {
     }
 
     _initTables () {
-        // TODO: do something with this hard-coded array...
-        ['product', 'document', 'provider', 'document_product'].forEach(table => {
+        this.tables.forEach(table => {
             Database.prototype[table] = require(`./${capitalizeAndClean(table)}Info.js`);
         })
     }
@@ -120,7 +120,7 @@ class Database {
     }
 
     async _createTables () {
-        await Promise.all(['product', 'document', 'provider', 'document_product'].map(table => {
+        await Promise.all(this.tables.map(table => {
             return this._creatTable(table, Database.prototype[table].fields)
         }))
 
