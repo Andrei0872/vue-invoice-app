@@ -2,7 +2,7 @@ export const namespaced = true;
 
 export const state = {
     ['dashboard/overview']: {},
-    vat: [],
+    vat: {},
     history: []
 }
 
@@ -11,7 +11,9 @@ export const getters = {
 }
 
 export const mutations = {
-    SET_PROP_DATA: (state, { stateProp, payload }) => state[stateProp] = payload
+    SET_PROP_DATA: (state, { stateProp, payload }) => state[stateProp] = payload,
+
+    SET_NEW_VAT: (state, payload) => state.vat = payload
 }
 
 export const actions = {
@@ -24,7 +26,14 @@ export const actions = {
             endpoints.map(
                 endpoint => dispatch('api/makeRequest', { config: reqConfig, url: `${mainUrl}/${endpoint}` }, { root: true })
             )
-        )).forEach(({ data }, index) => commit('SET_PROP_DATA', { stateProp: endpoints[index], payload: data }))
+        )).forEach(({ data }, index) => commit('SET_PROP_DATA', { stateProp: endpoints[index], payload: index !== 1 && data || data[0] }))
+    },
 
+    setNewVat: ({ commit, state }, { type, value }) => {
+        const copyVat = { ...state.vat };
+        copyVat[type] = value;
+        
+        console.log(copyVat)
+        commit('SET_NEW_VAT', copyVat);
     }
 }

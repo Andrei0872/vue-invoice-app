@@ -55,7 +55,7 @@ const store = new Vuex.Store({
 // TODO: refactor a little bit
 store.subscribeAction(action => {
     const currentEntity = store.state.currentEntity && store.state.currentEntity.slice(0, -1) || null
-
+    
     if (currentEntity && action.type === `${currentEntity}/updateItems`) {
         
         const data = {
@@ -64,6 +64,7 @@ store.subscribeAction(action => {
         }
 
         store.dispatch(`api/updateItem`, data)
+
     } else if (action.type === `${currentEntity}/deleteItem` && action.payload.prop === 'items') {
         
         const data = {
@@ -72,6 +73,16 @@ store.subscribeAction(action => {
         }
 
         store.dispatch('api/deleteItem', data);
+    } else if (action.type === 'dashboard/setNewVat') {
+        // Updating VAT 
+        const config = {
+            ...store.getters['api/config'], 
+            method: "PUT",
+            body: JSON.stringify({ [action.payload.type]: action.payload.value })
+        }
+        const url = `${store.getters['api/mainURL']}/vat/update`;
+        
+        store.dispatch('api/makeRequest', { url, config });
     }
 })
 
