@@ -71,35 +71,15 @@
         <div class="c-card c-card--big-half c-document">
           <div class="c-card__title">Documents</div>
           <div class="c-card__content">
-            <div class="c-document__item">
-              <div class="c-document__title">title</div>
+            <div 
+              class="c-document__item"
+              v-for="(document, index) in shownDocuments"
+              :key="document.id"
+              @click="$router.replace(`/documents/edit/${document.id}`)"
+            >
+              <div class="c-document__title">Document nr {{ index + 1 }}</div>
               <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
-              <div class="c-document__date">date</div>
-            </div>
-            <div class="c-document__item">
-              <div class="c-document__title">title</div>
-              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
-              <div class="c-document__date">date</div>
-            </div>
-            <div class="c-document__item">
-              <div class="c-document__title">title</div>
-              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
-              <div class="c-document__date">date</div>
-            </div>
-            <div class="c-document__item">
-              <div class="c-document__title">title</div>
-              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
-              <div class="c-document__date">date</div>
-            </div>
-            <div class="c-document__item">
-              <div class="c-document__title">title</div>
-              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
-              <div class="c-document__date">date</div>
-            </div>
-            <div class="c-document__item">
-              <div class="c-document__title">title</div>
-              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
-              <div class="c-document__date">date</div>
+              <div class="c-document__date">{{ document.inserted_date }}</div>
             </div>
             <div class="c-document__item">
               <div class="c-document__title">title</div>
@@ -116,6 +96,13 @@
 <script>
 import VCard from '../components/VCard';
 
+import { formatDate } from '../utils/';
+
+const documentEntity = 'document';
+
+import * as common from '@/store/modules/common';
+import { mapActions, mapState } from 'vuex';
+
 export default {
   name: 'home',
 
@@ -123,13 +110,31 @@ export default {
 
   data: () => ({
     icons: ['cart-plus', 'industry', 'file', 'clipboard-list'],
-    endpoints: ['dashboard', 'vat', 'history']
+    endpoints: ['dashboard', 'vat', 'history'],
+    shownDocumentsLen: 8
   }),
+
+  computed: {
+    ...mapState(documentEntity, { documents: 'items' }),
+
+    shownDocuments () {
+      return (this.documents.length > this.shownDocumentsLen 
+        ? this.documents.slice(0, this.shownDocumentsLen)
+        : this.documents).map(document => ({ ...document, inserted_date: formatDate(document.inserted_date) }))
+    },
+  },
 
   methods: {
     fetchFromEndpoint (endpoint) {},
+    ...mapActions(['changeEntity'])
   },
 
+  created () {
+    this.changeEntity('documents');
+    !(this.$store && this.$store.state[documentEntity]) && (this.$store.registerModule(documentEntity, common))
+
+    !(this.documents.length) && this.$store.dispatch('api/FETCH_DATA');
+  }
 }
 </script>
 
@@ -334,7 +339,7 @@ export default {
     overflow: auto;
 
     .c-card__content {
-      padding-top: .8rem;
+      padding: .8rem .9rem .3rem;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -343,7 +348,7 @@ export default {
     &__item {
       background-color: $main-blue;
       color: #fff;
-      flex: 0 0 115px;
+      flex: 0 0 130px;
       margin: 10px;
       transition: transform .3s;
       cursor: pointer;
