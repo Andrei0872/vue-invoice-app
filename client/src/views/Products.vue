@@ -103,7 +103,7 @@ export default {
 
     computed: mapState(['items', 'newItems']),
 
-    async created () {
+    created () {
         !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
 
         !(this.items.length) && this.$store.dispatch('api/FETCH_DATA');
