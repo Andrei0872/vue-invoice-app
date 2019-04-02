@@ -41,6 +41,10 @@ class Database {
         await this._initProcedure();
     }
 
+    static newDBInstance () {
+        return new Database();
+    }
+
     _initTables () {
         // TODO: do something with this hard-coded array...
         ['product', 'document', 'provider', 'document_product'].forEach(table => {
@@ -101,12 +105,14 @@ class Database {
     }
 
     useTable (tableName) {
-        return class extends Database {
-            constructor () {
-                super();
-                this.currentTable = tableName
+        return tableName 
+            ? class extends Database {
+                constructor () {
+                    super();
+                    this.currentTable = tableName
+                }
             }
-        }
+            : (this.db = Database.newDBInstance()); 
     }
 
     async _creatTable (tableName, tableFields) {
