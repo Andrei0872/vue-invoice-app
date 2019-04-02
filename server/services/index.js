@@ -59,7 +59,8 @@ class Service {
         let response = {};
 
         try {
-            const { id, ...changes } = params
+            // id = 1 in case we are operation on VAT table
+            const { id = 1, ...changes } = params
             const punctuation = [', ', ' '];
 
             const keys = Object.keys(changes).map(
