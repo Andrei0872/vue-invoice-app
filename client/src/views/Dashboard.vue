@@ -43,17 +43,17 @@
               <div class="c-vat__item--title">non-food VAT</div>
               <div class="c-vat__item--content">
                 <input class="c-vat__input" type="text" placeholder="non-food VAT">
-                <button class="c-vat__button">OK</button>
+                <button class="c-vat__button" @click="addNewVat('non_food_vat', $event)">OK</button>
               </div>
-              <div class="c-vat__current">Current: </div>
+              <div class="c-vat__current">Current: {{ vatData['non_food_vat'] || 'Not specified' }}</div>
             </div>
             <div class="c-vat__item">
               <div class="c-vat__item--title">food VAT</div>
                 <div class="c-vat__item--content">
                   <input class="c-vat__input" type="text" placeholder="food VAT">
-                  <button class="c-vat__button">OK</button>
+                  <button class="c-vat__button" @click="addNewVat('food_vat', $event)">OK</button>
                 </div>
-              <div class="c-vat__current">Current: </div>
+              <div class="c-vat__current">Current: {{ vatData['food_vat'] || 'Not specified' }}</div>
             </div>
           </div>
         </div>
@@ -105,6 +105,7 @@ export default {
 
   computed: {
     ...mapState(documentEntity, { documents: 'items' }),
+
     ...mapState(currentEntity, {
       overviewData: 'dashboard/overview',
       vatData: 'vat',
@@ -120,7 +121,18 @@ export default {
 
   methods: {
     ...mapActions(['changeEntity']),
-    ...mapActions(currentEntity, ['fetchMainOverview']),
+    
+    ...mapActions(currentEntity, ['fetchMainOverview', 'setNewVat']),
+
+    addNewVat (type, ev) {
+      const input = ev.target.previousElementSibling;
+      const value = parseFloat(input.value.trim());
+
+      if (isNaN(value) || value === this.vatData[type]) return;
+
+      input.value = '';
+      this.setNewVat({ type, value });
+    },
   },
 
   created () {
@@ -315,9 +327,10 @@ export default {
 
         .c-vat__input {
           margin-right: 1rem;
-          padding: 2px;
+          padding: 3px;
           border-radius: 10px;
           border: 1px solid $main-blue-border;
+          outline: none;
         }
 
         .c-vat__button {
