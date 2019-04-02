@@ -2,16 +2,9 @@
   <div class="container">
     <div class="c-overview">
       <VCard 
-        :card-info="{ icon: 'file', title: 'products', value: 123 }"
-      />
-      <VCard 
-        :card-info="{ icon: 'file', title: 'products', value: 123 }"
-      />
-      <VCard 
-        :card-info="{ icon: 'clipboard-list', title: 'products', value: 123 }"
-      />
-      <VCard 
-        :card-info="{ icon: 'file', title: 'products', value: 123 }"
+        v-for="(value, title, index) in overviewData"
+        :key="title"
+        :card-info="{ icon: icons[index], title, value }"
       />
     </div>
     <div class="main-cards">
@@ -99,6 +92,7 @@ import VCard from '../components/VCard';
 import { formatDate } from '../utils/';
 
 const documentEntity = 'document';
+const currentEntity = 'dashboard';
 
 import * as common from '@/store/modules/common';
 import { mapActions, mapState } from 'vuex';
@@ -110,12 +104,16 @@ export default {
 
   data: () => ({
     icons: ['cart-plus', 'industry', 'file', 'clipboard-list'],
-    endpoints: ['dashboard', 'vat', 'history'],
     shownDocumentsLen: 8
   }),
 
   computed: {
     ...mapState(documentEntity, { documents: 'items' }),
+    ...mapState(currentEntity, {
+      overviewData: 'dashboard/overview',
+      vatData: 'vat',
+      historyData: 'history'
+    }),
 
     shownDocuments () {
       return (this.documents.length > this.shownDocumentsLen 
@@ -125,8 +123,8 @@ export default {
   },
 
   methods: {
-    fetchFromEndpoint (endpoint) {},
-    ...mapActions(['changeEntity'])
+    ...mapActions(['changeEntity']),
+    ...mapActions(currentEntity, ['fetchMainOverview']),
   },
 
   created () {
@@ -134,6 +132,8 @@ export default {
     !(this.$store && this.$store.state[documentEntity]) && (this.$store.registerModule(documentEntity, common))
 
     !(this.documents.length) && this.$store.dispatch('api/FETCH_DATA');
+
+    this.fetchMainOverview();
   }
 }
 </script>
