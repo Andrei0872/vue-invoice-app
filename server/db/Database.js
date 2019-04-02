@@ -66,7 +66,7 @@ class Database {
         await this._promisify('drop procedure if exists remove_document');
         await this._promisify('drop procedure if exists get_main_overview');
 
-        await this._promisify(
+        this._promisify(
             `
             create procedure remove_document(
                 in doc_id int(8), product_id int(8)
@@ -88,7 +88,7 @@ class Database {
             `
         )
 
-        await this._promisify(
+        this._promisify(
             `
             create procedure get_main_overview ()
             begin
