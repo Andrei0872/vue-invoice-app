@@ -39,11 +39,26 @@ class Database {
 
     async _initTablesAndProcedures () {
         await this._createTables();
+        await this._addDefaultValues();
         await this._initProcedure();
     }
 
     static newDBInstance () {
         return new Database();
+    }
+
+    async _addDefaultValues () {
+        const tablesWithDefaultValues = ['vat'];
+
+        tablesWithDefaultValues.forEach(table => {
+            const columns = Database.prototype[table].fieldsSimplified;
+            this._promisify(
+                `
+                INSERT INTO ${table}(${columns.join(', ')}) VALUES (?)
+                `,
+                [columns.map(() => null)]
+            )
+        });
     }
 
     _initTables () {
