@@ -13,6 +13,7 @@
 
         <div class="c-provider-info">
             <VSelect
+                v-if="providers.length"
                 @change.native="$refs.invoiceNr.$el.value = ''"
                 @addProvider="$store.commit('SET_PROVIDER', $event)" 
                 class="c-select c-select--no-margin" 
@@ -64,6 +65,7 @@ import documentMixin from '../mixins/documentMixin';
 import commonMixin from '../mixins/commonMixin';
 import modalMixin from '../mixins/modalMixin';
 
+import * as common from '@/store/modules/common';
 import { mapGetters, mapActions, mapState } from 'vuex'
 
 const entity = 'document_product'
@@ -77,15 +79,9 @@ export default {
         currentItem: null,
     }),
 
-    watch: {
-        'items.length' (len) {
-            !len && this.$router.push('/documents');
-        }
-    },
-
     computed: {
         id () {
-            return this.$route.params.id
+            return parseInt(this.$route.params.id)
         },
 
         ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges' }),
@@ -167,7 +163,7 @@ export default {
         }
     },
 
-    created () {
+    async created () {
 
         if (!this.$store.state.currentEntity) {
             this.$router.push({ name: 'documents' });
@@ -180,7 +176,17 @@ export default {
 
         this.currentItem = { ...this.$store.getters['getEntityItems'].find(item => item.id === this.id) };
 
+        !(this.store && this.$store.state['provider']) 
+            && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
+
+        // We want to get the products first, because the items will depend on them
+        // Have a look at store/modules/document_product: actions/fetchById
+        !(this.store && this.$store.state['product'])
+        && ((this.$store.registerModule('product', common)), await this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
+
         this.items.length === 0 && this.$store.dispatch(`${entity}/fetchById`, this.id);
+
+
     },
 
     beforeRouteLeave (to, from, next) {
