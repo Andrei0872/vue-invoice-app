@@ -129,6 +129,10 @@ export default {
       input.value = '';
       this.setNewVat({ type, value });
     },
+
+    sendToRoute (newRoute) {
+      return this.$router.push(newRoute)
+    }
   },
 
   created () {

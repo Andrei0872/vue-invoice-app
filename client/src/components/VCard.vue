@@ -1,5 +1,14 @@
 
 <script>
+const sendToRoute = (title, value, parent) => parent.sendToRoute(getCorrespondingRoute(title, `${value}`))
+
+const getCorrespondingRoute = (fieldName, value = '') => ({
+    total_products: '/products',
+    total_providers: '/providers',
+    total_documents: '/documents',
+    most_expensive_doc: `/documents/edit/${value.split('|')[0]}`,
+}[fieldName])
+
 export default {
     functional: true,
     
@@ -7,15 +16,15 @@ export default {
         cardInfo: Object
     },
 
-    render (h, { props: {cardInfo: { icon, title, value } } }) {
+    render (h, { props: { cardInfo: { icon, title, value } }, parent }) {
         return (
-            <div class="card">
+            <div class="card" onClick={sendToRoute.bind(null, title, value, parent)}>
                 <div class="card__icon">
                     <font-awesome-icon icon={icon} />
                 </div>
                 <div class="card__info">
                     <div class="card__title"><strong>{title}</strong></div>
-                    <div class="card__value">{value}</div>
+                    <div class="card__value">{typeof value === 'string' ? value.split('|')[1] : value}</div>
                 </div>
             </div>
         )
@@ -31,6 +40,7 @@ export default {
         align-items: center;
         padding: 1rem;
         transition: all .3s;
+        cursor: pointer;
 
         &:hover {
             transform: translateY(-5px);
