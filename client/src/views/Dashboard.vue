@@ -23,7 +23,7 @@
                 :key="item.id"
               >
                 <div class="c-row__title">{{ item.entity }}</div>
-                <div class="c-row__icon"><font-awesome-icon icon="industry" /></div>
+                <div :class="['c-row__icon', `c-row__icon--${item.action_type}`]"><font-awesome-icon :icon="getHistoryIcon(item.action_type)" /></div>
                 <div class="c-row__content">{{ item.message }}</div>
               </div>
             </template>
@@ -133,7 +133,11 @@ export default {
 
     sendToRoute (newRoute) {
       return this.$router.push(newRoute)
-    }
+    },
+
+    getHistoryIcon (actionType) {
+      return { add: 'plus', delete: 'minus', update: 'pencil-alt' }[actionType]
+    },
   },
 
   created () {
@@ -284,13 +288,22 @@ export default {
       transform: translateX(-50%);
       width: 2.2rem;
       height: 2.2rem;
-      border: 1px solid $main-blue;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      @extend %icon-dark-bg;
       background-color: $main-blue;
       color: #fff;
+      cursor: default;
+
+      &--add {
+        background-color: green;
+      }
+      
+      &--delete {
+        background-color: red;
+      }
+
+      &--update {
+        background-color: orange;
+      }
     }
 
     &__content {
