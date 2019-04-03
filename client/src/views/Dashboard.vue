@@ -67,6 +67,7 @@
               @click="$router.push(`/documents/edit/${document.id}`)"
             >
               <div class="c-document__title">Document nr {{ index + 1 }}</div>
+              <div class="c-document__provider">{{ document.provider_name }}</div>
               <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
               <div class="c-document__date">{{ document.inserted_date }}</div>
             </div>
@@ -393,6 +394,15 @@ export default {
       font-style: italic;
       letter-spacing: calc(1.7 * 1px);
       font-size: .9rem;
+    }
+
+    &__provider {
+      text-align: center;
+      font-size: .85rem;
+      font-weight: bold;
+      margin-top: .7rem;
+      padding: 0 .3rem;
+      flex-grow: 0;
     }
     
     &__date {
