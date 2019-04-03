@@ -55,7 +55,24 @@ const store = new Vuex.Store({
 // TODO: refactor a little bit
 store.subscribeAction(action => {
     const currentEntity = store.state.currentEntity && store.state.currentEntity.slice(0, -1) || null
-    
+
+    // Re-fetch main overview from Dashboard on: create / delete / update
+    if (['api/insertItem', 'document_product/updateItems', 'document_product/deleteFromDoc', 'api/deleteItem'].includes(action.type)) {
+        let willUpdate = true;
+
+        // Check if there is any update that is significant to the main overview 
+        if (action.type === 'document_product/updateItems') {
+            willUpdate = false;
+
+            for (const objValues of Object.values(action.payload)) {
+                if (objValues.hasOwnProperty('sell_price'))
+                    willUpdate = true;
+            }
+        }
+
+        willUpdate && store.commit('dashboard/SET_UPDATE_STATE', true);
+    }
+
     if (currentEntity && action.type === `${currentEntity}/updateItems`) {
         
         const data = {

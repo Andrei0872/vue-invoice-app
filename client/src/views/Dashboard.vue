@@ -64,16 +64,11 @@
               class="c-document__item"
               v-for="(document, index) in shownDocuments"
               :key="document.id"
-              @click="$router.replace(`/documents/edit/${document.id}`)"
+              @click="$router.push(`/documents/edit/${document.id}`)"
             >
               <div class="c-document__title">Document nr {{ index + 1 }}</div>
               <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
               <div class="c-document__date">{{ document.inserted_date }}</div>
-            </div>
-            <div class="c-document__item">
-              <div class="c-document__title">title</div>
-              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
-              <div class="c-document__date">date</div>
             </div>
           </div>
         </div>
@@ -109,7 +104,8 @@ export default {
     ...mapState(currentEntity, {
       overviewData: 'dashboard/overview',
       vatData: 'vat',
-      historyData: 'history'
+      historyData: 'history',
+      needsUpdate: 'needsUpdate'
     }),
 
     shownDocuments () {
@@ -141,7 +137,7 @@ export default {
 
     !(this.documents.length) && this.$store.dispatch('api/FETCH_DATA');
 
-    this.fetchMainOverview();
+    this.needsUpdate && this.fetchMainOverview();
   }
 }
 </script>
