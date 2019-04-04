@@ -147,10 +147,16 @@ export default {
         },
 
         sendUpdates () {
-            (Object.keys(this.changes).length) && this.updateItems(this.changes)
+            let hasChanges = false;
+            (Object.keys(this.changes).length) && (hasChanges = true, this.updateItems(this.changes))
             
             let changes = null;
             (changes = this.shouldUpdateDocument()) &&  this.updateDocument({ ...changes, id: this.currentItem.id });
+
+            hasChanges = !hasChanges ? changes : hasChanges;
+
+            if (!hasChanges)
+                return;
 
             this.alreadyFetched && this.setAlreadyFetched(false)
             this.$router.push('/documents');
