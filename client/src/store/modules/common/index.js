@@ -43,5 +43,10 @@ export const actions = {
         commit('SET_ITEMS', itemsCopy)
     }, 
 
-    setItems: ({ commit }, payload) => commit('SET_ITEMS', payload),
+    setItems: ({ commit, dispatch, rootGetters }, payload) => {
+        commit('SET_ITEMS', payload)
+        if (rootGetters['dashboard/getUpdateState']) {
+            dispatch('dashboard/fetchMainOverview', 'dashboard/overview', { root: true });
+        }
+    },
 }
