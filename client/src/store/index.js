@@ -131,7 +131,7 @@ store.subscribeAction(action => {
         } else if (!entityAction.includes('_')) {
             message = entityName.endsWith('s') && store.getters[`getEntityItems`].length === 1 && entityAction === 'delete' 
                 ? `${entityName} is now empty.`
-                : `${capitalize(entityAction)} ${entityAction === 'delete' ? 'from' : 'into'} ${entityName}`
+                : `${capitalize(entityAction)} row ${entityAction === 'delete' ? 'from' : 'into'} ${entityName}`
         } else {
             const separatorIndex = entityAction.indexOf('_');
             const theAction = entityAction.slice(0, separatorIndex);
@@ -153,8 +153,11 @@ store.subscribeAction(action => {
             body: JSON.stringify({ entity, message, action_type })
         }
 
-        store.dispatch('api/makeRequest', { url: insertURL, config });
-        // FIXME: fetch History table in Dashboard
+        store.dispatch('api/makeRequest', { url: insertURL, config })
+            .then(() => {
+                // Update data in Dashboard
+                store.dispatch('dashboard/fetchMainOverview', 'history');
+            })
     }
 
 })
