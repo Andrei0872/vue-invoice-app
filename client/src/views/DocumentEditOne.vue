@@ -176,12 +176,12 @@ export default {
 
         this.currentItem = { ...this.$store.getters['getEntityItems'].find(item => item.id === this.id) };
 
-        !(this.store && this.$store.state['provider']) 
+        !(this.$store && this.$store.state['provider']) 
             && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
 
         // We want to get the products first, because the items will depend on them
         // Have a look at store/modules/document_product: actions/fetchById
-        !(this.store && this.$store.state['product'])
+        !(this.$store && this.$store.state['product'])
         && ((this.$store.registerModule('product', common)), await this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
 
         this.items.length === 0 && this.$store.dispatch(`${entity}/fetchById`, this.id);
