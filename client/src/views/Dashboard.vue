@@ -11,15 +11,23 @@
       <div>
         <div class="c-card c-history">
           <div class="c-card__title">
-            <div class="c-card__arrow"><font-awesome-icon icon="arrow-left" /></div>
+            <div 
+              :class="{'c-card__arrow': 1, 'disabled': historyPageIndex === 0}" 
+              @click="historyPageIndex - 1 >= 0 ? historyPageIndex-- : null">
+              <font-awesome-icon icon="arrow-left" />
+            </div>
             <div>History</div>
-            <div class="c-card__arrow"><font-awesome-icon icon="arrow-right" /></div>
+            <div 
+              :class="{'c-card__arrow': 1, 'disabled': historyPageIndex + 1 === historyPages}" 
+              @click="historyPageIndex + 1 < historyPages ? historyPageIndex++ : null">
+                <font-awesome-icon icon="arrow-right" />
+            </div>
           </div>
           <div :class="{'c-card__content': true, 'vertical-line': historyData.length !== 0}">
             <template v-if="historyData.length">
               <div 
                 class="c-row"
-                v-for="item in historyData"
+                v-for="item in historyDataShown"
                 :key="item.id"
               >
                 <div class="c-row__title">{{ item.entity }}</div>
@@ -96,7 +104,9 @@ export default {
 
   data: () => ({
     icons: ['cart-plus', 'industry', 'file', 'clipboard-list'],
-    shownDocumentsLen: 8
+    shownDocumentsLen: 8,
+    historyItemsPerPage: 9,
+    historyPageIndex: 0,
   }),
 
   computed: {
@@ -114,6 +124,15 @@ export default {
         ? this.documents.slice(0, this.shownDocumentsLen)
         : this.documents).map(document => ({ ...document, inserted_date: formatDate(document.inserted_date) }))
     },
+
+    historyPages () {
+      return Math.ceil(this.historyData.length / this.historyItemsPerPage)
+    },
+
+    historyDataShown () {
+      const currentPage = this.historyPageIndex * this.historyPages;
+      return this.historyData.slice(currentPage, currentPage + this.historyItemsPerPage);
+    }
   },
 
   methods: {
@@ -248,6 +267,11 @@ export default {
         width: 2.2rem;
         height: 2.2rem;
         @extend %icon-dark-bg;
+
+        &.disabled {
+          cursor: not-allowed;
+          opacity: .4;
+        }
       }
 
       &__content {
