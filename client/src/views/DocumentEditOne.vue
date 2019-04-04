@@ -185,8 +185,6 @@ export default {
         && ((this.$store.registerModule('product', common)), await this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
 
         this.items.length === 0 && this.$store.dispatch(`${entity}/fetchById`, this.id);
-
-
     },
 
     beforeRouteLeave (to, from, next) {

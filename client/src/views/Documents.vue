@@ -108,6 +108,17 @@ export default {
         next();   
     },
 
+    // Apply changes after updating a document's content
+    beforeRouteEnter (to, from, next) {
+        if (from.name === 'documentEditOne') {
+            return next(vm => {
+                vm.$store.dispatch('document_product/fetchById', from.params.id);
+            })
+        }
+        
+        next();
+    },
+
     created () {
         !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
         
@@ -120,6 +131,7 @@ export default {
         // TODO: make it available only when editing / updating
         !(this.store && this.$store.state['provider']) 
             && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
+        // TODO: update results 
     },
 }
 </script>
