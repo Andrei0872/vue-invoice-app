@@ -140,7 +140,7 @@ store.subscribeAction(action => {
             // /document/delete_from_doc || /document/update_document
             message = otherEntity !== 'document' 
                 ? `${theAction} ${otherEntity.includes('_') ? 'product' : otherEntity} in ${entityName}`
-                : `${theAction} document information ${JSON.stringify(body)}`
+                : `${theAction} document information`
         }
 
         const entity = entityName;
