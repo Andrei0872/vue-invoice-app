@@ -13,7 +13,7 @@ class Controller {
     }
 
     async getAll (req, res) {
-        const responseFromDB = await this.service.getAll();
+        const responseFromDB = await this.service.getAll(req.originalUrl === '/history');
 
         res.status(responseFromDB.status).json(responseFromDB);
     }

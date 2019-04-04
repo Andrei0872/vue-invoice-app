@@ -191,9 +191,9 @@ class Database {
         )
     }
 
-    async getAll () {
+    async getAll (reversed = false) {
         return await this._promisify(
-            `SELECT * FROM ${this.currentTable}`
+            `SELECT * FROM ${this.currentTable} ${reversed ? 'ORDER BY id DESC' : ''}`
         )
     }
 

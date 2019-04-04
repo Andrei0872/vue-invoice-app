@@ -35,11 +35,11 @@ class Service {
         return response;
     }
 
-    async getAll () {
+    async getAll (reversed) {
         let response = {};
 
         try {
-            const data = await this.table.getAll();
+            const data = await this.table.getAll(reversed);
 
             response = {
                 message: `Fetched from ${this.table.currentTable} successfully`,
