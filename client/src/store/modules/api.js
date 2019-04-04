@@ -14,6 +14,7 @@ export const getters = {
 }
 
 // TODO: make one action to perform the request
+// FIXME: caching
 export const actions = {
     FETCH_DATA: async ({ getters, rootState, dispatch, commit }, { avoidChangingState = false, anotherEntity = null } = {}) => {
         const moduleName = rootState.currentEntity.slice(0, -1);
@@ -25,6 +26,7 @@ export const actions = {
 
             const { data } = await dispatch('makeRequest', { url, config: { ...getters.config, method: "GET" } })
             
+            console.log(data)
             dispatch(`${!(anotherEntity) ? moduleName : anotherEntity.slice(0, -1)}/setItems`, data, { root: true });
             !(avoidChangingState)  && commit('CHANGE_STATE', true, { root: true });
         } catch {
@@ -41,7 +43,7 @@ export const actions = {
 
         try {
             await dispatch('makeRequest', { url, config });
-            
+
             dispatch("FETCH_DATA", { avoidChangingState: true });
         } catch (err) {
             console.error(err)
@@ -62,13 +64,15 @@ export const actions = {
     },
 
     // TODO: update the current entity's module directly
-    deleteItem: async ({ getters, dispatch }, { url, payload: id }) => {
+    deleteItem: async ({ getters, dispatch, commit }, { url, payload: id }) => {
         url += getters.deleteEndpoint;
         const config = { body: JSON.stringify({ id }), ...getters.config, method: "DELETE" };
 
         try {
             const response = await dispatch('makeRequest', { url, config })
-
+            // Update data from Dashboard
+            dispatch('dashboard/fetchMainOverview', 'dashboard/overview', { root: true });
+            commit('dashboard/SET_UPDATE_STATE', false, { root: true });
             console.log('response', response)
         } catch (err) {
             console.error(err)

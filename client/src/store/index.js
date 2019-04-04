@@ -91,7 +91,7 @@ store.subscribeAction(action => {
             payload: action.payload.id
         }
 
-        store.dispatch('api/deleteItem', data);
+        store.dispatch('api/deleteItem', data)
     } else if (action.type === 'dashboard/setNewVat') {
         // Updating VAT 
         const config = {
@@ -105,13 +105,6 @@ store.subscribeAction(action => {
     }
 
     // Add to History table
-    /* 
-    api/makeRequest (able to get the changes) 
-    - vat: { update }
-    - products: { insert, update, delete }
-    - providers: { insert, update, delete }
-    - documents: { insert, delete, update_doc, update_prod }
-    */
    if (action.type === 'api/makeRequest') {
        const { url, config: { body } } = action.payload
        let dataFromURL = null, entityName = null, entityAction = null;
@@ -130,13 +123,6 @@ store.subscribeAction(action => {
        }  
 
        if (entityName === 'history') return;
-
-       console.log(entityAction)
-        
-        // Table and action
-        // Determine if entityName ends with 's'
-        // console.log(entityName)
-        // console.log(entityAction)
 
         let message = ``;
 
@@ -158,7 +144,8 @@ store.subscribeAction(action => {
         }
 
         const entity = entityName;
-        const action_type = entityAction;
+        let underlineIndex = -1;
+        const action_type = (underlineIndex = entityAction.indexOf('_')) === -1 ? entityAction : entityAction.slice(0, underlineIndex);
 
         const insertURL = `${store.getters['api/mainURL']}/history/insert`;
         const config = {
@@ -167,6 +154,7 @@ store.subscribeAction(action => {
         }
 
         store.dispatch('api/makeRequest', { url: insertURL, config });
+        // FIXME: fetch History table in Dashboard
     }
 
 })
