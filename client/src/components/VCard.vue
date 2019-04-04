@@ -26,7 +26,7 @@ export default {
                 </div>
                 <div class="card__info">
                     <div class="card__title"><strong>{title}</strong></div>
-                    <div class="card__value">{typeof value === 'string' ? (value.split('|')[1]) : (value === 0 ? value : 'No documents')}</div>
+                    <div class="card__value">{typeof value === 'string' ? (value.split('|')[1]) : (value !== null ? value : 'No documents')}</div>
                 </div>
             </div>
         )
