@@ -7,15 +7,17 @@ class Service {
         name && (this.table = new this.table());
     }
 
+    // FIXME: refactor this one. This serves for single / multiple updates; separate the jobs!
     async insertOne (params) {
         let response = {};
+        const paramsIsArr = Array.isArray(params);
 
-        params = params.map(({ id, ...row }) => row);
+        paramsIsArr && (params = params.map(({ id, ...row }) => row));
 
         try {
 
-            const keys = Object.keys(params[0]).join(', ');
-            const values = params.map(Object.values);
+            const keys = Object.keys((paramsIsArr ? params[0] : params)).join(', ');
+            const values = paramsIsArr ? params.map(Object.values) : [Object.values(params)];
             
             await this.table.insertOne(keys, values);
             response = {
