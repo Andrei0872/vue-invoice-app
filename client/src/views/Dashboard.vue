@@ -146,7 +146,7 @@ export default {
 
     !(this.documents.length) && this.$store.dispatch('api/FETCH_DATA');
 
-    this.needsUpdate && this.fetchMainOverview();
+    !this.historyData.length && this.fetchMainOverview();
   }
 }
 </script>
