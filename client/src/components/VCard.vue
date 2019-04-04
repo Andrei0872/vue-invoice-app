@@ -1,6 +1,8 @@
 
 <script>
-const sendToRoute = (title, value, parent) => parent.sendToRoute(getCorrespondingRoute(title, `${value}`))
+const sendToRoute = (title, value, parent) => 
+    (title === 'most_expensive_doc' && value || title !== 'most_expensive_doc') 
+        && parent.sendToRoute(getCorrespondingRoute(title, `${value}`))
 
 const getCorrespondingRoute = (fieldName, value = '') => ({
     total_products: '/products',
@@ -24,7 +26,7 @@ export default {
                 </div>
                 <div class="card__info">
                     <div class="card__title"><strong>{title}</strong></div>
-                    <div class="card__value">{typeof value === 'string' ? value.split('|')[1] : value}</div>
+                    <div class="card__value">{typeof value === 'string' ? (value.split('|')[1]) : (value === 0 ? value : 'No documents')}</div>
                 </div>
             </div>
         )
