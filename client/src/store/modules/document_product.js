@@ -68,6 +68,9 @@ export const actions = {
         }
 
         const response = await dispatch("api/makeRequest", { url, config }, { root: true });
+        if (rootGetters['dashboard/getUpdateState']) {
+            dispatch('dashboard/fetchMainOverview', 'dashboard/overview', { root: true });
+        }
         
         await dispatch('api/FETCH_DATA', undefined, { root: true });
         
