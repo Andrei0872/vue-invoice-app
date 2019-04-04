@@ -136,7 +136,7 @@ export default {
     },
 
     getHistoryIcon (actionType) {
-      return { add: 'plus', delete: 'minus', update: 'pencil-alt' }[actionType]
+      return { insert: 'plus', delete: 'minus', update: 'pencil-alt' }[actionType]
     },
   },
 
@@ -153,7 +153,7 @@ export default {
 
 
 <style lang="scss" scoped>
-  $row-title-length: 15rem;
+  $row-title-length: 8rem;
   $main-blue: #394263;
   $main-blue-border: rgba($color: $main-blue, $alpha: .4);
 
@@ -293,7 +293,7 @@ export default {
       color: #fff;
       cursor: default;
 
-      &--add {
+      &--insert {
         background-color: green;
       }
       
