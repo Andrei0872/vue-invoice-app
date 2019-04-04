@@ -5,6 +5,8 @@ import * as api from './modules/api';
 import * as document_product from './modules/document_product';
 import * as dashboard from './modules/dashboard';
 
+import { capitalize } from '../utils/'; 
+
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
@@ -14,6 +16,7 @@ const store = new Vuex.Store({
         everythingReady: null,
         currentEntity: null,
         selectedProvider: null,
+        // FIXME: use the URL from api/getters
         mainUrl: 'http://localhost:3000/',
     },
 
@@ -52,7 +55,6 @@ const store = new Vuex.Store({
 });
 
 // Every time the user updates an item, changes the values locally, but also make a db call to have the new results on refresh etc..
-// TODO: refactor a little bit
 store.subscribeAction(action => {
     const currentEntity = store.state.currentEntity && store.state.currentEntity.slice(0, -1) || null
 
@@ -101,6 +103,72 @@ store.subscribeAction(action => {
         
         store.dispatch('api/makeRequest', { url, config });
     }
+
+    // Add to History table
+    /* 
+    api/makeRequest (able to get the changes) 
+    - vat: { update }
+    - products: { insert, update, delete }
+    - providers: { insert, update, delete }
+    - documents: { insert, delete, update_doc, update_prod }
+    */
+   if (action.type === 'api/makeRequest') {
+       const { url, config: { body } } = action.payload
+       let dataFromURL = null, entityName = null, entityAction = null;
+       
+       if (typeof body === 'undefined') return;
+       console.log(action)
+
+       // The URL might not have an action
+       // i.e: when fetching: <mainUrl>/entity/ 
+       try {
+           dataFromURL = (new RegExp(`${store.state.mainUrl}([a-z]+)/([a-z_]+)`)).exec(url);
+           entityName = dataFromURL[1];
+           entityAction = dataFromURL[2];
+       } catch {
+           return;
+       }  
+
+       if (entityName === 'history') return;
+
+       console.log(entityAction)
+        
+        // Table and action
+        // Determine if entityName ends with 's'
+        // console.log(entityName)
+        // console.log(entityAction)
+
+        let message = ``;
+
+        if (entityAction === 'update') {
+            message = `${capitalize(entityAction)} ${entityName}`
+        } else if (!entityAction.includes('_')) {
+            message = entityName.endsWith('s') && store.getters[`getEntityItems`].length === 1 && entityAction === 'delete' 
+                ? `${entityName} is now empty.`
+                : `${capitalize(entityAction)} ${entityAction === 'delete' ? 'from' : 'into'} ${entityName}`
+        } else {
+            const separatorIndex = entityAction.indexOf('_');
+            const theAction = entityAction.slice(0, separatorIndex);
+            const otherEntity = entityAction.slice(separatorIndex + 1);
+            
+            // /document/delete_from_doc || /document/update_document
+            message = otherEntity !== 'document' 
+                ? `${theAction} ${otherEntity.includes('_') ? 'product' : otherEntity} in ${entityName}`
+                : `${theAction} document information ${JSON.stringify(body)}`
+        }
+
+        const entity = entityName;
+        const action_type = entityAction;
+
+        const insertURL = `${store.getters['api/mainURL']}/history/insert`;
+        const config = {
+            ...store.getters['api/config'],
+            body: JSON.stringify({ entity, message, action_type })
+        }
+
+        store.dispatch('api/makeRequest', { url: insertURL, config });
+    }
+
 })
 
 store.watch(
