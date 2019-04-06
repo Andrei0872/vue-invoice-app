@@ -79,6 +79,16 @@ export default {
         currentItem: null,
     }),
 
+    watch: {
+        'items': {
+            deep: true,
+
+            handler (newVal) {
+                !this.items.length && this.$router.replace({ name: 'documents' });
+            }
+        }
+    },
+
     computed: {
         id () {
             return parseInt(this.$route.params.id)
