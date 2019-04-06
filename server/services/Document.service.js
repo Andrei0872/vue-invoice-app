@@ -68,6 +68,7 @@ class DocumentService extends mainService {
             inner join document_product
             on document.id = document_product.document_id
             group by document_id
+            order by document_id DESC
         `;
 
         try {
