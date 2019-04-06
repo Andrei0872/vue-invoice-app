@@ -80,6 +80,7 @@ class Database {
     async _initProcedure () {
         await this._promisify('drop procedure if exists remove_document');
         await this._promisify('drop procedure if exists get_main_overview');
+        await this._promisify('drop procedure if exists remove_provider');
 
         this._promisify(
             `
@@ -132,6 +133,20 @@ class Database {
             end;
             `
         );
+
+        this._promisify(
+            `
+            create procedure remove_provider (in provider_id int)
+            begin
+
+            delete from provider where id = provider_id;
+
+            delete from document_product where document_product.document_id = any (select id from document where document.provider_id = provider_id);
+
+            delete from document where document.provider_id = provider_id;
+            end;
+            `
+        )
     }
 
     async _createTables () {
@@ -210,10 +225,6 @@ class Database {
             id
         )
     }
-
-    // async joinTables (t1, t2, ) {
-
-    // }
 }
 
 // FIXME: export new Database()

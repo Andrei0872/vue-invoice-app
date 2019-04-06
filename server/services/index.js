@@ -85,12 +85,18 @@ class Service {
 
     async deleteOne ({ id }) {
         try {
-            await this.table.deleteOne(id);
+            
+            // If a provider is deleted, we must also delete all the documents that have that provider
+            // To do that, call the procedure
+            this.table.currentTable !== 'provider' && (await this.table.deleteOne(id))
+                || (await this.table._promisify(`call remove_provider(${id})`))
 
             return {
                 message: 'Successfully deleted'
             }
-        } catch {
+        } catch (err) {
+            console.error(err)
+            
             return {
                 message: 'Error deleting'
             }
