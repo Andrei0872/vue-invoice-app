@@ -14,15 +14,19 @@ export default {
         showBtn: {
             type: Boolean
         },
+        disabled: {
+            type: Boolean,
+            default: false
+        },
     },
 
-    render (h, { listeners, children, props }) {
+    render (h, { listeners, children, props, }) {
         const content = children[0].text;
         const fn = !!listeners.toggleState ? listeners.toggleState : listeners.createItems
 
         const button = h('button', {
-            on: { click: fn },
-            class: `button--${props.btnClass}`
+            ...!props.disabled && { on: { click: fn } },
+            class: {[`button--${props.btnClass}`]: true, 'h-disabled': props.disabled}
         }, content);
 
         return props.btnClass === 'success'
@@ -57,8 +61,13 @@ export default {
         letter-spacing: 1px;
         font-size: 1rem;
 
-        &:hover {
+        &:hover:not(.h-disabled) {
             transform: scale(1.05);
+        }
+
+        &.h-disabled {
+            cursor: not-allowed;
+            opacity: .4;
         }
     }
     
