@@ -112,11 +112,11 @@ export default {
         ...mapStateProduct({ products: 'items' }),
 
         containsErrors () {
-            this.errorMessage = !this.providers.length 
+            this.errorMessage = this.providers && !this.providers.length 
                 ? 'Providers'
-                : !this.products.length 
+                : this.products && !this.products.length 
                     ? 'Products'
-                    : !this.items.length 
+                    : this.items && !this.items.length 
                         ? 'Documents'
                         : null
 
