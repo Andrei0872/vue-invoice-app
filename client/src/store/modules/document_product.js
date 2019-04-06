@@ -84,6 +84,8 @@ export const actions = {
         
         const dataAfterDeletion = await dispatch('api/makeRequest', { url, config }, { root: true });
 
+        console.log('item deleted!', dataAfterDeletion)
+
         commit('SET_LAST_DELETED_DOC_ID', state.currentId);
         const products = rootState.product.items
             .reduce((memo, product) => (memo[product.id] = product.name, memo), {})
