@@ -1,10 +1,10 @@
 <template>
     <div>
         <!-- TODO: add notification :D - based on a vuex's state property -->
-        <VContent v-if="everythingReady === true" entityName="document">
+        <VContent v-if="everythingReady === true" entityName="document" :disableButton="errorMessage !== 'Documents'">
             <template v-slot:existingItems>
                 <VTableRead 
-                    v-if="items.length"
+                    v-if="!containsErrors"
                     :fields="readColumns" 
                     :items="items"
                     showDelete
@@ -12,7 +12,7 @@
                     @deleteRow="deleteRow($event)"
                 />
                 <div v-else class="no-items">
-                    There are no items!
+                    There are no {{ errorMessage }}
                 </div>
             </template>
             <template v-slot:createItems>
@@ -76,11 +76,13 @@ import documentMixin from '../mixins/documentMixin';
 
 const entityName = 'document';
 const providerEntity = 'provider';
+const productEntity = 'product';
 
 import { createNamespacedHelpers } from 'vuex';
 import * as common from '@/store/modules/common';
 const { mapState, mapActions } = createNamespacedHelpers(entityName);
 const { mapState: mapStateProvider } = createNamespacedHelpers(providerEntity);
+const { mapState: mapStateProduct } = createNamespacedHelpers(productEntity);
 
 
 export default {
@@ -89,6 +91,10 @@ export default {
     components: { VContent, VModal, VTableCreate, VTableRead, VSelect, VInput },
 
     mixins: [modalMixin, commonMixin, documentMixin],
+
+    data: () => ({
+        errorMessage: null
+    }),
 
     methods: {
         ...mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
@@ -100,7 +106,22 @@ export default {
 
     computed: {
         ...mapState(['items', 'newItems']),
-        ...mapStateProvider({ providers: 'items' })
+
+        ...mapStateProvider({ providers: 'items' }),
+
+        ...mapStateProduct({ products: 'items' }),
+
+        containsErrors () {
+            this.errorMessage = !this.providers.length 
+                ? 'Providers'
+                : !this.products.length 
+                    ? 'Products'
+                    : !this.items.length 
+                        ? 'Documents'
+                        : null
+
+            return this.errorMessage !== null
+        }
     },
 
     beforeRouteLeave (to, from, next) {

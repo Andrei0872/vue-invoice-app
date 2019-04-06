@@ -2,7 +2,7 @@
     <div class="c-container">
         <div class="c-container__main-buttons">
             <div>
-                <VButton @toggleState="isCreating = !isCreating" :btnClass="btnState">
+                <VButton :disabled="disableButton" @toggleState="isCreating = !isCreating" :btnClass="btnState">
                 {{ mainButtonContent }}
                 </VButton>
             </div>
@@ -25,8 +25,6 @@
                 <slot name="createItems"></slot>
             </div>
         </transition>
-
-        <!-- Modal here.. -->
     </div>
 </template>
 
@@ -41,6 +39,10 @@ export default {
 
     props: {
         entityName: String,
+        disableButton: {
+            type: Boolean,
+            default: false
+        }
     },
 
     computed: {
