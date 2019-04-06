@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- TODO: add notification :D - based on a vuex's state property -->
-        <VContent v-if="everythingReady === true" entityName="document" :disableButton="errorMessage !== 'Documents'">
+        <VContent v-if="everythingReady === true" entityName="document" :disableButton="errorMessage !== 'Documents' && errorMessage !== null">
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="!containsErrors"
