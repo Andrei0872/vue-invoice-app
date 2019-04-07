@@ -95,7 +95,7 @@ class DocumentService extends mainService {
     }
 
     async getAllByDocument(id) {
-        const data = await this.table._promisify(
+        const data = await (this.table || this.db)._promisify(
             `
             select * from document_product
             where document_id = ?
