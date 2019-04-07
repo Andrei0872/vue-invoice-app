@@ -129,7 +129,7 @@ store.subscribeAction(action => {
         if (entityAction === 'update') {
             message = `${capitalize(entityAction)} ${entityName}`
         } else if (!entityAction.includes('_')) {
-            message = entityName.endsWith('s') && store.getters[`document_product/getItemsById`].length === 0 && entityAction === 'delete'
+            message = entityName.endsWith('s') && store.getters[`document_product/getItemsById`].length === 0 && entityAction === 'delete' && store.getters['getEntityName'] ==='document'
                 ? `${entityName} is now empty.`
                 : `${capitalize(entityAction)} row ${entityAction === 'delete' ? 'from' : 'into'} ${entityName}`
         } else {
