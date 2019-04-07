@@ -12,7 +12,6 @@ const corsOptions = {
     origin: 'http://localhost:8080'
 }
 
-// TODO: middleware
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({  extended: false }))
