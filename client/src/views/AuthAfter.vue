@@ -35,8 +35,8 @@ export default {
 </script>
 
 <style lang="scss">
-  @import '../styles/base';
 
+  $sidebar-width: 250px;
   .main {
     width: 100%;
     height: 100%;
