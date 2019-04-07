@@ -50,24 +50,34 @@
                             @click="focusInputChild($event)" 
                             v-for="field in fields" 
                             :key="field + 'td'"
-                            :class="{ 'blurred': isUpdating && selectedRowId === row.id && field === 'product_name' }"
+                            :class="{ 'blurred': isUpdating && selectedRowId === row.id && field === 'product_name', 'actions': field === 'actions' }"
                         >
-                            <VInput 
-                                :key="row[field]"
-                                class="the-input"
-                                :placeholder="field"
-                                :value="row[field] || row[field] === 0 ? `${row[field]}`.trim() : ''"
-                                @input="inputValue = $event"
-                                @focus.native="handleFocus(row.id, field, $event)"
-                                @blur.native="addField(row, field, $event)"
-                            />
-                            <component
-                                @itemSelected="selectItem($event)" 
-                                v-if="field === 'nr_doc' && selectedField === 'nr_doc' && inputValue && row.id === selectedRowId"
-                                :is="VList"
-                                :filterKey="inputValue"
-                                :key="row.id + 'uniq'"
-                            />
+                            <template v-if="field !== 'actions'">
+                                <VInput 
+                                    :key="row[field]"
+                                    class="the-input"
+                                    :placeholder="field"
+                                    :value="row[field] || row[field] === 0 ? `${row[field]}`.trim() : ''"
+                                    @input="inputValue = $event"
+                                    @focus.native="handleFocus(row.id, field, $event)"
+                                    @blur.native="addField(row, field, $event)"
+                                />
+                                <component
+                                    @itemSelected="selectItem($event)" 
+                                    v-if="field === 'nr_doc' && selectedField === 'nr_doc' && inputValue && row.id === selectedRowId"
+                                    :is="VList"
+                                    :filterKey="inputValue"
+                                    :key="row.id + 'uniq'"
+                                />
+                            </template>
+                            <template v-else>
+                                <span class="file file--pdf">
+                                    <font-awesome-icon icon="file-pdf" @click="generateFile('pdf', row.id)" />
+                                </span>
+                                <span class="file file--excel">
+                                    <font-awesome-icon icon="file-excel" @click="generateFile('excel', row.id)" />
+                                </span>
+                            </template>
                         </td>
                     </tr>
                 </template>
@@ -137,6 +147,10 @@ export default {
     },
 
     methods: {
+        generateFile (type, id) {
+            window.open(`${window.location.origin}/file/${type}/${id}`)
+        },
+
         handleFocus (rowId, field, ev) {
             if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId || field === 'product_name') {
                 ev.target.blur();
@@ -243,8 +257,8 @@ export default {
             row[fieldName] = ev.target.value.trim();
         },
 
-        showInfo (row) {
-            this.$emit('showInfo', row);
+        showInfo (row, ev) {
+            !(ev.target.closest('.file')) && this.$emit('showInfo', row);
         },
     },
 }
@@ -252,10 +266,23 @@ export default {
 
 <style lang="scss" scoped>
 
-.selected {
-    // & .the-input {
-    //     font-size: 1.02em;
-    // }
+.file {
+    width: 60px;
+    height: 60px;
+    padding: .9rem .8rem;
+
+    svg {
+        font-size: 1.1rem;
+        cursor: pointer;
+    }
+
+    &--pdf {
+        color: orange;
+    }
+
+    &--excel {
+        color: green;
+    }
 }
 
 .blurred {
@@ -390,13 +417,17 @@ td.blurred {
 
 .h-has-hover {
     tr:hover {
-        background-color: rgba($color: #394263, $alpha: .5);
-        cursor: pointer;
 
-        input {
-            background: transparent;
+        td:not(.actions) {
+            background-color: rgba($color: #394263, $alpha: .5);
             cursor: pointer;
+
+            input {
+                background: transparent;
+                cursor: pointer;
+            }
         }
+
     }
 }
 
