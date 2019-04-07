@@ -1,5 +1,6 @@
 // TODO: DRY try-catch
 const debug = require('debug')('service')
+
 class Service {
     constructor (name) {
         debug('new service', name)
@@ -13,6 +14,10 @@ class Service {
         const paramsIsArr = Array.isArray(params);
 
         paramsIsArr && (params = params.map(({ id, ...row }) => row));
+
+        // Some products might not have an expiration date
+        if ((params[0] || params).hasOwnProperty('expiration_date'))
+            params = params.map(row => ({ ...row, expiration_date: row['expiration_date'] !== '' ? row['expiration_date'] : null }))
 
         try {
 

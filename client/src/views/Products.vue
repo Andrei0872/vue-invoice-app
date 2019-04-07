@@ -45,7 +45,7 @@
                     <div class="modal-body__prop"><span>{{ field }}</span></div>
                     <div class="modal-body__arrow"><font-awesome-icon icon="arrow-right" /></div>
                     <div class="modal-body__value">
-                        <span>{{ selectedItem[field] }}</span>
+                        <span>{{ selectedItem[field] !== null ? selectedItem[field] : 'Not Defined' }}</span>
                     </div>
                 </div>
             </template>
