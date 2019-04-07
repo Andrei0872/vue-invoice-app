@@ -21,14 +21,20 @@ const router = new Router({
   mode: 'history',
   linkActiveClass: 'active',
   routes: [
-    loadComp('/', null, 'dashboard'),
-    loadComp('/settings'),
-    loadComp('/products'),
-    loadComp('/providers'),
-    loadComp('/documents', [
-      loadComp('/documents', null, 'documents'),
-      { ...loadComp('/documents/edit/:id(\\d+)', null, 'documentEditOne'), props: true }
-    ], undefined, 'DocumentHome'),
+    // After auth
+    loadComp('/', [
+      loadComp('/', null, 'dashboard'),
+      loadComp('/settings'),
+      loadComp('/products'),
+      loadComp('/providers'),
+      loadComp('/documents', [
+        loadComp('/documents', null, 'documents'),
+        { ...loadComp('/documents/edit/:id(\\d+)', null, 'documentEditOne'), props: true }
+      ], undefined, 'DocumentHome'),
+    ], undefined, 'AuthAfter'),
+
+    // Show PDF or Excel
+    loadComp('/file/:fileType(pdf|excel)/:id(\\d+)', null, 'File', 'File')
   ]
 })
 
