@@ -33,7 +33,7 @@ const router = new Router({
       ], undefined, 'DocumentHome'),
     ], undefined, 'AuthAfter'),
 
-    // Show PDF or Excel
+    // Show PDF
     loadComp('/pdf/:id(\\d+)', null, 'File', 'File')
   ]
 })
