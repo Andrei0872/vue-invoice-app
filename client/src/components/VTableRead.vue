@@ -149,13 +149,12 @@ export default {
 
     methods: {
         generateFile (type, id, rowIndex = null) {
-            const url = `${this.$store.getters['api/mainURL']}/file/${type}/${id}`;
-            const newWindowURL = `${window.location.origin}/pdf/${id}`
+            const url = `${this.$store.getters['api/mainURL']}/file`;
 
             if (type === 'pdf')
-                return window.open(newWindowURL)
+                return this.$router.push({ name: 'file', params: { id } });
 
-            fetchExcelFile(url, rowIndex)
+            fetchExcelFile(url, rowIndex, id)
         },
 
         handleFocus (rowId, field, ev) {
