@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody :class="{ 'h-has-hover': !isUpdating, 'h-readonly': $route.name === 'documentEditOne' && readonly  }">
-                <template v-for="row in itemsFromProps">
+                <template v-for="(row, rowIndex) in itemsFromProps">
                     <div v-if="shouldDisplayButtons" :key="row.id" class="icon h-has-two-buttons">
                         <template v-if="!isUpdating || isUpdating && selectedRowId !== row.id">
                             <font-awesome-icon 
@@ -75,7 +75,7 @@
                                     <font-awesome-icon icon="file-pdf" @click="generateFile('pdf', row.id)" />
                                 </span>
                                 <span class="file file--excel">
-                                    <font-awesome-icon icon="file-excel" @click="generateFile('excel', row.id)" />
+                                    <font-awesome-icon icon="file-excel" @click="generateFile('excel', row.id, rowIndex)" />
                                 </span>
                             </template>
                         </td>
@@ -89,6 +89,7 @@
 <script>
 import VInput from '../components/VInput';
 
+import { fetchExcelFile } from '../utils/'; 
 
 export default {
     props: {
@@ -147,8 +148,14 @@ export default {
     },
 
     methods: {
-        generateFile (type, id) {
-            window.open(`${window.location.origin}/file/${type}/${id}`)
+        generateFile (type, id, rowIndex = null) {
+            const url = `${this.$store.getters['api/mainURL']}/file/${type}/${id}`;
+            const newWindowURL = `${window.location.origin}/pdf/${id}`
+
+            if (type === 'pdf')
+                return window.open(newWindowURL)
+
+            fetchExcelFile(url, rowIndex)
         },
 
         handleFocus (rowId, field, ev) {
