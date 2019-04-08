@@ -171,6 +171,19 @@ class DocumentService extends mainService {
             return { message: 'There has been an error updating the document' }
         }
     }
+
+    async getPDFData (id) {
+        return await (this.table || this.db)._promisify(
+            `
+            select dp.quantity, dp.quantity_type, dp.buy_price, dp.markup, dp.sell_price, p.* 
+            from document_product dp 
+            join product p 
+            on dp.product_id = p.id 
+            where dp.document_id = ?;
+            `,
+            id
+        )
+    }
 }
 
 module.exports = DocumentService;
