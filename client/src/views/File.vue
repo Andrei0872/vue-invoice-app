@@ -16,17 +16,19 @@ export default {
     }),
 
     created () {
-        const url = `${this.$store.getters['api/mainURL']}/file/${this.$route.params.fileType}/${this.$route.params.id}`
+        const url = `${this.$store.getters['api/mainURL']}/file/pdf/${this.$route.params.id}`
         const config = { headers: new Headers({
             'Content-Type': 'application/pdf',
         }), method: "POST" }
-
+        
         fetch(url, config)
             .then(res => res.blob())
             .then(res => {
+
                 const blob =  new Blob([res], {type: 'application/pdf'});
                 this.src = URL.createObjectURL(blob, { type: 'application/pdf' })
             })
+    
     }
 }
 </script>
