@@ -1,6 +1,4 @@
 const getDocumentData = require('../services/File.service');
-const fs = require('fs');
-
 
 module.exports = async (req, res) => {
     const { fileType, id, vat = null, docInfo = null } = req.body;
