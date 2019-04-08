@@ -116,7 +116,8 @@ export default {
       overviewData: 'dashboard/overview',
       vatData: 'vat',
       historyData: 'history',
-      needsUpdate: 'needsUpdate'
+      needsUpdate: 'needsUpdate',
+      isInit: 'isInit'
     }),
 
     shownDocuments () {
@@ -165,7 +166,8 @@ export default {
 
     !(this.documents.length) && this.$store.dispatch('api/FETCH_DATA');
 
-    !this.historyData.length && this.fetchMainOverview();
+    // !this.historyData.length && this.fetchMainOverview();
+    !this.isInit && this.fetchMainOverview();
   }
 }
 </script>

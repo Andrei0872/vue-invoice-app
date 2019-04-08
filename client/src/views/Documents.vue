@@ -153,6 +153,8 @@ export default {
         !(this.$store && this.$store.state['provider']) 
             && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
         // TODO: update results 
+
+        this.$store.getters['dashboard/needsInit'] && this.$store.dispatch('dashboard/fetchMainOverview');
     },
 }
 </script>
