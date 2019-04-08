@@ -15,7 +15,8 @@
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "html-pdf": "^2.2.0",
-    "mysql": "^2.16.0"
+    "mysql": "^2.16.0",
+    "xlsx": "^0.14.2"
   },
   "devDependencies": {
     "nodemon": "^1.18.10"
