@@ -4,13 +4,20 @@ export const state = {
     ['dashboard/overview']: {},
     vat: {},
     history: [],
-    needsUpdate: false
+    needsUpdate: false,
+    isInit: false
 }
 
 export const getters = {
     getEndpoints: () => ['dashboard/overview', 'vat', 'history'],
 
-    getUpdateState: state => state.needsUpdate
+    getUpdateState: state => state.needsUpdate,
+
+    getCurrentVat: state => state.vat,
+
+    getHistoryLen: state => state.history.length,
+
+    needsInit: state => !state.isInit
 }
 
 export const mutations = {
@@ -18,7 +25,9 @@ export const mutations = {
 
     SET_NEW_VAT: (state, payload) => state.vat = payload,
 
-    SET_UPDATE_STATE: (state, payload) => state.needsUpdate = payload
+    SET_UPDATE_STATE: (state, payload) => state.needsUpdate = payload,
+
+    SET_INIT_FALSE: state => state.isInit = true
 }
 
 export const actions = {
@@ -33,6 +42,8 @@ export const actions = {
                     endpoint => dispatch('api/makeRequest', { config: reqConfig, url: `${mainUrl}/${endpoint}` }, { root: true })
                 )
             )).forEach(({ data }, index) => commit('SET_PROP_DATA', { stateProp: endpoints[index], payload: index !== 1 && data || data[0] }));
+
+            commit('SET_INIT_FALSE');
         } else {
             const { data } = await dispatch('api/makeRequest', { config: reqConfig, url: `${mainUrl}/${endpoint}` }, { root: true });
             commit('SET_PROP_DATA', { stateProp: endpoint, payload: data });
