@@ -95,7 +95,7 @@ export default {
     created () {
         !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
 
-        this.$store.dispatch('api/FETCH_DATA');
+        !this.items.length && this.$store.dispatch('api/FETCH_DATA');
     }
 }
 </script>
