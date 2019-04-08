@@ -3,16 +3,20 @@ const fs = require('fs');
 
 
 module.exports = async (req, res) => {
-    const { fileType, id } = req.params;
-    const dataFetchedFn = await getDocumentData(id);
-    
+    const { fileType, id, vat = null, docInfo = null } = req.body;
+    const dataFetchedFn = await getDocumentData(id, { vat, docInfo });
     
     if (fileType === 'pdf') {
         const pdf = require('html-pdf')
         const content = dataFetchedFn('pdf');
-        
+
+        const options = {
+            width: '13.5in',
+            height: '11.5in'
+        }
+
         res.setHeader('Content-Type', 'application/pdf')
-        pdf.create(content).toStream( (err, stream) => {
+        pdf.create(content, options).toStream( (err, stream) => {
             stream.pipe(res);
         });
     } else {
