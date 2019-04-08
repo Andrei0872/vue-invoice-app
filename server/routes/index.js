@@ -8,7 +8,7 @@ router.use('/dashboard', require('./Dashboard.route'))
 router.use('/history', require('./History.route'))
 router.use('/vat', require('./Vat.route'))
 
-router.post('/file/:fileType(pdf|excel)/:id(\\d+)', require('../controllers/File.controller'));
+router.post('/file', require('../controllers/File.controller'));
 
 module.exports = router;
 
