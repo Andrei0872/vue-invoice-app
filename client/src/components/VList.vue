@@ -42,19 +42,20 @@ export default {
     methods: {
 
         handleKeys (ev) {
+            const keyUp = ev.which === 38;
+            const keyDown = ev.which === 40;
 
             if (ev.which === 13) {
                 this.selectItem();
                 return;
             }
 
-            this.currentIndex += ev.which === 40 
-                ? 1 : ev.which === 38 ? -1 : 0;
-
-            if (this.currentIndex === -1) 
-                this.currentIndex = this.items.length - 1;
-            else if (this.currentIndex === this.items.length) 
+            if (this.currentIndex === 0 && keyUp && !keyDown) 
+                this.currentIndex = this.filteredItems.length - 1, console.log('last elem')
+            else if (this.currentIndex === this.filteredItems.length -1 && !keyUp && keyDown) 
                 this.currentIndex = 0;
+            else if (keyUp || keyDown) 
+                this.currentIndex += keyDown ? 1 : keyUp ? -1 : 0;
         },
 
         selectItem (index = null) {
