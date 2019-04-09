@@ -66,7 +66,7 @@
           </div>
         </div>
         <div class="c-card c-card--big-half c-document">
-          <div class="c-card__title">Documents</div>
+          <div class="c-card__title">Recent Documents</div>
           <div class="c-card__content">
             <div 
               class="c-document__item"
@@ -74,7 +74,7 @@
               :key="document.id"
               @click="$router.push(`/documents/edit/${document.id}`)"
             >
-              <div class="c-document__title">Document nr {{ index + 1 }}</div>
+              <div class="c-document__title">Document nr {{ documentsLength - index }}</div>
               <div class="c-document__provider">{{ document.provider_name }}</div>
               <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
               <div class="c-document__date">{{ document.inserted_date }}</div>
@@ -119,6 +119,10 @@ export default {
       needsUpdate: 'needsUpdate',
       isInit: 'isInit'
     }),
+
+    documentsLength () {
+      return this.documents.length
+    },
 
     shownDocuments () {
       return (this.documents.length > this.shownDocumentsLen 
