@@ -55,11 +55,15 @@
 <script>
 import VInput from './VInput';
 
+import computeDoc from '../mixins/computeDoc';
+
 export default {
     props: {
         fields: Array,
         items: Array
     },
+
+    mixins: [computeDoc],
 
     components: { VInput },
 
@@ -101,29 +105,9 @@ export default {
                 return;
 
             let val = ev.target ? ev.target.value : ev;
-            this.$emit('addField', [row.id, fieldName,  val])
-
-            // Compute a new value for `sell_price` depeding on which values can be found
-            // in `buy_price` / `markup` fields
-            if (fieldName === 'buy_price' || fieldName === 'markup') {
-                val = parseFloat(val);
-
-                const otherField = fieldName === 'buy_price' ? 'markup' : 'buy_price';
-                let existingValueInOtherField = parseFloat(this.getFieldValue(row.id, otherField));
-                existingValueInOtherField = isNaN(existingValueInOtherField) ? 0 : existingValueInOtherField;
-                
-                const sellPriceValue = this.getValueAfterMarkup(...fieldName === 'buy_price' ? ([val, existingValueInOtherField]) : ([existingValueInOtherField, val]))
-
-                this.$emit('addField', [row.id, 'sell_price',  sellPriceValue])
-            }
-        },
-
-        getValueAfterMarkup (buyPrice, markup) {
-            return buyPrice + (markup / 100) * buyPrice
-        },
-
-        getFieldValue (rowId, field) {
-            return this.items.find(row => row.id === rowId)[field]
+            this.$emit('addField', [row.id, fieldName,  val]);
+            
+            (fieldName === 'buy_price' || fieldName === 'markup') && this.$emit('addField', [row.id, 'sell_price', this.computeSellPrice(row, fieldName, val)]);
         },
 
         focusInputChild (ev) {

@@ -53,7 +53,8 @@
                             :class="{ 'blurred': isUpdating && selectedRowId === row.id && (field === 'product_name' || field === 'sell_price'), 'actions': field === 'actions' }"
                         >
                             <template v-if="field !== 'actions'">
-                                <VInput 
+                                <!-- Add :key to easily trigger reactiviy -->
+                                <VInput
                                     :key="row[field]"
                                     class="the-input"
                                     :placeholder="field"
@@ -91,6 +92,8 @@ import VInput from '../components/VInput';
 
 import { fetchExcelFile } from '../utils/'; 
 
+import computeDoc from '../mixins/computeDoc';
+
 export default {
     props: {
         fields: Array,
@@ -104,6 +107,8 @@ export default {
             default: false
         }
     },
+
+    mixins: [computeDoc],
 
     components: { VInput },
 
@@ -259,8 +264,11 @@ export default {
             if (!this.selectedRowId)
                 return;
             
-            this.selectedRow[fieldName] = ev.target.value.trim();
-            row[fieldName] = ev.target.value.trim();
+            const val = ev.target.value.trim();
+            this.selectedRow[fieldName] = val;
+            row[fieldName] = val;
+
+            (fieldName === 'buy_price' || fieldName === 'markup') && (this.selectedRow['sell_price'] = row['sell_price'] = this.computeSellPrice(row, fieldName, val));
         },
 
         showInfo (row, ev) {
