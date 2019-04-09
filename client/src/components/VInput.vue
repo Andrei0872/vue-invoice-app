@@ -5,6 +5,7 @@
         :style="{ 'width': widthValue }"
         :placeholder="placeholder" 
         @input="sendContent($event)"
+        :tabindex="placeholder === 'sell_price' ? -1 : 0"
     >
 </template>
 
