@@ -50,7 +50,7 @@
                             @click="focusInputChild($event)" 
                             v-for="field in fields" 
                             :key="field + 'td'"
-                            :class="{ 'blurred': isUpdating && selectedRowId === row.id && field === 'product_name', 'actions': field === 'actions' }"
+                            :class="{ 'blurred': isUpdating && selectedRowId === row.id && (field === 'product_name' || field === 'sell_price'), 'actions': field === 'actions' }"
                         >
                             <template v-if="field !== 'actions'">
                                 <VInput 
@@ -158,7 +158,7 @@ export default {
         },
 
         handleFocus (rowId, field, ev) {
-            if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId || field === 'product_name') {
+            if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId || (field === 'product_name' || field === 'sell_price')) {
                 ev.target.blur();
                 return;
             }

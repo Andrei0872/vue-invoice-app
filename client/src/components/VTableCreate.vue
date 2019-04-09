@@ -22,7 +22,12 @@
                         />
                     </div>
                     <tr :key="row.id + 'row'">
-                        <td @click="focusInputChild($event)" v-for="field in fields" :key="field + 'td'">
+                        <td 
+                            @click="focusInputChild($event)" 
+                            v-for="field in fields" 
+                            :key="field + 'td'"
+                            :class="{ 'blurred': field === 'sell_price' }"
+                        >
                             <VInput 
                                 :key="typeof row[field] === 'object' ? row[field].id : row[field]"
                                 class="the-input"
@@ -95,8 +100,30 @@ export default {
             if (this.listVisible)
                 return;
 
-            const val = ev.target ? ev.target.value : ev;
+            let val = ev.target ? ev.target.value : ev;
             this.$emit('addField', [row.id, fieldName,  val])
+
+            // Compute a new value for `sell_price` depeding on which values can be found
+            // in `buy_price` / `markup` fields
+            if (fieldName === 'buy_price' || fieldName === 'markup') {
+                val = parseFloat(val);
+
+                const otherField = fieldName === 'buy_price' ? 'markup' : 'buy_price';
+                let existingValueInOtherField = parseFloat(this.getFieldValue(row.id, otherField));
+                existingValueInOtherField = isNaN(existingValueInOtherField) ? 0 : existingValueInOtherField;
+                
+                const sellPriceValue = this.getValueAfterMarkup(...fieldName === 'buy_price' ? ([val, existingValueInOtherField]) : ([existingValueInOtherField, val]))
+
+                this.$emit('addField', [row.id, 'sell_price',  sellPriceValue])
+            }
+        },
+
+        getValueAfterMarkup (buyPrice, markup) {
+            return buyPrice + (markup / 100) * buyPrice
+        },
+
+        getFieldValue (rowId, field) {
+            return this.items.find(row => row.id === rowId)[field]
         },
 
         focusInputChild (ev) {
@@ -111,6 +138,9 @@ export default {
         },
 
         selectRow (row, field, ev) {
+            if (field === 'sell_price')
+                return ev.target.blur();
+
             this.inputValue = null;
             this.selectedRowId = row.id;
             this.selectedField = field;
@@ -262,5 +292,15 @@ export default {
     }
 }
 
+.blurred {
+    cursor: default;
+    user-select: none;
+    background-color: lighten($color: #394263, $amount: 50%);
+
+    & .the-input {
+        background-color: lighten($color: #394263, $amount: 50%);
+        cursor: default;
+    }
+}
 
 </style>
