@@ -268,7 +268,13 @@ export default {
             this.selectedRow[fieldName] = val;
             row[fieldName] = val;
 
-            (fieldName === 'buy_price' || fieldName === 'markup') && (this.selectedRow['sell_price'] = row['sell_price'] = this.computeSellPrice(row, fieldName, val));
+            if (fieldName === 'buy_price' || fieldName === 'markup') {
+                // this.selectedRow['sell_price'] = row['sell_price'] = this.computeSellPrice(row, fieldName, val)
+
+                // this.computeVatFields(newVal => {
+                //     this.selectedRow['sell_price'] = row['sell_price'] = newVal;
+                // }, row, fieldName, val)
+            }
         },
 
         showInfo (row, ev) {
