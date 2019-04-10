@@ -159,7 +159,7 @@ export default {
             if (type === 'pdf')
                 return this.$router.push({ name: 'file', params: { id } });
 
-            fetchExcelFile(url, rowIndex, id)
+            fetchExcelFile.call(this, url, rowIndex, id);
         },
 
         handleFocus (rowId, field, ev) {
