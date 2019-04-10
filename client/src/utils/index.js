@@ -10,7 +10,8 @@ export const getRidOfObjProp = (obj, prop, { [prop]: _, ...rest } = obj) => rest
  */
 export const formatDate = dateStr => dateStr.replace(/(?<year>\d{4})\-(?<month>\d{2})\-(?<day>\d{2})([a-zA-Z:0-9.]+)/, '$<day>/$<month>/$<year>')
 
-export const fetchExcelFile = (url, rowIndex, id) => {
+// Not using arrow function because we need to bind `this`(Vue instance)
+export const fetchExcelFile = function (url, rowIndex, id) {
     let link;
     const config = {
         headers: new Headers({
@@ -18,7 +19,7 @@ export const fetchExcelFile = (url, rowIndex, id) => {
            'responseType': 'arraybuffer'
        }),
        method: "POST",
-       body: JSON.stringify({ fileType: 'excel', id })
+       body: JSON.stringify({ fileType: 'excel', id, vat: this.$store.getters['dashboard/getCurrentVat'] })
    }
     
     return fetch(url, config)
