@@ -50,7 +50,7 @@
                             @click="focusInputChild($event)" 
                             v-for="field in fields" 
                             :key="field + 'td'"
-                            :class="{ 'blurred': isUpdating && selectedRowId === row.id && (field === 'product_name' || field === 'sell_price'), 'actions': field === 'actions' }"
+                            :class="{ 'blurred': isUpdating && selectedRowId === row.id && (['sell_price', 'product_name', 'product_vat', 'sell_price_vat'].includes(field)), 'actions': field === 'actions' }"
                         >
                             <template v-if="field !== 'actions'">
                                 <!-- Add :key to easily trigger reactiviy -->
@@ -163,7 +163,7 @@ export default {
         },
 
         handleFocus (rowId, field, ev) {
-            if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId || (field === 'product_name' || field === 'sell_price')) {
+            if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId || ['sell_price', 'product_name', 'product_vat', 'sell_price_vat'].includes(field)) {
                 ev.target.blur();
                 return;
             }
