@@ -7,6 +7,8 @@ export default {
                 "buy_price",
                 "markup",
                 "sell_price",
+                "product_vat",
+                "sell_price_vat",
                 "currency"
             ],
             readColumns: [
