@@ -22,6 +22,16 @@
                     </div>
                     <VSelect @addProvider="$store.commit('SET_PROVIDER', $event)" class="c-select" :items="providers" />
                     <VInput @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" placeholder="Invoice Nr." class="c-input" />
+                    <div class="c-vat">
+                        <div class="c-vat__item">
+                            <b>VAT food: </b>
+                            <span>{{ vat['food_vat'] }}%</span>
+                        </div>
+                        <div class="c-vat__item">
+                            <b>VAT non food: </b>
+                            <span>{{ vat['non_food_vat'] }}%</span>
+                        </div>
+                    </div>
                 </div>
                 <VTableCreate 
                     @deleteRow="deleteRowInstantly($event)" 
@@ -121,6 +131,10 @@ export default {
                         : null
 
             return this.errorMessage !== null
+        },
+
+        vat () {
+           return this.$store.getters['dashboard/getCurrentVat']
         }
     },
 
@@ -184,6 +198,19 @@ export default {
             margin-left: 5rem;
             padding: .3rem;
             border: 1px solid #303753;
+        }
+    }
+
+    .c-vat {
+        display: flex;
+        flex-basis: 20rem;
+        justify-content: space-between;
+        margin-left: 3%;
+        padding: .26rem;
+
+        &__item {
+            font-size: 1.2rem;
+            color: #303753;
         }
     }
 </style>
