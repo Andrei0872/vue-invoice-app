@@ -8,7 +8,7 @@ class DocumentService extends mainService {
             provider_name: null,
             invoice_number: null
         };
-        this.documentProductTableColumns = ['document_id', 'product_id', 'quantity', 'quantity_type', 'buy_price', 'markup', 'sell_price', 'currency'];
+        this.documentProductTableColumns = ['document_id', 'product_id', 'quantity', 'quantity_type', 'buy_price', 'markup', 'sell_price', 'product_vat', 'sell_price_vat', 'currency'];
     }
 
     async insertOne({
