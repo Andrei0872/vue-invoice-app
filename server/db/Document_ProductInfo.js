@@ -9,6 +9,8 @@ module.exports = {
         "buy_price DECIMAL(7, 2) NOT NULL",
         "markup DECIMAL(7, 2) NOT NULL",
         "sell_price DECIMAL(7, 2) NOT NULL",
+        "product_vat DECIMAL(7, 2) NOT NULL",
+        "sell_price_vat DECIMAL(7, 2) NOT NULL",
         "currency CHAR(3)",
     ]
 };
