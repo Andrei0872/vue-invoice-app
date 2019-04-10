@@ -27,6 +27,7 @@
                 placeholder="Invoice Nr."
                 class="c-input" 
             />
+            <VVat />
         </div>
 
         <VTableRead
@@ -60,6 +61,7 @@ import VTableRead from '../components/VTableRead';
 import VModal from '../components/VModal';
 import VSelect from '../components/VSelect';
 import VInput from '../components/VInput';
+import VVat from '../components/VVat';
 
 import documentMixin from '../mixins/documentMixin';
 import commonMixin from '../mixins/commonMixin';
@@ -71,7 +73,7 @@ import { mapGetters, mapActions, mapState } from 'vuex'
 const entity = 'document_product'
 
 export default {
-    components: { VTableRead, VModal, VSelect, VInput },
+    components: { VTableRead, VModal, VSelect, VInput, VVat },
 
     mixins: [documentMixin, commonMixin, modalMixin],
 
