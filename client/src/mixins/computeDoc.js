@@ -1,5 +1,6 @@
 export default {
     methods: {
+        // TODO: add pairs to func: buy_price, markup => sell_price; sell_price, vat => product_vat; product_vat, sell_price => sell_price_vat
         computeSellPrice (row, fieldName, currentFieldValue) {
             // Compute a new value for `sell_price` depending on which values can be found
             // in `buy_price` / `markup` fields
@@ -18,5 +19,9 @@ export default {
         getValueAfterMarkup (buyPrice, markup) {
             return buyPrice + (markup / 100) * buyPrice
         },
+
+        getVatValue (isComestible, sellPriceValue, vat) {
+            return ((parseFloat(isComestible === 1 ? vat['food_vat'] : vat['non_food_vat'])) / 100) * sellPriceValue
+        }
     }
 }
