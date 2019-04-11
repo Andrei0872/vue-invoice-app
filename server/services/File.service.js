@@ -1,9 +1,9 @@
-const DocumentService = require('./Document.service');
-const documentService = new DocumentService(null);
 
-const getPDFContent = (data, { vat, docInfo } = {}) => {
+module.exports.getPDFContent = (products, vat, docInfo) => {
     let { invoice_number, id, provider_id, provider_name, inserted_date, nr_products, ...rest } = docInfo[0];
     inserted_date = new Date(inserted_date).toLocaleDateString();
+    
+    products = products.map(({ id, document_id, product_id, isComestible, product_name, ...rest }) => ({ product_name, ...rest }))
     
     return `
         <style>
@@ -35,11 +35,11 @@ const getPDFContent = (data, { vat, docInfo } = {}) => {
         
         <table border="1" style="border-collapse: collapse; margin: 15px auto;">
             <thead>
-                ${Object.keys(data[0]).map(column => '<th>' + column + '</th>').join('')}
+                ${Object.keys(products[0]).map(column => '<th>' + column + '</th>').join('')}
             </thead>
             <tbody>
                 <tr>
-                    ${data.map(row => '<td>' + Object.values(row).join('</td><td>') + '</td>').join('</tr><tr>')}
+                    ${products.map(row => '<td>' + Object.values(row).join('</td><td>') + '</td>').join('</tr><tr>')}
                 </tr>
             </tbody>
         </table>
@@ -57,22 +57,6 @@ const getPDFContent = (data, { vat, docInfo } = {}) => {
         `
     }
 
-const getExcelContent = data => {
-    return [Object.keys(data[0]), ...data.map(Object.values)]
-}
-
-const utils = {
-    'pdf': getPDFContent,
-    'excel': getExcelContent
-}
-
-module.exports = async (id, { vat = null, docInfo = null } = {}) => {
-    const data = await documentService.getPDFData.call(documentService, id);
-    const dataWithoutId = data.map(({ id, inserted_date, name, ...row }) => ({
-        name, 
-        ...row, 
-        expiration_date: row['expiration_date'].toLocaleDateString(),
-    }))
-
-    return type => utils[type](dataWithoutId, { vat, docInfo })
+module.exports.getExcelContent = products => {
+    return [Object.keys(products[0]), ...products.map(Object.values)]
 }

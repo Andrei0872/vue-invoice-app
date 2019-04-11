@@ -26,7 +26,7 @@
                             @click="focusInputChild($event)" 
                             v-for="field in fields" 
                             :key="field + 'td'"
-                            :class="{ 'blurred': field === 'sell_price' }"
+                            :class="{ 'blurred': ['sell_price', 'product_vat', 'sell_price_vat'].includes(field) }"
                         >
                             <VInput 
                                 :key="typeof row[field] === 'object' ? row[field].id : row[field]"
@@ -75,6 +75,8 @@ export default {
             selectedField: null,
             selectedFieldValue: '',
             listVisible: false,
+            lastUsedVatId: null,
+            lastUsedSellPrice: null,
         }
     },
 
@@ -90,13 +92,13 @@ export default {
             return typeof this.selectedFieldValue  === 'object' 
                 ? this.selectedFieldValue.name
                 : this.selectedFieldValue
-        }
+        },
     },
 
     watch: {
         inputValue (newVal) {
             (newVal === null || newVal.trim() === '') && (this.listVisible = false)
-        }
+        },
     },
 
     methods: {
@@ -107,7 +109,26 @@ export default {
             let val = ev.target ? ev.target.value : ev;
             this.$emit('addField', [row.id, fieldName,  val]);
             
-            (fieldName === 'buy_price' || fieldName === 'markup') && this.$emit('addField', [row.id, 'sell_price', this.computeSellPrice(row, fieldName, val)]);
+            if (fieldName === 'buy_price' || fieldName === 'markup') {
+                const sellPriceValue = parseFloat(this.computeSellPrice(row, fieldName, val)).toFixed(2);
+                this.$emit('addField', [row.id, 'sell_price', sellPriceValue]);
+
+                const vat = this.$store.getters['dashboard/getCurrentVat'];
+
+                const { product_name: { isComestible = undefined } } = row;
+
+                if (isComestible !== undefined) {
+                    console.log('sellPriceValue', sellPriceValue)
+                    const vatValue = this.getVatValue(isComestible, sellPriceValue, vat).toFixed(2);
+
+                    this.lastUsedVatId = vatValue;
+                    this.$emit('addField', [row.id, 'product_vat', vatValue]);
+                    const sellPriceVat = +vatValue + +sellPriceValue;
+                    this.$emit('addField', [row.id, 'sell_price_vat', sellPriceVat.toFixed(2)]);
+                }
+
+                this.lastUsedSellPrice = sellPriceValue;
+            }
         },
 
         focusInputChild (ev) {
@@ -122,7 +143,7 @@ export default {
         },
 
         selectRow (row, field, ev) {
-            if (field === 'sell_price')
+            if (['sell_price', 'product_vat', 'sell_price_vat'].includes(field))
                 return ev.target.blur();
 
             this.inputValue = null;
@@ -152,8 +173,18 @@ export default {
             }
 
             this.inputValue += ' ';
+            const { id, name, comestible: isComestible } = this.selectedItemFromList;
             // this.inputValue = null; // Not reactive
-            this.$emit('addField', [this.selectedRowId, this.selectedField, { id: this.selectedItemFromList.id, name: this.selectedItemFromList.name }]);
+            this.$emit('addField', [this.selectedRowId, this.selectedField, { id, name , isComestible }]);
+            
+            console.log(this.lastUsedVatId)
+            if (this.lastUsedVatId !== isComestible) {
+                this.lastUsedVatId = isComestible;
+
+                const vatValue = this.getVatValue(isComestible, this.lastUsedSellPrice, this.$store.getters['dashboard/getCurrentVat']);
+                vatValue && this.$emit('addField', [this.selectedRowId, 'product_vat', vatValue]);
+                vatValue && this.$emit('addField', [this.selectedRowId, 'sell_price_vat', (+vatValue + +this.lastUsedSellPrice)]);
+            }
         }
     },
 

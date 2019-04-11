@@ -50,7 +50,7 @@
                             @click="focusInputChild($event)" 
                             v-for="field in fields" 
                             :key="field + 'td'"
-                            :class="{ 'blurred': isUpdating && selectedRowId === row.id && (field === 'product_name' || field === 'sell_price'), 'actions': field === 'actions' }"
+                            :class="{ 'blurred': isUpdating && selectedRowId === row.id && (['sell_price', 'product_name', 'product_vat', 'sell_price_vat'].includes(field)), 'actions': field === 'actions' }"
                         >
                             <template v-if="field !== 'actions'">
                                 <!-- Add :key to easily trigger reactiviy -->
@@ -93,6 +93,8 @@ import VInput from '../components/VInput';
 import { fetchExcelFile } from '../utils/'; 
 
 import computeDoc from '../mixins/computeDoc';
+
+import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
     props: {
@@ -149,21 +151,28 @@ export default {
 
         shouldDisplayButtons () {
             return !this.readonly
-        }
+        },
+
+        ...mapState('document_product', { allItems : 'items' }),
+        
+        ...mapGetters('document_product', { documentProducts: 'getItemsById' }),
     },
 
     methods: {
+        ...mapActions('document_product', ['setId', 'fetchById']),
+
         generateFile (type, id, rowIndex = null) {
             const url = `${this.$store.getters['api/mainURL']}/file`;
 
             if (type === 'pdf')
                 return this.$router.push({ name: 'file', params: { id } });
 
-            fetchExcelFile(url, rowIndex, id)
+            this.setId(id);
+            fetchExcelFile.call(this, url, rowIndex, id);
         },
 
         handleFocus (rowId, field, ev) {
-            if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId || (field === 'product_name' || field === 'sell_price')) {
+            if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId || ['sell_price', 'product_name', 'product_vat', 'sell_price_vat'].includes(field)) {
                 ev.target.blur();
                 return;
             }
@@ -268,7 +277,27 @@ export default {
             this.selectedRow[fieldName] = val;
             row[fieldName] = val;
 
-            (fieldName === 'buy_price' || fieldName === 'markup') && (this.selectedRow['sell_price'] = row['sell_price'] = this.computeSellPrice(row, fieldName, val));
+            if (fieldName === 'buy_price' || fieldName === 'markup') {
+                // this.selectedRow['sell_price'] = row['sell_price'] = this.computeSellPrice(row, fieldName, val)
+
+                const sellPriceValue = parseFloat(this.computeSellPrice(row, fieldName, val)).toFixed(2);
+                this.selectedRow['sell_price'] = row['sell_price'] = sellPriceValue;
+
+                const vat = this.$store.getters['dashboard/getCurrentVat'];
+
+                const { isComestible } = row;
+
+                if (isComestible !== undefined) {
+                    const vatValue = this.getVatValue(isComestible, sellPriceValue, vat).toFixed(2);
+
+                    this.lastUsedVatId = vatValue;
+                    this.selectedRow['product_vat'] = row['product_vat'] = vatValue;
+                    const sellPriceVat = +vatValue + +sellPriceValue;
+                    this.selectedRow['sell_price_vat'] = row['sell_price_vat'] = sellPriceVat.toFixed(2);
+                }
+
+                this.lastUsedSellPrice = sellPriceValue;
+            }
         },
 
         showInfo (row, ev) {

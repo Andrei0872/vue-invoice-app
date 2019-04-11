@@ -5,7 +5,7 @@
         :style="{ 'width': widthValue }"
         :placeholder="placeholder" 
         @input="sendContent($event)"
-        :tabindex="placeholder === 'sell_price' ? -1 : 0"
+        :tabindex="['sell_price', 'product_vat', 'sell_price_vat'].includes(placeholder) ? -1 : 0"
     >
 </template>
 

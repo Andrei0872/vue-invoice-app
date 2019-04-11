@@ -27,7 +27,7 @@ class Database {
         try {
             this._initTables();
             await this._promisifyConn();
-
+            
             !(await this._tablesExist()) && this._initTablesAndProcedures();
 
             Database.prototype.isConnecting = false;
@@ -117,13 +117,13 @@ class Database {
             select count(*) into total_products from product;
             select count(*) into total_providers from provider;
             select count(*) into total_documents from document;
-            select concat(document_id, '|', sum(sell_price)) into most_expensive_doc
+            select concat(document_id, '|', sum(sell_price_vat)) into most_expensive_doc
             from document_product
             group by document_id
-            having sum(sell_price) = (
-                select max(total_sell)
+            having sum(sell_price_vat) = (
+                select max(total_sell_vat)
                 from (
-                    select sum(sell_price) as total_sell
+                    select sum(sell_price_vat) as total_sell_vat
                     from document_product
                     group by document_id
                 ) tab

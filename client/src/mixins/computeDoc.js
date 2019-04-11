@@ -18,5 +18,11 @@ export default {
         getValueAfterMarkup (buyPrice, markup) {
             return buyPrice + (markup / 100) * buyPrice
         },
+
+        getVatValue (isComestible, sellPriceValue, vat) {
+            return ((parseFloat(isComestible === 1 ? vat['food_vat'] : vat['non_food_vat'])) / 100) * sellPriceValue
+        },
+
+        computeVatFields (cb, ...args) {/* ... */}
     }
 }

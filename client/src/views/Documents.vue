@@ -22,6 +22,7 @@
                     </div>
                     <VSelect @addProvider="$store.commit('SET_PROVIDER', $event)" class="c-select" :items="providers" />
                     <VInput @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" placeholder="Invoice Nr." class="c-input" />
+                    <VVat />
                 </div>
                 <VTableCreate 
                     @deleteRow="deleteRowInstantly($event)" 
@@ -69,6 +70,7 @@ import VTableCreate from '../components/VTableCreate';
 import VTableRead from '../components/VTableRead';
 import VSelect from '../components/VSelect';
 import VInput from '../components/VInput';
+import VVat from '../components/VVat';
 
 import modalMixin from '../mixins/modalMixin';
 import commonMixin from '../mixins/commonMixin';
@@ -88,7 +90,7 @@ const { mapState: mapStateProduct } = createNamespacedHelpers(productEntity);
 export default {
     name: 'documents',
 
-    components: { VContent, VModal, VTableCreate, VTableRead, VSelect, VInput },
+    components: { VContent, VModal, VTableCreate, VTableRead, VSelect, VInput, VVat },
 
     mixins: [modalMixin, commonMixin, documentMixin],
 
@@ -121,6 +123,10 @@ export default {
                         : null
 
             return this.errorMessage !== null
+        },
+
+        vat () {
+           return this.$store.getters['dashboard/getCurrentVat']
         }
     },
 

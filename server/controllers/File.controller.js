@@ -1,12 +1,12 @@
-const getDocumentData = require('../services/File.service');
+const { getPDFContent, getExcelContent } = require('../services/File.service');
 
 module.exports = async (req, res) => {
-    const { fileType, id, vat = null, docInfo = null } = req.body;
-    const dataFetchedFn = await getDocumentData(id, { vat, docInfo });
+    const { fileType, id, vat = null, docInfo = null, products = null } = req.body;
     
+    console.log(products)
     if (fileType === 'pdf') {
         const pdf = require('html-pdf')
-        const content = dataFetchedFn('pdf');
+        const content = getPDFContent(products, vat, docInfo);
 
         const options = {
             width: '13.5in',
@@ -21,8 +21,8 @@ module.exports = async (req, res) => {
         const xlsx = require('xlsx')
 
         const wb = xlsx.utils.book_new();
-
-        const table = dataFetchedFn('excel');
+        
+        const table = getExcelContent(products);
         const ws = xlsx.utils.aoa_to_sheet(table);
         xlsx.utils.book_append_sheet(wb, ws, 'document');
 

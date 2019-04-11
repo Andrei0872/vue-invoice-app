@@ -9,6 +9,9 @@
 </template>
 
 <script>
+import { createNamespacedHelpers } from 'vuex'
+const { mapState, mapGetters, mapActions } = createNamespacedHelpers('document_product');
+
 export default {
 
     data: () => ({
@@ -22,12 +25,35 @@ export default {
         next();
     },
 
+    beforeRouterLeave (to, from , next) {
+        this.setId(null);
+
+        next();
+    },
+
+    computed: {
+        ...mapState({ allItems : 'items' }),
+        
+        ...mapGetters({ documentProducts: 'getItemsById' }),
+
+        id () {
+            return this.$route.params.id;
+        }
+    },
+
+    methods: mapActions(['setId', 'fetchById']),
+
     async created () {
         const url = `${this.$store.getters['api/mainURL']}/file`
+        this.setId(this.id);
+
+        if (!this.allItems.length)
+            await this.fetchById(this.id);
 
         const body = {
-            id: this.$route.params.id,
+            id: this.id,
             fileType: 'pdf',
+            products: this.documentProducts,
             vat: this.$store.getters['dashboard/getCurrentVat'],
             docInfo: this.$store.getters['getEntityItems']
         }
@@ -43,7 +69,7 @@ export default {
             .then(res => res.blob())
             .then(res => {
 
-                const blob =  new Blob([res], {type: 'application/pdf'});
+                const blob =  new Blob([res], { type: 'application/pdf' });
                 this.src = URL.createObjectURL(blob, { type: 'application/pdf' })
             })
     }

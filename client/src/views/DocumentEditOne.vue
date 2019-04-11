@@ -27,6 +27,7 @@
                 placeholder="Invoice Nr."
                 class="c-input" 
             />
+            <VVat />
         </div>
 
         <VTableRead
@@ -35,7 +36,6 @@
             :readonly="true" 
             :items="[results]"
         />
-        
         <!-- Add go back btn -->
         <!-- Add confirm btn -->
         <button @click="$router.push('/documents')">back</button>
@@ -60,6 +60,7 @@ import VTableRead from '../components/VTableRead';
 import VModal from '../components/VModal';
 import VSelect from '../components/VSelect';
 import VInput from '../components/VInput';
+import VVat from '../components/VVat';
 
 import documentMixin from '../mixins/documentMixin';
 import commonMixin from '../mixins/commonMixin';
@@ -71,7 +72,7 @@ import { mapGetters, mapActions, mapState } from 'vuex'
 const entity = 'document_product'
 
 export default {
-    components: { VTableRead, VModal, VSelect, VInput },
+    components: { VTableRead, VModal, VSelect, VInput, VVat },
 
     mixins: [documentMixin, commonMixin, modalMixin],
 
@@ -103,17 +104,21 @@ export default {
         },
 
         results () {
-            const { total_buy, total_sell } = this.items.reduce((memo, item) => {
+            const { total_buy, total_sell, total_vat, total_sell_vat } = this.items.reduce((memo, item) => {
                 memo['total_buy'] += +(this.changes[item.id] && this.changes[item.id]['buy_price'] || item['buy_price'])
                 memo['total_sell'] += +(this.changes[item.id] && this.changes[item.id]['sell_price'] || item['sell_price'])
+                memo['total_vat'] += +(this.changes[item.id] && this.changes[item.id]['product_vat'] || item['product_vat'])
+                memo['total_sell_vat'] += +(this.changes[item.id] && this.changes[item.id]['sell_price_vat'] || item['sell_price_vat'])
 
                 return memo;
-            }, { total_buy: 0, total_sell: 0 })
+            }, { total_buy: 0, total_sell: 0, total_vat: 0, total_sell_vat: 0 })
 
             return { 
                 ...this.currentItem, 
-                total_buy, 
-                total_sell, 
+                total_buy: total_buy.toFixed(2), 
+                total_sell: total_sell.toFixed(2), 
+                total_vat: total_vat.toFixed(2), 
+                total_sell_vat: total_sell_vat.toFixed(2), 
                 provider_name: this.selectedProvider.name, 
                 provider_id: this.selectedProvider.id,
                 invoice_number: this.selectedProvider.invoiceNr || this.currentItem.invoice_number,
