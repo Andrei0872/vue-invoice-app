@@ -34,10 +34,10 @@ export const actions = {
         const data = await dispatch('api/makeRequest', { url, config }, { root: true });
 
         const products = rootState.product.items
-            .reduce((memo, product) => (memo[product.id] = product.name, memo), {})
+            .reduce((memo, product) => (memo[product.id] = [product.name, product.comestible], memo), {})
 
         commit('SET_ID', id);
-        commit('SET_ITEMS', data.map(item => ({ ...item, product_name: products[item.product_id] })));
+        commit('SET_ITEMS', data.map(item => ({ ...item, product_name: products[item.product_id][0], isComestible: products[item.product_id][1] })));
     },
 
     setId: ({ commit }, payload) => commit('SET_ID', payload),

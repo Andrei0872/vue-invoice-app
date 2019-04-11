@@ -36,7 +36,6 @@
             :readonly="true" 
             :items="[results]"
         />
-        
         <!-- Add go back btn -->
         <!-- Add confirm btn -->
         <button @click="$router.push('/documents')">back</button>
@@ -105,17 +104,21 @@ export default {
         },
 
         results () {
-            const { total_buy, total_sell } = this.items.reduce((memo, item) => {
+            const { total_buy, total_sell, total_vat, total_sell_vat } = this.items.reduce((memo, item) => {
                 memo['total_buy'] += +(this.changes[item.id] && this.changes[item.id]['buy_price'] || item['buy_price'])
                 memo['total_sell'] += +(this.changes[item.id] && this.changes[item.id]['sell_price'] || item['sell_price'])
+                memo['total_vat'] += +(this.changes[item.id] && this.changes[item.id]['product_vat'] || item['product_vat'])
+                memo['total_sell_vat'] += +(this.changes[item.id] && this.changes[item.id]['sell_price_vat'] || item['sell_price_vat'])
 
                 return memo;
-            }, { total_buy: 0, total_sell: 0 })
+            }, { total_buy: 0, total_sell: 0, total_vat: 0, total_sell_vat: 0 })
 
             return { 
                 ...this.currentItem, 
                 total_buy, 
                 total_sell, 
+                total_vat, 
+                total_sell_vat, 
                 provider_name: this.selectedProvider.name, 
                 provider_id: this.selectedProvider.id,
                 invoice_number: this.selectedProvider.invoiceNr || this.currentItem.invoice_number,

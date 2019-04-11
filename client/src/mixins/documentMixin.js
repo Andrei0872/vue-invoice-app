@@ -15,6 +15,8 @@ export default {
                 "provider_name",
                 "total_buy",
                 "total_sell",
+                "total_vat",
+                "total_sell_vat",
                 "invoice_number",
                 "inserted_date",
                 "nr_products"

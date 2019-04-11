@@ -63,7 +63,8 @@ class DocumentService extends mainService {
             document.provider_name,
                 SUM(document_product.buy_price) as total_buy, SUM(document_product.sell_price) as total_sell,
                 document.invoice_number, document.provider_id, document.inserted_date, document.id as id,
-                count(document_product.id) as nr_products
+                count(document_product.id) as nr_products, sum(document_product.product_vat) as total_vat,
+                sum(document_product.sell_price_vat) as total_sell_vat
             from document
             inner join document_product
             on document.id = document_product.document_id
