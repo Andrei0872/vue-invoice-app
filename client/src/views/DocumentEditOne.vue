@@ -115,10 +115,10 @@ export default {
 
             return { 
                 ...this.currentItem, 
-                total_buy, 
-                total_sell, 
-                total_vat, 
-                total_sell_vat, 
+                total_buy: total_buy.toFixed(2), 
+                total_sell: total_sell.toFixed(2), 
+                total_vat: total_vat.toFixed(2), 
+                total_sell_vat: total_sell_vat.toFixed(2), 
                 provider_name: this.selectedProvider.name, 
                 provider_id: this.selectedProvider.id,
                 invoice_number: this.selectedProvider.invoiceNr || this.currentItem.invoice_number,
