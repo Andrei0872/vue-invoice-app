@@ -94,6 +94,8 @@ import { fetchExcelFile } from '../utils/';
 
 import computeDoc from '../mixins/computeDoc';
 
+import { mapState, mapGetters, mapActions } from 'vuex'
+
 export default {
     props: {
         fields: Array,
@@ -149,16 +151,23 @@ export default {
 
         shouldDisplayButtons () {
             return !this.readonly
-        }
+        },
+
+        ...mapState('document_product', { allItems : 'items' }),
+        
+        ...mapGetters('document_product', { documentProducts: 'getItemsById' }),
     },
 
     methods: {
+        ...mapActions('document_product', ['setId', 'fetchById']),
+
         generateFile (type, id, rowIndex = null) {
             const url = `${this.$store.getters['api/mainURL']}/file`;
 
             if (type === 'pdf')
                 return this.$router.push({ name: 'file', params: { id } });
 
+            this.setId(id);
             fetchExcelFile.call(this, url, rowIndex, id);
         },
 

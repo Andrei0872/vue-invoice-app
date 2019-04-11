@@ -57,22 +57,6 @@ const getPDFContent = (data, { vat, docInfo } = {}) => {
         `
     }
 
-const getExcelContent = data => {
-    return [Object.keys(data[0]), ...data.map(Object.values)]
-}
-
-const utils = {
-    'pdf': getPDFContent,
-    'excel': getExcelContent
-}
-
-module.exports = async (id, { vat = null, docInfo = null } = {}) => {
-    const data = await documentService.getPDFData.call(documentService, id);
-    const dataWithoutId = data.map(({ id, inserted_date, name, ...row }) => ({
-        name, 
-        ...row, 
-        expiration_date: row['expiration_date'].toLocaleDateString(),
-    }))
-
-    return type => utils[type](dataWithoutId, { vat, docInfo })
+module.exports.getExcelContent = products => {
+    return [Object.keys(products[0]), ...products.map(Object.values)]
 }
