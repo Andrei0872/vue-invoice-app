@@ -32,6 +32,12 @@ class DocumentController extends mainController {
 
         res.json(responseFromDB);
     }
+
+    async updateDocumentVat ({ body } , res) {
+        return res.json(
+            (await this.service.updateDocumentVat(body))
+        );
+    }
 }
 
 module.exports = DocumentController

@@ -58,5 +58,19 @@ export const actions = {
         
         console.log(copyVat)
         commit('SET_NEW_VAT', copyVat);
+    },
+
+    // When any VAT values has changed, recompute the columns(i.e buy_price, sell_price)
+    // depending on the new values that have been provided
+    updateDocVat: async ({ dispatch, rootGetters }, payload) => {
+        
+        const url = `${rootGetters['api/mainURL']}/documents/update_document_vat`
+        const config = {
+            ...rootGetters['api/config'], 
+            method: "PUT",
+            body: JSON.stringify(payload)
+        }
+
+        return await dispatch("api/makeRequest", { url, config }, { root: true });
     }
 }

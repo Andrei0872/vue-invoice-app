@@ -185,6 +185,22 @@ class DocumentService extends mainService {
             id
         )
     }
+
+    async updateDocumentVat ([vatType, vatValue]) {
+        try {
+            const data = await this.table._promisify(
+                `
+                update document_product 
+                set product_vat = sell_price * ${vatValue} / 100, sell_price_vat = sell_price + product_vat 
+                where (select comestible from product where id = product_id) = ${vatType === 'food_vat' ? 1 : 0};
+                `
+            )
+
+            return { message: 'Successfully updated in all docd', data }
+        } catch {
+            return { message: 'There has been an error updating all docs' }
+        }
+    }
 }
 
 module.exports = DocumentService;

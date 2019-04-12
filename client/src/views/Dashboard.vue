@@ -107,6 +107,7 @@ export default {
     shownDocumentsLen: 8,
     historyItemsPerPage: 9,
     historyPageIndex: 0,
+    initialVat: {}
   }),
 
   computed: {
@@ -143,7 +144,7 @@ export default {
   methods: {
     ...mapActions(['changeEntity']),
     
-    ...mapActions(currentEntity, ['fetchMainOverview', 'setNewVat']),
+    ...mapActions(currentEntity, ['fetchMainOverview', 'setNewVat', 'updateDocVat']),
 
     addNewVat (type, ev) {
       const input = ev.target.previousElementSibling;
@@ -164,14 +165,34 @@ export default {
     },
   },
 
-  created () {
+  async created () {
     this.changeEntity('documents');
     !(this.$store && this.$store.state[documentEntity]) && (this.$store.registerModule(documentEntity, common))
 
     !(this.documents.length) && this.$store.dispatch('api/FETCH_DATA');
 
     // !this.historyData.length && this.fetchMainOverview();
-    !this.isInit && this.fetchMainOverview();
+    !this.isInit && await this.fetchMainOverview();
+
+    this.initialVat = { ...this.vatData };
+  },
+
+  beforeRouteLeave (to, from, next) {
+    // If the VAT values are null, it means there can't be any documents
+    // So we'll perform an update only if there are existing values that are not null
+    if (this.initialVat['food_vat'] !== null || this.initialVat['non_food_vat'] !== null) {
+      // If after any of the req below this is not null, is means we have the updated docs
+      // which means we can replace the actual docs with the updated ones
+      let updatedDocs = null;
+      
+      this.initialVat['food_vat'] !== this.vatData['food_vat'] && (updatedDocs = this.updateDocVat(['food_vat', this.vatData['food_vat']]))
+
+      this.initialVat['non_food_vat'] !== this.vatData['non_food_vat'] && (updatedDocs = this.updateDocVat(['non_food_vat', this.vatData['non_food_vat']]))
+
+      // console.log(updatedDocs)
+    }
+    
+    next();
   }
 }
 </script>
