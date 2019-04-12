@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- TODO: add notification :D - based on a vuex's state property -->
-        <VContent v-if="everythingReady === true" entityName="document" :disableButton="errorMessage !== 'Documents' && errorMessage !== null">
+        <VContent v-if="everythingReady === true" entityName="document" :disableButton="errorMessage !== 'Documents' && errorMessage !== null || vat['food_vat'] === null || vat['non_food_vat'] === null">
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="!containsErrors"
@@ -11,6 +11,9 @@
                     @showInfo="showInfo($event)"
                     @deleteRow="deleteRow($event)"
                 />
+                <div class="no-items" v-else-if="vat['food_vat'] === null || vat['non_food_vat'] === null">
+                    Please make sure you specify the VAT!
+                </div>
                 <div v-else class="no-items">
                     There are no {{ errorMessage }}
                 </div>
