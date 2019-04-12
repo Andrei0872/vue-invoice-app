@@ -177,19 +177,19 @@ export default {
     this.initialVat = { ...this.vatData };
   },
 
-  beforeRouteLeave (to, from, next) {
+  async beforeRouteLeave (to, from, next) {
     // If the VAT values are null, it means there can't be any documents
     // So we'll perform an update only if there are existing values that are not null
     if (this.initialVat['food_vat'] !== null || this.initialVat['non_food_vat'] !== null) {
       // If after any of the req below this is not null, is means we have the updated docs
       // which means we can replace the actual docs with the updated ones
-      let updatedDocs = null;
+      let shouldRefetchDocs = false;
       
-      this.initialVat['food_vat'] !== this.vatData['food_vat'] && (updatedDocs = this.updateDocVat(['food_vat', this.vatData['food_vat']]))
+      this.initialVat['food_vat'] !== this.vatData['food_vat'] && (await this.updateDocVat(['food_vat', this.vatData['food_vat']]), shouldRefetchDocs = true)
 
-      this.initialVat['non_food_vat'] !== this.vatData['non_food_vat'] && (updatedDocs = this.updateDocVat(['non_food_vat', this.vatData['non_food_vat']]))
+      this.initialVat['non_food_vat'] !== this.vatData['non_food_vat'] && (await this.updateDocVat(['non_food_vat', this.vatData['non_food_vat']]), shouldRefetchDocs = true)
 
-      // console.log(updatedDocs)
+      shouldRefetchDocs && this.$store.dispatch('api/FETCH_DATA');
     }
     
     next();
