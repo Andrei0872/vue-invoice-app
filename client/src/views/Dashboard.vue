@@ -144,9 +144,9 @@ export default {
   methods: {
     ...mapActions(['changeEntity']),
     
-    ...mapActions(currentEntity, ['fetchMainOverview', 'setNewVat', 'updateDocVat']),
+    ...mapActions(currentEntity, ['fetchMainOverview', 'setNewVat', 'updateDocVat', 'insertHistoryRow']),
 
-    addNewVat (type, ev) {
+    async addNewVat (type, ev) {
       const input = ev.target.previousElementSibling;
       const value = parseFloat(input.value.trim());
 
@@ -154,6 +154,9 @@ export default {
 
       input.value = '';
       this.setNewVat({ type, value });
+
+      const message = `Update ${type} from ${this.initialVat[type]} to ${this.vatData[type]}`
+      await this.insertHistoryRow({ entity: currentEntity, message, action_type: 'update' });
     },
 
     sendToRoute (newRoute) {
@@ -189,6 +192,7 @@ export default {
 
       this.initialVat['non_food_vat'] !== this.vatData['non_food_vat'] && (await this.updateDocVat(['non_food_vat', this.vatData['non_food_vat']]), shouldRefetchDocs = true)
 
+      console.log(shouldRefetchDocs)
       shouldRefetchDocs && this.$store.dispatch('api/FETCH_DATA');
     }
     

@@ -103,63 +103,6 @@ store.subscribeAction(action => {
         
         store.dispatch('api/makeRequest', { url, config });
     }
-
-    // Add to History table
-   if (action.type === 'api/makeRequest') {
-       const { url, config: { body } } = action.payload
-       let dataFromURL = null, entityName = null, entityAction = null;
-       
-       if (typeof body === 'undefined') return;
-       console.log(action)
-
-       // The URL might not have an action
-       // i.e: when fetching: <mainUrl>/entity/ 
-       try {
-           dataFromURL = (new RegExp(`${store.state.mainUrl}([a-z]+)/([a-z_]+)`)).exec(url);
-           entityName = dataFromURL[1];
-           entityAction = dataFromURL[2];
-       } catch {
-           return;
-       }  
-
-       if (entityName === 'history') return;
-
-        let message = ``;
-
-        if (entityAction === 'update') {
-            message = `${capitalize(entityAction)} ${entityName}`
-        } else if (!entityAction.includes('_')) {
-            message = entityName.endsWith('s') && store.getters[`document_product/getItemsById`].length === 0 && entityAction === 'delete' && store.getters['getEntityName'] ==='document'
-                ? `${entityName} is now empty.`
-                : `${capitalize(entityAction)} row ${entityAction === 'delete' ? 'from' : 'into'} ${entityName}`
-        } else {
-            const separatorIndex = entityAction.indexOf('_');
-            const theAction = entityAction.slice(0, separatorIndex);
-            const otherEntity = entityAction.slice(separatorIndex + 1);
-            
-            // /document/delete_from_doc || /document/update_document
-            message = otherEntity !== 'document' 
-                ? `${theAction} ${otherEntity.includes('_') ? 'product' : otherEntity} in ${entityName}`
-                : `${theAction} document information`
-        }
-
-        const entity = entityName;
-        let underlineIndex = -1;
-        const action_type = (underlineIndex = entityAction.indexOf('_')) === -1 ? entityAction : entityAction.slice(0, underlineIndex);
-
-        const insertURL = `${store.getters['api/mainURL']}/history/insert`;
-        const config = {
-            ...store.getters['api/config'],
-            body: JSON.stringify({ entity, message, action_type })
-        }
-
-        store.dispatch('api/makeRequest', { url: insertURL, config })
-            .then(() => {
-                // Update data in Dashboard
-                store.dispatch('dashboard/fetchMainOverview', 'history');
-            })
-    }
-
 })
 
 store.watch(

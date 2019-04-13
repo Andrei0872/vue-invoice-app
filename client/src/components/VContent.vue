@@ -78,6 +78,9 @@ export default {
             this.$store.dispatch('api/insertItem', this.newItems)
                 .then(() => {
                     this.$store.dispatch('dashboard/fetchMainOverview', 'dashboard/overview');
+
+                    const message = `Add new ${this.currentEntity.slice(0, -1)}`
+                    this.$store.dispatch('dashboard/insertHistoryRow', { entity: this.currentEntity, message, action_type: 'insert' });
                 })
 
 

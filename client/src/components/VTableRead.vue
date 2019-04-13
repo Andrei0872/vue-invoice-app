@@ -255,6 +255,10 @@ export default {
                 !(this.isObjectEmpty(changes)) && this.$emit('update', { ...changes, id: row.id });
 
                 this.alreadyUpdated = false;
+
+                const currentEntity = this.$store.getters['getEntityName'];
+                const message = `Update one ${currentEntity}.`
+                this.$store.dispatch('dashboard/insertHistoryRow', { entity: currentEntity, message, action_type: 'update' });
             }
 
             this.resetData();

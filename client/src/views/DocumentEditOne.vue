@@ -173,7 +173,18 @@ export default {
             if (!hasChanges)
                 return;
 
-            this.alreadyFetched && this.setAlreadyFetched(false)
+            this.alreadyFetched && this.setAlreadyFetched(false);
+            
+            if (changes !== null) {
+                const message = `Update document information`;
+                this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'update' });
+            }
+
+            if (hasChanges && changes !== null) {
+                const message = `Update product in document`;
+                this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'update' });
+            }
+
             this.$router.push('/documents');
         },
 
@@ -181,6 +192,9 @@ export default {
             // Send a different request in order to only delete this item from its document
             this.deleteFromDoc(this.selectedItem.id)
             this.closeModal();
+
+            const message = `Delete one product from document`
+            this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'delete' });
         }
     },
 

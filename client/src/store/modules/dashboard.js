@@ -72,5 +72,17 @@ export const actions = {
         }
 
         return await dispatch("api/makeRequest", { url, config }, { root: true });
+    },
+
+    insertHistoryRow: async ({ dispatch, rootGetters }, payload) => {
+        const url = `${rootGetters['api/mainURL']}/history/insert`;
+        const config = {
+            ...rootGetters['api/config'],
+            body: JSON.stringify(payload)
+        }
+
+        await dispatch('api/makeRequest', { url, config }, { root: true })
+
+        await dispatch('dashboard/fetchMainOverview', 'history', { root: true });
     }
 }

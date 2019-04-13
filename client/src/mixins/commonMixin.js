@@ -39,6 +39,10 @@ export default {
         confirmDelete () {
             this.deleteItem({ prop: 'items', id: this.selectedItem.id });
             this.resetModalContent();
+            
+            const currentEntity = this.$store.getters['getEntityName'];
+            const message = `Delete ${currentEntity}`
+            this.$store.dispatch('dashboard/insertHistoryRow', { entity: currentEntity, message, action_type: 'delete' });
         },
 
         cancelDelete () {
