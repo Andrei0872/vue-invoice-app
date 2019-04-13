@@ -4,7 +4,7 @@
       <VCard 
         v-for="(value, title, index) in overviewData"
         :key="title"
-        :card-info="{ icon: icons[index], title, value }"
+        :card-info="{ icon: icons[index], title: formatColumnName(title), value }"
       />
     </div>
     <div class="main-cards">
@@ -89,7 +89,7 @@
 <script>
 import VCard from '../components/VCard';
 
-import { formatDate } from '../utils/';
+import { formatDate, formatColumnName } from '../utils/';
 
 const documentEntity = 'document';
 const currentEntity = 'dashboard';
@@ -138,7 +138,9 @@ export default {
     historyDataShown () {
       const currentPage = this.historyPageIndex * this.historyPages;
       return this.historyData.slice(currentPage, currentPage + this.historyItemsPerPage);
-    }
+    },
+
+    formatColumnName () { return formatColumnName }
   },
 
   methods: {

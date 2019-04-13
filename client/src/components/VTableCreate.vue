@@ -8,7 +8,7 @@
                         v-for="field in fields"
                         :key="field"
                     >
-                        {{ field }}
+                        {{ field.includes('_') ? formatColumnName(field) : capitalize(field) }}
                     </th>
                 </tr>
             </thead>
@@ -57,6 +57,8 @@ import VInput from './VInput';
 
 import computeDoc from '../mixins/computeDoc';
 
+import { formatColumnName, capitalize } from '../utils/'
+
 export default {
     props: {
         fields: Array,
@@ -102,6 +104,10 @@ export default {
     },
 
     methods: {
+        formatColumnName (field) { return formatColumnName(field) },
+        
+        capitalize (field) { return capitalize(field) },
+
         async addField (row, fieldName, ev) {
             if (this.listVisible)
                 return;

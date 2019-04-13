@@ -48,3 +48,5 @@ export const fetchExcelFile = async function (url, rowIndex, id) {
             link = null;
         })
 }
+
+export const formatColumnName = column => column.split('_').map(capitalize).join(' ');

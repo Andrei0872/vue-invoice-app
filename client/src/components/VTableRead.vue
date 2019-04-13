@@ -7,7 +7,7 @@
                         v-for="field in fields"
                         :key="field"
                     >
-                        {{ field }}
+                        {{ field.includes('_') ? formatColumnName(field) : capitalize(field) }}
                     </th>
                 </tr>
             </thead>
@@ -90,7 +90,7 @@
 <script>
 import VInput from '../components/VInput';
 
-import { fetchExcelFile } from '../utils/'; 
+import { fetchExcelFile, formatColumnName, capitalize } from '../utils/'; 
 
 import computeDoc from '../mixins/computeDoc';
 
@@ -159,6 +159,10 @@ export default {
     },
 
     methods: {
+        formatColumnName (field) { return formatColumnName(field) },
+        
+        capitalize (field) { return capitalize(field) },
+
         ...mapActions('document_product', ['setId', 'fetchById']),
 
         generateFile (type, id, rowIndex = null) {
