@@ -17,7 +17,7 @@ const store = new Vuex.Store({
         currentEntity: null,
         selectedProvider: null,
         // FIXME: use the URL from api/getters
-        mainUrl: 'http://localhost:3000/',
+        mainUrl: 'http://localhost:3000/'
     },
 
     getters: {
@@ -37,10 +37,14 @@ const store = new Vuex.Store({
 
     mutations: {
         CHANGE_STATE: (state, payload) => state.everythingReady = payload,
+        
         ADD_ITEM: (_, { state, prop, payload }) => state[prop].push(payload),
+
         CHANGE_ENTITY: (state, payload) => state.currentEntity = payload,
+
         SET_PROVIDER: (state, payload) => state.selectedProvider = payload,
-        SET_PROVIDER_INVOICE_NR: (state, payload) => state.selectedProvider = { ...state.selectedProvider, invoiceNr: payload }
+
+        SET_PROVIDER_INVOICE_NR: (state, payload) => state.selectedProvider = { ...state.selectedProvider, invoiceNr: payload },
     },
 
     actions: {
