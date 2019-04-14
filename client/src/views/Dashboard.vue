@@ -8,7 +8,7 @@
       />
     </div>
     <div class="main-cards">
-      <div>
+      <div class="main-cards__container">
         <div class="c-card c-history">
           <div class="c-card__title">
             <div 
@@ -43,7 +43,7 @@
           </div>
         </div>
       </div>
-      <div>
+      <div class="main-cards__container">
         <div class="c-card c-card--small-half c-vat">
           <div class="c-card__title">VAT</div>
           <div class="c-card__content">
@@ -263,6 +263,15 @@ export default {
     grid-template-columns: 50% 50%;
     grid-column-gap: 30px;
     grid-template-rows: 600px;
+
+    @media only screen and (max-width: 1150px) {
+      &__container {
+        grid-column: 1 / -1;
+        &:last-child {
+          margin-top: 2rem;
+        }
+      }
+    }
 
     .c-card {
       background-color: #fff;
