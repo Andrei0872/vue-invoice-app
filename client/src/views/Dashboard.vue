@@ -35,7 +35,7 @@
                 <div class="c-row__content">{{ item.message }}</div>
               </div>
             </template>
-            <template v-else>
+            <template v-else-if="!historyDataShown.length && componentLoaded">
               <div class="h-centered">
                 <p>No history</p>
               </div>
@@ -68,17 +68,24 @@
         <div class="c-card c-card--big-half c-document">
           <div class="c-card__title">Recent Documents</div>
           <div class="c-card__content">
-            <div 
-              class="c-document__item"
-              v-for="(document, index) in shownDocuments"
-              :key="document.id"
-              @click="$router.push(`/documents/edit/${document.id}`)"
-            >
-              <div class="c-document__title">Document nr {{ documentsLength - index }}</div>
-              <div class="c-document__provider">{{ document.provider_name }}</div>
-              <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
-              <div class="c-document__date">{{ document.inserted_date }}</div>
-            </div>
+            <template v-if="shownDocuments">
+              <div 
+                class="c-document__item"
+                v-for="(document, index) in shownDocuments"
+                :key="document.id"
+                @click="$router.push(`/documents/edit/${document.id}`)"
+              >
+                <div class="c-document__title">Document nr {{ documentsLength - index }}</div>
+                <div class="c-document__provider">{{ document.provider_name }}</div>
+                <div class="c-document__icon"><div class="icon-wrapper"><font-awesome-icon icon="file"/></div></div>
+                <div class="c-document__date">{{ document.inserted_date }}</div>
+              </div>
+            </template>
+            <template v-else-if="!shownDocuments.length && componentLoaded">
+              <div class="h-centered">
+                <p>No Documents</p>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -118,7 +125,8 @@ export default {
       vatData: 'vat',
       historyData: 'history',
       needsUpdate: 'needsUpdate',
-      isInit: 'isInit'
+      isInit: 'isInit',
+      componentLoaded: false
     }),
 
     documentsLength () {
@@ -140,7 +148,7 @@ export default {
       return this.historyData.slice(currentPage, currentPage + this.historyItemsPerPage);
     },
 
-    formatColumnName () { return formatColumnName }
+    formatColumnName () { return formatColumnName },
   },
 
   methods: {
@@ -180,6 +188,8 @@ export default {
     !this.isInit && await this.fetchMainOverview();
 
     this.initialVat = { ...this.vatData };
+
+    this.componentLoaded = true;
   },
 
   async beforeRouteLeave (to, from, next) {
