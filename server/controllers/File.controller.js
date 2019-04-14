@@ -3,7 +3,6 @@ const { getPDFContent, getExcelContent } = require('../services/File.service');
 module.exports = async (req, res) => {
     const { fileType, id, vat = null, docInfo = null, products = null } = req.body;
     
-    console.log(products)
     if (fileType === 'pdf') {
         const pdf = require('html-pdf')
         const content = getPDFContent(products, vat, docInfo);
