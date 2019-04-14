@@ -23,7 +23,9 @@ export const mutations = {
 
     SET_ALREADY_FETCHED: (state, payload) => state.alreadyFetched = payload,
 
-    SET_LAST_DELETED_DOC_ID: (state, payload) => state.lastDeletedDocId = payload
+    SET_LAST_DELETED_DOC_ID: (state, payload) => state.lastDeletedDocId = payload,
+
+    RESET_ITEMS: state => state.items = []
 }
 
 export const actions = {

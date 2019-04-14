@@ -164,7 +164,9 @@ export default {
       this.setNewVat({ type, value });
 
       const message = `Update ${type} from ${this.initialVat[type]} to ${this.vatData[type]}`
-      await this.insertHistoryRow({ entity: currentEntity, message, action_type: 'update' });
+      this.insertHistoryRow({ entity: currentEntity, message, action_type: 'update' });
+
+      this.$store.commit('document_product/RESET_ITEMS');
     },
 
     sendToRoute (newRoute) {
