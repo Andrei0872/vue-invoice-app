@@ -11,6 +11,8 @@ const getCorrespondingRoute = (fieldName, value = '') => ({
     most_expensive_doc: `/documents/edit/${value.split('|')[0]}`,
 }[fieldName])
 
+import { formatColumnName } from '../utils/';
+
 export default {
     functional: true,
     
@@ -25,7 +27,7 @@ export default {
                     <font-awesome-icon icon={icon} />
                 </div>
                 <div class="card__info">
-                    <div class="card__title"><strong>{title}</strong></div>
+                    <div class="card__title"><strong>{formatColumnName(title)}</strong></div>
                     <div class="card__value">{typeof value === 'string' ? (value.split('|')[1]) : (value !== null ? value : 'No documents')}</div>
                 </div>
             </div>
