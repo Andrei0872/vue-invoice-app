@@ -113,23 +113,4 @@ store.subscribeAction(action => {
     }
 })
 
-store.watch(
-    state => {
-        return [state.document_product.items, state.document_product.lastDeletedDocId]
-    },
-    async ([dpItems, lastDeletedDocId]) => {
-        const currentEntity = store.state.currentEntity
-
-        if (!dpItems.length && lastDeletedDocId !== -1) {
-            const data = {
-                url: `${store.state.mainUrl}${currentEntity}`,
-                payload: lastDeletedDocId
-            }
-
-            await store.dispatch('api/deleteItem', data);
-            store.dispatch('api/FETCH_DATA');
-        }
-    }
-)
-
 export default store;
