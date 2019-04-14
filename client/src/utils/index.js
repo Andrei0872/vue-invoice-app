@@ -50,3 +50,10 @@ export const fetchExcelFile = async function (url, rowIndex, id) {
 }
 
 export const formatColumnName = column => column.split('_').map(capitalize).join(' ');
+
+/**
+ * Receives an array of objects and determines whether any item has empty values
+ * 
+ * @param {Array} arr 
+ */
+export const hasEmptyValues = arr => arr.some(obj => Object.values(obj).some(val => typeof val !== 'object' && val.trim() === ''))
