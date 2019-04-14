@@ -46,8 +46,89 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/components/sidebar/main.scss';
+    @import '@/styles/variables.scss';
+    @import '@/styles/mixins.scss';
+    
+    
+.l-sidebar {
+    width: 100%;
+    height: 100%;
+    background-color: $sidebar-color;
+    display: flex;
+    flex-direction: column;
 
+    &__avatar {
+        border: none;
+        flex-basis: 12%;
+        display: flex;
+        align-items: center;
+        min-height: 90px;
+        background-color: rgba(255, 255, 255, .1);
+        
+        &--image {
+            @include profile-avatar;
+            width: 4.6rem;
+            height: 4.6rem;
+            margin: 0 15px;
+            flex-shrink: 0;
+        }
+
+        &--name {
+            font-size: 1.2rem;
+            color: $link-color;
+            word-break: break-word;
+        }
+    }
+
+    &__links {
+        flex-basis: 88%;
+        height: 100%;
+        display: flex;
+        flex-flow: column wrap;
+        justify-content: center;
+    }
+}
+
+.c-list {
+    color: lighten($link-color, 30%);
+    display: block;
+    text-align: center;
+    margin-top: -80%;
+    list-style: none;
+
+    @media only screen and (max-width: 1150px) {
+        margin-top: -175%;
+    }
+
+    &__wrapper {
+        &:not(:last-child) {
+            margin-bottom: 1%;
+        }
+
+        font-size: 1.2rem;
+        transition: transform .3s;
+        padding: 10px 15px;
+        position: relative;
+
+        &:hover {
+            cursor: pointer;
+            background-color: darken($sidebar-color, 10%);
+        } 
+    }
+
+    &__icon {
+        font-size: .9rem;
+        display: inline-block;
+        position: absolute;
+        left: 20%;
+        bottom: .7rem;
+        color: darken($link-color, 20%);
+    }
+
+    &__title {
+        display: inline-block;
+    }
+}
 
     .active {
         background-color: darken($sidebar-color, 10%);
