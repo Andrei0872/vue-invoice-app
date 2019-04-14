@@ -114,7 +114,8 @@ export default {
     shownDocumentsLen: 8,
     historyItemsPerPage: 9,
     historyPageIndex: 0,
-    initialVat: {}
+    initialVat: {},
+    componentLoaded: false
   }),
 
   computed: {
@@ -126,7 +127,6 @@ export default {
       historyData: 'history',
       needsUpdate: 'needsUpdate',
       isInit: 'isInit',
-      componentLoaded: false
     }),
 
     documentsLength () {
