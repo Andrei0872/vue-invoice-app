@@ -38,6 +38,11 @@ class DocumentController extends mainController {
             (await this.service.updateDocumentVat(body))
         );
     }
+
+    async insertProductsOnly ({ body: { items, docId} }, res) {
+        await this.service.insertProductsOnly(docId, items)
+        return res.json({ message: 'Successfully inserted' })
+    }
 }
 
 module.exports = DocumentController

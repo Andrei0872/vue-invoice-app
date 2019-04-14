@@ -23,8 +23,6 @@ class DocumentService extends mainService {
             ...this.documentTableColumns
         };
 
-        const sanitizedItems = items.map(({ id, product_name: { id: product_id }, ...rest }) => ({ product_id, ...rest }));
-
         documentValues['invoice_number'] = invoiceNr;
         documentValues['provider_name'] = provider_name;
         documentValues['provider_id'] = provider_id;
@@ -37,11 +35,7 @@ class DocumentService extends mainService {
                 [Object.values(documentValues)]
             );
 
-            this.table.currentTable = 'document_product';
-            await this.table.insertOne(
-                this.documentProductTableColumns.join(', '),
-                sanitizedItems.map(row => [lastInsertId, ...Object.values(row)])
-            );
+            await this.insertProductsOnly(lastInsertId, items)
 
             return {
                 message: 'success'
@@ -51,6 +45,22 @@ class DocumentService extends mainService {
             return {
                 message: `something went wrong:${err}`
             }
+        }
+    }
+
+    async insertProductsOnly (docId, items) {
+        console.log(items)
+        const sanitizedItems = items.map(({ id, product_name: { id: product_id }, ...rest }) => ({ product_id, ...rest }));
+
+        this.table.currentTable = 'document_product';
+
+        try {
+            await this.table.insertOne(
+                this.documentProductTableColumns.join(', '),
+                sanitizedItems.map(row => [docId, ...Object.values(row)])
+            );
+        } catch (err) {
+            throw err
         } finally {
             this.table.currentTable = 'document';
         }

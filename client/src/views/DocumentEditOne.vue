@@ -7,8 +7,18 @@
             @deleteRow="deleteRow($event)"
             @update="setChange($event)"
         />
-        <div v-else>
-            There are no items left!
+
+        <div class="c-new">
+            <div @click="addRow" class="icon icon--add-row">
+                <font-awesome-icon icon="plus-circle" />
+            </div>
+
+            <VTableCreate 
+                @deleteRow="deleteRowInstantly($event)" 
+                :fields="createColumns" 
+                :items="newItems"
+                @addField="addField($event)"
+            />
         </div>
 
         <div class="c-provider-info">
@@ -57,6 +67,7 @@
 
 <script>
 import VTableRead from '../components/VTableRead';
+import VTableCreate from '../components/VTableCreate';
 import VModal from '../components/VModal';
 import VSelect from '../components/VSelect';
 import VInput from '../components/VInput';
@@ -69,26 +80,18 @@ import modalMixin from '../mixins/modalMixin';
 import * as common from '@/store/modules/common';
 import { mapGetters, mapActions, mapState } from 'vuex'
 
+import { hasEmptyValues } from '../utils/';
+
 const entity = 'document_product'
 
 export default {
-    components: { VTableRead, VModal, VSelect, VInput, VVat },
+    components: { VTableRead, VModal, VSelect, VInput, VVat, VTableCreate },
 
     mixins: [documentMixin, commonMixin, modalMixin],
 
     data: () => ({
         currentItem: null,
     }),
-
-    watch: {
-        'items': {
-            deep: true,
-
-            handler (newVal) {
-                !this.items.length && this.$router.replace({ name: 'documents' });
-            }
-        }
-    },
 
     computed: {
         id () {
@@ -98,13 +101,15 @@ export default {
         ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges' }),
 
         ...mapState('provider', { providers: 'items' }),
+
+        ...mapState('document', ['newItems']),
         
         selectedProvider () {
             return this.$store.state.selectedProvider
         },
 
         results () {
-            const { total_buy, total_sell, total_vat, total_sell_vat } = this.items.reduce((memo, item) => {
+            const { total_buy, total_sell, total_vat, total_sell_vat } = [...this.items, ...this.newItems].reduce((memo, item) => {
                 memo['total_buy'] += +(this.changes[item.id] && this.changes[item.id]['buy_price'] || item['buy_price'])
                 memo['total_sell'] += +(this.changes[item.id] && this.changes[item.id]['sell_price'] || item['sell_price'])
                 memo['total_vat'] += +(this.changes[item.id] && this.changes[item.id]['product_vat'] || item['product_vat'])
@@ -122,7 +127,7 @@ export default {
                 provider_name: this.selectedProvider.name, 
                 provider_id: this.selectedProvider.id,
                 invoice_number: this.selectedProvider.invoiceNr || this.currentItem.invoice_number,
-                nr_products: this.items.length
+                nr_products: this.items.length + this.newItems.length
             };
         },
 
@@ -133,7 +138,11 @@ export default {
 
         ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc', 'updateDocument', 'setAlreadyFetched']),
 
+        ...mapActions('document', ['addNewItem', 'resetArr', 'deleteItem', 'addFieldValue']),
+
         shouldUpdateDocument () {
+            console.log(this.selectedProvider)
+
             const changes = {};
             let changeFound = false;
 
@@ -161,29 +170,47 @@ export default {
             return changeFound ? changes : changeFound;
         },
 
-        sendUpdates () {
-            let hasChanges = false;
-            (Object.keys(this.changes).length) && (hasChanges = true, this.updateItems(this.changes))
-            
+        async sendUpdates () {
+            let willChange = false;
+
+            // If the document is updated
             let changes = null;
-            (changes = this.shouldUpdateDocument()) &&  this.updateDocument({ ...changes, id: this.currentItem.id });
+            if ((changes = this.shouldUpdateDocument())) {
+                willChange = true
+                await this.updateDocument({ ...changes, id: this.currentItem.id })
 
-            hasChanges = !hasChanges ? changes : hasChanges;
-
-            if (!hasChanges)
-                return;
-
-            this.alreadyFetched && this.setAlreadyFetched(false);
-            
-            if (changes !== null) {
                 const message = `Update document information`;
                 this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'update' });
             }
 
-            if (hasChanges && changes !== null) {
+            // If any product from this document has been updated
+            if (Object.keys(this.changes).length) {
+                willChange = true;
+                this.updateItems(this.changes);
+                
                 const message = `Update product in document`;
                 this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'update' });
             }
+
+            if (this.newItems.length && !hasEmptyValues(this.newItems)) {
+                willChange = true;
+                const url = `${this.$store.getters['api/mainURL']}/documents/insert_products_only`
+                const config = {
+                    ...this.$store.getters['api/config'],
+                    body: JSON.stringify({ items: this.newItems, docId: this.id })
+                }
+
+                await this.$store.dispatch('api/makeRequest', { url, config })
+
+                const message = `Add new products in a document`;
+                this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'insert' });
+            }
+
+            if (!willChange)
+                return;
+
+            this.alreadyFetched && this.setAlreadyFetched(false);
+
 
             this.$router.push('/documents');
         },
@@ -206,6 +233,7 @@ export default {
             return;
         }
 
+        this.resetArr({ prop: 'newItems' })
         this.setChange({})
         this.setId(this.id);
 
@@ -233,7 +261,7 @@ export default {
 <style lang="scss" scoped>
     $modal-text-color: darken($color: #394263, $amount: 10%);
     $main-color: #394263;
-
+    @import '../styles/common.scss';
     @import '../styles/modal.scss';
 
     .container {
