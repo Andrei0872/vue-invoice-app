@@ -1,6 +1,6 @@
 
 module.exports.getPDFContent = (products, vat, docInfo) => {
-    let { invoice_number, id, provider_id, provider_name, inserted_date, nr_products, ...rest } = docInfo[0];
+    let { invoice_number, id, provider_id, provider_name, inserted_date, nr_products, ...rest } = docInfo;
     inserted_date = new Date(inserted_date).toLocaleDateString();
     
     products = products.map(({ id, document_id, product_id, isComestible, product_name, ...rest }) => ({ product_name, ...rest }))

@@ -47,7 +47,7 @@ export default {
         const url = `${this.$store.getters['api/mainURL']}/file`
         this.setId(this.id);
 
-        if (!this.allItems.length)
+        if (!this.documentProducts.length)
             await this.fetchById(this.id);
 
         const body = {
@@ -55,7 +55,7 @@ export default {
             fileType: 'pdf',
             products: this.documentProducts,
             vat: this.$store.getters['dashboard/getCurrentVat'],
-            docInfo: this.$store.getters['getEntityItems']
+            docInfo: this.$store.getters['getEntityItems'].find(({ id }) => id === this.id)
         }
         
         const config = { headers: new Headers({
@@ -64,7 +64,6 @@ export default {
             method: "POST",
             body: JSON.stringify(body)
         }
-
         fetch(url, config)
             .then(res => res.blob())
             .then(res => {
