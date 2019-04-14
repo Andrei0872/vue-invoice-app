@@ -119,7 +119,7 @@ export default {
             isUpdating: false,
             selectedRowId: null,
             selectedRow: null,
-            itemsFromProps: JSON.parse(JSON.stringify(this.items)),
+            itemsFromProps: null,
             inputValue: '',
             selectedRowId: '',
             selectedField: '',
@@ -312,6 +312,10 @@ export default {
             !(ev.target.closest('.file')) && this.$emit('showInfo', row);
         },
     },
+
+    mounted () {
+        this.itemsFromProps = JSON.parse(JSON.stringify(this.items));
+    }
 }
 </script>
 
