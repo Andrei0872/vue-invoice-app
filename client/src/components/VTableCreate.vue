@@ -73,6 +73,7 @@ export default {
         return {
             inputValue: null,
             selectedRowId: null,
+            prevSelectedRowId: null,
             selectedItemFromList: null,
             selectedField: null,
             selectedFieldValue: '',
@@ -135,6 +136,8 @@ export default {
 
                 this.lastUsedSellPrice = sellPriceValue;
             }
+
+            this.prevSelectedRowId = this.selectedRowId;
         },
 
         focusInputChild (ev) {
@@ -179,18 +182,16 @@ export default {
             }
 
             this.inputValue += ' ';
-            const { id, name, comestible: isComestible } = this.selectedItemFromList;
+            const { id, name, comestible: isComestible, buy_price } = this.selectedItemFromList;
             // this.inputValue = null; // Not reactive
             this.$emit('addField', [this.selectedRowId, this.selectedField, { id, name , isComestible }]);
             
-            console.log(this.lastUsedVatId)
-            if (this.lastUsedVatId !== isComestible) {
-                this.lastUsedVatId = isComestible;
-
-                const vatValue = this.getVatValue(isComestible, this.lastUsedSellPrice, this.$store.getters['dashboard/getCurrentVat']);
-                vatValue && this.$emit('addField', [this.selectedRowId, 'product_vat', vatValue]);
-                vatValue && this.$emit('addField', [this.selectedRowId, 'sell_price_vat', (+vatValue + +this.lastUsedSellPrice)]);
-            }
+            if (this.selectedRowId !== this.prevSelectedRowId)
+                this.lastUsedSellPrice = null
+                
+            const vatValue = this.getVatValue(isComestible, this.lastUsedSellPrice, this.$store.getters['dashboard/getCurrentVat']);
+            vatValue && this.$emit('addField', [this.selectedRowId, 'product_vat', vatValue]);
+            vatValue && this.$emit('addField', [this.selectedRowId, 'sell_price_vat', (+vatValue + +this.lastUsedSellPrice)]);
         }
     },
 
