@@ -4,7 +4,7 @@
         <VContent v-if="everythingReady === true" entityName="document" :disableButton="errorMessage !== 'Documents' && errorMessage !== null || vat['food_vat'] === null || vat['non_food_vat'] === null">
             <template v-slot:existingItems>
                 <VTableRead 
-                    v-if="!containsErrors"
+                    v-if="!containsErrors && !!items"
                     :fields="[...readColumns, 'actions']" 
                     :items="items"
                     showDelete
@@ -85,6 +85,7 @@ const productEntity = 'product';
 
 import { createNamespacedHelpers } from 'vuex';
 import * as common from '@/store/modules/common';
+
 const { mapState, mapActions } = createNamespacedHelpers(entityName);
 const { mapState: mapStateProvider } = createNamespacedHelpers(providerEntity);
 const { mapState: mapStateProduct } = createNamespacedHelpers(productEntity);
