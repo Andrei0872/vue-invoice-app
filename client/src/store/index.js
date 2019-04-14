@@ -92,6 +92,14 @@ store.subscribeAction(action => {
         }
 
         store.dispatch('api/deleteItem', data)
+
+        if (
+            currentEntity === 'provider' 
+                && store.state['document'] 
+                && store.state['document'].items.some(({ provider_id }) => provider_id === action.payload.id)
+        ) {
+            store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'documents' })
+        }
     } else if (action.type === 'dashboard/setNewVat') {
         // Updating VAT 
         const config = {
