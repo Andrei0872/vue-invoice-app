@@ -144,6 +144,7 @@ export default {
         if (from.name === 'documentEditOne') {
             return next(vm => {
                 vm.$store.dispatch('document_product/fetchById', from.params.id);
+                vm.$store.dispatch('api/FETCH_DATA');
             })
         }
         
