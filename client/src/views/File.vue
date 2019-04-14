@@ -45,19 +45,19 @@ export default {
 
     async created () {
         const url = `${this.$store.getters['api/mainURL']}/file`
-        this.setId(this.id);
+        this.setId(+this.id);
 
         if (!this.documentProducts.length)
             await this.fetchById(this.id);
-
+        
         const body = {
             id: this.id,
             fileType: 'pdf',
             products: this.documentProducts,
             vat: this.$store.getters['dashboard/getCurrentVat'],
-            docInfo: this.$store.getters['getEntityItems'].find(({ id }) => id === this.id)
+            docInfo: this.$store.getters['getEntityItems'].find(({ id }) => id === +this.id)
         }
-        
+
         const config = { headers: new Headers({
             'Content-Type': 'application/json',
             }), 

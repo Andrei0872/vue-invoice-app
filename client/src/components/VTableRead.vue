@@ -168,8 +168,9 @@ export default {
         generateFile (type, id, rowIndex = null) {
             const url = `${this.$store.getters['api/mainURL']}/file`;
 
-            if (type === 'pdf')
+            if (type === 'pdf') {
                 return this.$router.push({ name: 'file', params: { id } });
+            }
 
             this.setId(id);
             fetchExcelFile.call(this, url, rowIndex, id);
