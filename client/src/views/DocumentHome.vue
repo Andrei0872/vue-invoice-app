@@ -6,6 +6,16 @@
     </div>
 </template>
 
+<script>
+import titleMixin from '../mixins/titleMixin';
+
+export default {
+    title: 'Documents',
+
+    mixins: [titleMixin],
+}
+</script>
+
 <style lang="scss" scoped>
 
     .transition-comp {

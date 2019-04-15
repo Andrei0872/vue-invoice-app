@@ -67,6 +67,7 @@ import VTableRead from '../components/VTableRead';
 
 import modalMixin from '../mixins/modalMixin';
 import commonMixin from '../mixins/commonMixin';
+import titleMixin from '../mixins/titleMixin';
 
 const entityName = 'provider';
 
@@ -77,11 +78,13 @@ import * as common from '@/store/modules/common';
 const { mapState, mapActions } = createNamespacedHelpers(entityName)
 
 export default {
-    name: 'products',
+    name: 'providers',
+
+    title: 'Providers',
 
     components: { VContent, VModal, VTableCreate, VTableRead },
 
-    mixins: [modalMixin, commonMixin],
+    mixins: [modalMixin, commonMixin, titleMixin],
 
     data: () => ({
         readColumns: ['name', 'URC', 'inserted_date'],

@@ -104,8 +104,14 @@ const currentEntity = 'dashboard';
 import * as common from '@/store/modules/common';
 import { mapActions, mapState } from 'vuex';
 
+import titleMixin from '../mixins/titleMixin';
+
 export default {
   name: 'home',
+
+  title: 'Dashboard',
+
+  mixins: [titleMixin],
 
   components: { VCard },
 
