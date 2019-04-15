@@ -8,7 +8,7 @@ export const getters = {
         method: "POST"
     }),
 
-    mainURL: () => 'http://localhost:3000',
+    mainURL: () => 'http://localhost:3000/api',
     updateEndpoint: () => '/update',
     deleteEndpoint: () => '/delete'
 }
