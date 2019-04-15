@@ -68,7 +68,7 @@
         <div class="c-card c-card--big-half c-document">
           <div class="c-card__title">Recent Documents</div>
           <div class="c-card__content">
-            <template v-if="shownDocuments">
+            <template v-if="shownDocuments.length">
               <div 
                 class="c-document__item"
                 v-for="(document, index) in shownDocuments"
@@ -169,7 +169,7 @@ export default {
       input.value = '';
       this.setNewVat({ type, value });
 
-      const message = `Update ${type} from ${this.initialVat[type]} to ${this.vatData[type]}`
+      const message = `Update ${type} from ${!this.initialVat[type] ? this.initialVat[type] : 'Not specified'} to ${this.vatData[type]}`
       this.insertHistoryRow({ entity: currentEntity, message, action_type: 'update' });
 
       this.$store.commit('document_product/RESET_ITEMS');
