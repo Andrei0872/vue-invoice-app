@@ -211,6 +211,23 @@ class DocumentService extends mainService {
             return { message: 'There has been an error updating all docs' }
         }
     }
+
+    async updateProvider ({ name, id }) {
+        try {
+            const data = await this.table._promisify(
+                `
+                update document
+                set provider_name = '${name}'
+                where provider_id = ${id}
+                `
+            )
+
+            return { message: 'Provider updated in doc!', data }
+        } catch (err) {
+            console.log(err)
+            return { message: 'There has been an error updating provider in doc' }
+        }
+    }
 }
 
 module.exports = DocumentService;

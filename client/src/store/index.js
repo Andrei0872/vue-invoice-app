@@ -86,7 +86,30 @@ store.subscribeAction(action => {
             payload: action.payload
         }
 
+        // Not using async/await won't hurt nobody, right? :)
         store.dispatch(`api/updateItem`, data)
+            .then(() => {
+                // If the provider name has changed, update the documents that depend on that provider
+                if (currentEntity === 'provider') {
+                    const url = `${store.getters['api/mainURL']}/documents/update_provider`
+                    const config = {
+                        ...store.getters['api/config'],
+                        method: "PUT",
+                        body: JSON.stringify(action.payload)
+                    }
+
+                    store.dispatch('api/makeRequest', { url, config })
+                        .then(() => {
+                            // Update the existing data
+                            if (store.state['document']) {
+                                store.dispatch('api/FETCH_DATA', {
+                                    avoidChangingState: true,
+                                    anotherEntity: 'documents'
+                                });
+                            }
+                        })
+                }
+            })
 
     } else if (action.type === `${currentEntity}/deleteItem` && action.payload.prop === 'items') {
         
