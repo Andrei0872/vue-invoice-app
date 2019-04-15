@@ -1,12 +1,12 @@
 {
-  "name": "server",
+  "name": "invoice-app-be",
   "version": "1.0.0",
-  "description": "",
+  "description": "Invoice app",
   "main": "app.js",
   "scripts": {
     "dev": "DEBUG='router, invoice-app, db:Product, db:Database, db:Provider, service' nodemon app.js"
   },
-  "keywords": [],
+  "keywords": ["invoice", "app", "invoice app", "vue", "nodejs", "mysql"],
   "author": "Gatej Andrei <andreigtj01@gmail.com>",
   "license": "MIT",
   "dependencies": {
