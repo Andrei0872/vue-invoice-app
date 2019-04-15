@@ -46,11 +46,12 @@
             :readonly="true" 
             :items="[results]"
         />
-        <!-- Add go back btn -->
-        <!-- Add confirm btn -->
-        <button @click="$router.push('/documents')">back</button>
-        <button @click="sendUpdates">confirm</button>
         
+        <span class="h-mleft"></span>
+        <VButton @click="$router.push('/documents')">Back</VButton>
+        <span class="h-mleft"></span>
+        <VButton @click="sendUpdates">Confirm</VButton>
+
         <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
                 <span>{{ modalTitle }}</span>
@@ -72,6 +73,7 @@ import VModal from '../components/VModal';
 import VSelect from '../components/VSelect';
 import VInput from '../components/VInput';
 import VVat from '../components/VVat';
+import VButton from '../components/VButton';
 
 import documentMixin from '../mixins/documentMixin';
 import commonMixin from '../mixins/commonMixin';
@@ -85,7 +87,7 @@ import { hasEmptyValues } from '../utils/';
 const entity = 'document_product'
 
 export default {
-    components: { VTableRead, VModal, VSelect, VInput, VVat, VTableCreate },
+    components: { VTableRead, VModal, VSelect, VInput, VVat, VTableCreate, VButton },
 
     mixins: [documentMixin, commonMixin, modalMixin],
 
@@ -135,6 +137,8 @@ export default {
     },
 
     methods: {
+        
+        testFn () { alert(1) },
 
         ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc', 'updateDocument', 'setAlreadyFetched']),
 
@@ -264,6 +268,10 @@ export default {
     @import '../styles/common.scss';
     @import '../styles/modal.scss';
 
+    .h-mleft {
+        margin-left: 1.3rem;
+    }
+    
     .container {
         padding: .3rem 1rem;
     }

@@ -20,13 +20,17 @@ export default {
         },
     },
 
-    render (h, { listeners, children, props, }) {
+    render (h, { listeners, children, props }) {
         const content = children[0].text;
-        const fn = !!listeners.toggleState ? listeners.toggleState : listeners.createItems
+        const fn = !!listeners.toggleState 
+            ? listeners.toggleState 
+            : !!listeners.createItems
+                ? listeners.createItems
+                : listeners.click
 
         const button = h('button', {
-            ...!props.disabled && { on: { click: fn } },
-            class: {[`button--${props.btnClass}`]: true, 'h-disabled': props.disabled}
+            ...{ ok: !props.disabled && fn !== undefined ? true : false}.ok && { on: { click: fn } },
+            class: {[`button--${props.btnClass}`]: true, 'h-disabled': props.disabled},
         }, content);
 
         return props.btnClass === 'success'
