@@ -8,11 +8,11 @@ Keeping track of goods sent and services provided should be a computer's job.
 ## Screenshots
 
 <div style="text-align: center;">
-<img width="850" height="550" src="./screenshots/dashboard.png">
+<img width="950" height="550" src="./screenshots/dashboard.png">
 </div>
 <br>
 <div style="text-align: center;">
-<img width="850" height="550" src="./screenshots/inside-doc.png">
+<img width="950" height="550" src="./screenshots/inside-doc.png">
 </div>
 
 ## Getting Started
