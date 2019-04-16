@@ -169,7 +169,7 @@ export default {
       input.value = '';
       this.setNewVat({ type, value });
 
-      const message = `Update ${type} from ${!this.initialVat[type] ? this.initialVat[type] : 'Not specified'} to ${this.vatData[type]}`
+      const message = `Update ${type} from ${this.initialVat[type] === null ? "'Not Specified'" : this.initialVat[type]} to ${this.vatData[type]}`
       this.insertHistoryRow({ entity: currentEntity, message, action_type: 'update' });
 
       this.$store.commit('document_product/RESET_ITEMS');
