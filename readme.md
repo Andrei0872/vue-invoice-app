@@ -25,7 +25,7 @@ cd client/ && npm i && cd - && cd server/ && npm i && cd -
 ```
 
 ```bash
-cp .env .env.example
+cp server/.env.example server/.env
 # Then, add the information needed
 ```
 
