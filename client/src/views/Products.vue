@@ -1,6 +1,5 @@
 <template>
     <div>
-        <!-- TODO: add notification :D - based on a vuex's state property -->
         <VContent v-if="everythingReady === true" entityName="product">
             <template v-slot:existingItems>
                 <VTableRead 

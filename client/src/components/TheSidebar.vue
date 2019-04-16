@@ -2,7 +2,6 @@
     <div class="l-sidebar">
         <div class="l-sidebar__avatar">
             <div class="l-sidebar__avatar--image"></div>
-            <!-- TODO: on collapse: show initials-->
             <div class="l-sidebar__avatar--name">Gatej Andrei</div>
         </div>
         <div class="l-sidebar__links">

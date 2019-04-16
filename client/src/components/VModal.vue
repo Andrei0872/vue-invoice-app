@@ -1,7 +1,4 @@
 <script>
-// TODO: add arrows to footer
-// TODO: Another color on header
-
 const shouldCloseModal = (context, e) => {
     if (e.currentTarget === e.target) {
         context.parent.showDetails = false
@@ -73,7 +70,6 @@ export default {
         transition: all .3s;
 
         &__container {
-            // TODO: media query
             max-width: 100%;
             width: 40rem;
             max-height: 35rem;

@@ -1,5 +1,4 @@
 <template>
-    <!-- TODO: add filter for th -->
     <div class="table-responsive">
         <table class="table">
             <thead>
@@ -85,7 +84,7 @@ export default {
 
     computed: {
         VList () {
-            // TODO: optimize it! - mixin & directory
+            // TODO: optimize it! - directory;
             return this.$store.state['currentEntity'] === 'documents' 
                 ? () => import('./VList.vue') 
                 : false

@@ -8,7 +8,6 @@ const { capitalizeAndClean } = require('../utils/index');
 class Database {
     constructor() {
         debug('Database constructor');
-        // TODO: make this an object so that subclasses can send the columns if the the a tables is empty
         (!!this.isConnecting) || this.connect();
     }
 

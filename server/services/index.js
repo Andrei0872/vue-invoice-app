@@ -1,4 +1,3 @@
-// TODO: DRY try-catch
 const debug = require('debug')('service')
 
 class Service {

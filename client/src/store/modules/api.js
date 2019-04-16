@@ -13,8 +13,6 @@ export const getters = {
     deleteEndpoint: () => '/delete'
 }
 
-// TODO: make one action to perform the request
-// FIXME: caching
 export const actions = {
     FETCH_DATA: async ({ getters, rootState, dispatch, commit }, { avoidChangingState = false, anotherEntity = null } = {}) => {
         const moduleName = rootState.currentEntity.slice(0, -1);
@@ -63,7 +61,6 @@ export const actions = {
         }
     },
 
-    // TODO: update the current entity's module directly
     deleteItem: async ({ getters, dispatch, commit }, { url, payload: id }) => {
         url += getters.deleteEndpoint;
         const config = { body: JSON.stringify({ id }), ...getters.config, method: "DELETE" };
@@ -93,5 +90,4 @@ export const actions = {
             }
         });
     },
-    // TODO: add parseResponse or smth like that
 }

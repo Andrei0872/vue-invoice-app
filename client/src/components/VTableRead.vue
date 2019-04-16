@@ -143,7 +143,6 @@ export default {
 
     computed: {
         VList () {
-            // TODO: optimize it!
             return this.$store.state['currentEntity'] === 'documents' && this.isUpdating
                 ? () => import('./VList.vue') 
                 : false
@@ -247,7 +246,6 @@ export default {
                 }, {})
         },
 
-        // TODO: add this to utils
         isObjectEmpty (obj) {
             return Object.keys(obj).length === 0
         },        

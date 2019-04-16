@@ -79,7 +79,6 @@ export const actions = {
         return response;
     },
 
-    // TODO: add subscribeAction
     deleteFromDoc: async ({ dispatch, commit, rootState, rootGetters, state }, id) => {
         const url = `${rootState.mainUrl}documents/delete_from_doc`;
         const config = { ...rootGetters['api/config'], method: "DELETE", body: JSON.stringify({ id, docId: state.currentId }) };

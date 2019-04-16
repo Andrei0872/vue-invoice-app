@@ -1,6 +1,5 @@
 <template>
     <div>
-        <!-- TODO: add notification :D - based on a vuex's state property -->
         <VContent v-if="everythingReady === true" entityName="document" :disableButton="errorMessage !== 'Documents' && errorMessage !== null || vat['food_vat'] === null || vat['non_food_vat'] === null">
             <template v-slot:existingItems>
                 <VTableRead 
@@ -156,14 +155,11 @@ export default {
         
         !(this.items.length) && this.$store.dispatch('api/FETCH_DATA');
 
-        // TODO: make it available only when editing / updating
         !(this.$store && this.$store.state['product']) 
             && ((this.$store.registerModule('product', common)), console.log('ok'), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
 
-        // TODO: make it available only when editing / updating
         !(this.$store && this.$store.state['provider']) 
             && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
-        // TODO: update results 
 
         this.$store.getters['dashboard/needsInit'] && this.$store.dispatch('dashboard/fetchMainOverview');
     },

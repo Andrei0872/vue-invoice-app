@@ -1,6 +1,5 @@
 
 <script>
-// TODO: fn that computes the events
 export default {
     name: 'base-button',
 

@@ -66,7 +66,6 @@ class DocumentService extends mainService {
         }
     }
 
-    // TODO: make joinTables() method
     async getAll() {
         const sql = `
             select
@@ -118,7 +117,6 @@ class DocumentService extends mainService {
     }
 
     async updateProducts (data) {
-        // TODO: only use the used columns
         const [, , ...columns] = this.documentProductTableColumns;
         const columnValues = Object.entries(data).map(([rowId, fields], i) => {
             const vals = columns.map(column => fields[column] || 'null')
