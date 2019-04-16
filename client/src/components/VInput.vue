@@ -37,7 +37,7 @@ export default {
         sendContent (ev) {
             this.theValue = ev.target.value;
 
-            this.$emit('input', this.theValue);
+            this.$emit('input', { value: this.theValue, ev });
         }, 
     },
 

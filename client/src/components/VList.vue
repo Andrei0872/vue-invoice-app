@@ -1,5 +1,5 @@
 <template>
-    <div class="list" v-if="this.items.length">
+    <div class="list" v-if="this.items.length" :style="{ width: currentTdWidth + 'px' }">
         <div
             v-for="(item, index) in filteredItems"
             :class="['list__row', index === currentIndex ? 'selected-row' : null ]"
@@ -22,6 +22,8 @@ export default {
             type: String,
             default: ''
         },
+
+        currentTdWidth: Number
     },
 
     data: () => ({

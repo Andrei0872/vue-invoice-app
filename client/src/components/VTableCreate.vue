@@ -32,7 +32,7 @@
                                 class="the-input"
                                 :placeholder="field"
                                 :value="row[field] !== field ? typeof row[field] === 'object' ? row[field].name : row[field] : ''"
-                                @input="inputValue = $event"
+                                @input="setTdWidth($event)"
                                 @focus.native="selectRow(row, field, $event)"
                                 @blur.native="addField(row, field, $event)"
                             />
@@ -42,6 +42,7 @@
                                 :is="VList"
                                 :filterKey="inputValue"
                                 :key="row.id"
+                                :currentTdWidth="currentTdWidth"
                             />
                         </td>
                     </tr>
@@ -70,6 +71,7 @@ export default {
 
     data () {
         return {
+            currentTdWidth: null,
             inputValue: null,
             selectedRowId: null,
             prevSelectedRowId: null,
@@ -104,6 +106,15 @@ export default {
     },
 
     methods: {
+        setTdWidth ({ value, ev }) {
+            this.inputValue = value
+
+            this.$nextTick(() => {
+                this.currentTdWidth = ev.target.parentElement.offsetWidth;
+            })
+
+        },
+
         formatColumnName (field) { return formatColumnName(field) },
         
         capitalize (field) { return capitalize(field) },
