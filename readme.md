@@ -64,3 +64,8 @@ cd server/ && npm run dev
 * [ ] Allow the user to save a PDF
 * [ ] Add Login System
 * [ ] Add i18n
+
+## Acknowledgements
+
+This project stems from my desire to improve my knowledge through building applications.  
+Knowing that this application could also help someone, that motivated me even more.
