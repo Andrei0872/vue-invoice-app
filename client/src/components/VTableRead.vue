@@ -63,13 +63,6 @@
                                     @focus.native="handleFocus(row.id, field, $event)"
                                     @blur.native="addField(row, field, $event)"
                                 />
-                                <component
-                                    @itemSelected="selectItem($event)" 
-                                    v-if="field === 'nr_doc' && selectedField === 'nr_doc' && inputValue && row.id === selectedRowId"
-                                    :is="VList"
-                                    :filterKey="inputValue"
-                                    :key="row.id + 'uniq'"
-                                />
                             </template>
                             <template v-else>
                                 <span class="file file--pdf">
@@ -123,14 +116,6 @@ export default {
             inputValue: '',
             selectedRowId: '',
             selectedField: '',
-            /* 
-            Useful when using the VList component
-            Because as soon as we select an item, the blur event will occur
-            And that will basically cancel the initial change
-            In order to prevent that, when an item is selected, we will set this variable to true
-            So the blur event won't override the change we meant
-            */
-            alreadyUpdated: false, 
             untouchedRow: null
         }
     },
@@ -142,11 +127,6 @@ export default {
     },
 
     computed: {
-        VList () {
-            return this.$store.state['currentEntity'] === 'documents' && this.isUpdating
-                ? () => import('./VList.vue') 
-                : false
-        },
 
         shouldDisplayButtons () {
             return !this.readonly
@@ -201,11 +181,8 @@ export default {
                 this.$emit('update', [this.selectedRowId, { [this.selectedField]: this.inputValue }])
             }
 
-            setTimeout(() => {
-                this.$emit('update', [this.selectedRowId, { [this.selectedField]: itemInfo.name }]);
-                this.inputValue = null;
-                this.alreadyUpdated = true
-            }, 0);
+            this.$emit('update', [this.selectedRowId, { [this.selectedField]: itemInfo.name }]);
+            this.inputValue = null;
         },
 
         needsAdditionalUpdate () {
@@ -251,18 +228,13 @@ export default {
         },        
 
         confirmChanges (row) {
-            
-            if (!this.alreadyUpdated) {
-                const changes = this.compareChanges(this.untouchedRow, this.selectedRow);
+            const changes = this.compareChanges(this.untouchedRow, this.selectedRow);
 
-                !(this.isObjectEmpty(changes)) && this.$emit('update', { ...changes, id: row.id });
+            !(this.isObjectEmpty(changes)) && this.$emit('update', { ...changes, id: row.id });
 
-                this.alreadyUpdated = false;
-
-                const currentEntity = this.$store.getters['getEntityName'];
-                const message = `Update one ${currentEntity}.`
-                this.$store.dispatch('dashboard/insertHistoryRow', { entity: currentEntity, message, action_type: 'update' });
-            }
+            const currentEntity = this.$store.getters['getEntityName'];
+            const message = `Update one ${currentEntity}.`
+            this.$store.dispatch('dashboard/insertHistoryRow', { entity: currentEntity, message, action_type: 'update' });
 
             this.resetData();
         },
