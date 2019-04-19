@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    
     <div class="c-overview">
       <VCard 
         v-for="(value, title, index) in overviewData"
@@ -7,6 +8,7 @@
         :card-info="{ icon: icons[index], title: title, value }"
       />
     </div>
+   
     <div class="main-cards">
       <div class="main-cards__container">
         <div class="c-card c-history">
@@ -32,7 +34,10 @@
               >
                 <div class="c-row__title">{{ item.entity }}</div>
                 <div :class="['c-row__icon', `c-row__icon--${item.action_type}`]"><font-awesome-icon :icon="getHistoryIcon(item.action_type)" /></div>
-                <div class="c-row__content">{{ item.message }}</div>
+                <div class="c-row__content">
+                  <div class="c-row__message">{{ item.message }} </div>
+                  <div class="c-row__date">{{ formatDate(item.inserted_date) }}</div>
+                </div>
               </div>
             </template>
             <template v-else-if="!historyDataShown.length && componentLoaded">
@@ -90,11 +95,21 @@
         </div>
       </div>
     </div>
+    
+     <VModal :showModal="showDetails" @closeModal="closeModal">
+      <template v-slot:header>
+          test
+      </template>
+      <template v-slot:body>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate repellendus perferendis tempora natus.
+      </template>
+    </VModal>
   </div>
 </template>
 
 <script>
 import VCard from '../components/VCard';
+import VModal from '../components/VModal';
 
 import { formatDate } from '../utils/';
 
@@ -105,23 +120,25 @@ import * as common from '@/store/modules/common';
 import { mapActions, mapState } from 'vuex';
 
 import titleMixin from '../mixins/titleMixin';
+import modalMixin from '../mixins/modalMixin';
 
 export default {
   name: 'home',
 
   title: 'Dashboard',
 
-  mixins: [titleMixin],
+  mixins: [titleMixin, modalMixin],
 
-  components: { VCard },
+  components: { VCard, VModal },
 
   data: () => ({
     icons: ['cart-plus', 'industry', 'file', 'clipboard-list'],
     shownDocumentsLen: 8,
-    historyItemsPerPage: 9,
+    historyItemsPerPage: 11,
     historyPageIndex: 0,
     initialVat: {},
-    componentLoaded: false
+    componentLoaded: false,
+    selectedHistoryRow: null
   }),
 
   computed: {
@@ -156,6 +173,8 @@ export default {
   },
 
   methods: {
+    formatDate (date) { return formatDate(date) },
+
     ...mapActions(['changeEntity']),
     
     ...mapActions(currentEntity, ['fetchMainOverview', 'setNewVat', 'updateDocVat', 'insertHistoryRow']),
@@ -352,7 +371,13 @@ export default {
     display: flex;
     width: 100%;
     position: relative;
-    margin-top: 2rem;
+    margin-top: 1rem;
+    height: 2.3rem;
+
+    &:hover {
+      background-color: rgba($color: $main-blue, $alpha: .3);
+      cursor: pointer;
+    }
 
     &:first-of-type {
       margin-top: .6rem;
@@ -360,6 +385,7 @@ export default {
 
     &__title {
       padding-left: 1rem;
+      padding-top: 10px;
       flex-basis: $row-title-length;
       max-height: 1.9rem;
     }
@@ -392,6 +418,14 @@ export default {
       margin-left: 2rem;
       padding-top: 10px;
       width: calc(100% - #{$row-title-length + 2rem});
+      display: flex;
+      justify-content: space-between;
+    }
+
+    &__date {
+      margin-right: .7rem;
+      font-weight: bold;
+      color: $main-blue;
     }
   }
 
