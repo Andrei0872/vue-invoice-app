@@ -59,14 +59,6 @@ cd server/ && npm run dev
 └── readme.md
 ```
 
-## Todos
-
-* [ ] Allow the user to save a PDF
-* [ ] Add Login System
-* [ ] Add i18n
-* [ ] Notify the user if the action that he demanded was successful or not; if not, do not make any changes
-* [ ] Set a currency for all the docs, and if the currency of a product is different, convert it
-
 ## Acknowledgements
 
 This project stems from my desire to improve my knowledge through building applications.  
