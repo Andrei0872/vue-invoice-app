@@ -11,13 +11,14 @@ export default {
 
     functional: true,
 
+    inheritAttrs: false,
+
     props: {
         showModal: Boolean,
         isAboutToDelete: Boolean
     },
 
     render (h, context) {
-
         const isAboutToDelete = context.props.isAboutToDelete;
         const modalContainerClasses = ['modal__container'];
         isAboutToDelete && (modalContainerClasses.push('warning'))
@@ -36,9 +37,9 @@ export default {
 
         const modal =  context.props.showModal 
             ? h(
-                'div', { class: 'modal', on: { click: shouldCloseModal.bind(null, context) } }, [
+                'div', { class: 'modal',  on: { click: shouldCloseModal.bind(null, context) } }, [
                     h(
-                        'div', { class: modalContainerClasses, }, [
+                        'div', { class: modalContainerClasses, style: context.data.attrs }, [
                         h('div', { class: 'modal__header', props: { name: 'header' } }, [header, closeModal]),
                         h('div', { class: 'modal__body', props: { name: 'body' } }, bodyContent),
                     ])
