@@ -33,7 +33,7 @@
                 :key="item.id"
                 @click="selectedHistoryRow = item; showDetails = true"
               >
-                <div class="c-row__title">{{ item.entity }}</div>
+                <div class="c-row__title">{{ item.entity.includes('documents/edit') ? 'document' : item.entity }}</div>
                 <div :class="['c-row__icon', `c-row__icon--${item.action_type}`]"><font-awesome-icon :icon="getHistoryIcon(item.action_type)" /></div>
                 <div class="c-row__content">
                   <div class="c-row__message">{{ item.message }} </div>
@@ -102,6 +102,10 @@
         {{ selectedHistoryRow.message }}
       </template>
       <template v-slot:body v-if="selectedHistoryRow">
+        <router-link class="redirect-link" :to="selectedHistoryRow.entity" v-if="selectedHistoryRow.entity.includes('documents/edit')">
+          Read more about this document
+        </router-link>
+        
         <div class="c-table">
             <table class="table">
               <thead>
@@ -616,5 +620,15 @@ export default {
     display: flex;
     justify-content: center;
     margin-bottom: 1rem;
+    margin-top: 1rem;
+  }
+
+  .redirect-link {
+    color: darken($color: $main-blue, $amount: 15%);
+    font-style: italic;
+
+    &:hover {
+      font-weight: bold;
+    }
   }
 </style>

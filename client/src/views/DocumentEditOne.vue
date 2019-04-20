@@ -154,7 +154,6 @@ export default {
                 if (key === 'inserted_date' || key === 'URC')
                     continue;
 
-                // FIXME: switch
                 const currentItemKey = key === 'id' 
                     ? 'provider_id' 
                     : key === 'invoiceNr' 
@@ -165,7 +164,7 @@ export default {
                                 ? 'provider_name'
                                 : key
 
-                if (this.selectedProvider[key] !== this.currentItem[currentItemKey]) {
+                if (`${this.selectedProvider[key]}` !== `${this.currentItem[currentItemKey]}`) {
                     changes[currentItemKey] = this.selectedProvider[key];
                     changeFound = true;
                 }
@@ -183,8 +182,24 @@ export default {
                 willChange = true
                 await this.updateDocument({ ...changes, id: this.currentItem.id })
 
+                let prevState = ``,
+                    currentState = ``;
+
+                console.log(changes)
+                Object.entries(changes).forEach(([key, value]) => {
+                    if (key !== 'provider_id') {
+                        prevState += `${key}:${this.currentItem[key]}|`
+                        currentState += `${value}|`
+                    }
+                })
+
                 const message = `Update document information`;
-                this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'update' });
+                this.$store.dispatch('dashboard/insertHistoryRow', {
+                    entity: `documents/edit/${this.id}`, 
+                    message, action_type: 'update',
+                    prev_state: prevState.slice(0, -1),
+                    current_state: currentState.slice(0, -1),
+                });
             }
 
             // If any product from this document has been updated
