@@ -31,6 +31,7 @@
                 class="c-row"
                 v-for="item in historyDataShown"
                 :key="item.id"
+                @click="selectedHistoryRow = item; showDetails = true"
               >
                 <div class="c-row__title">{{ item.entity }}</div>
                 <div :class="['c-row__icon', `c-row__icon--${item.action_type}`]"><font-awesome-icon :icon="getHistoryIcon(item.action_type)" /></div>
@@ -95,13 +96,37 @@
         </div>
       </div>
     </div>
-    
-     <VModal :showModal="showDetails" @closeModal="closeModal">
-      <template v-slot:header>
-          test
+
+     <VModal :showModal="showDetails" @closeModal="closeModal" v-bind="{ 'background-color': '#DCE4F2' }">
+      <template v-slot:header v-if="selectedHistoryRow">
+        {{ selectedHistoryRow.message }}
       </template>
-      <template v-slot:body>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate repellendus perferendis tempora natus.
+      <template v-slot:body v-if="selectedHistoryRow">
+        <div class="c-table">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>From</th>
+                  <th>To</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(values, field) in getHistoryStateInformation"
+                  :key="field"
+                >
+                  <td>{{ field }}</td>
+                  <td>{{ values[0] }}</td>
+                  <td>{{ values[1] }}</td>
+                </tr>
+              </tbody>
+          </table>
+        </div>
+
+        <div align="right">
+          {{ formatDate(selectedHistoryRow.inserted_date) }}
+        </div>
       </template>
     </VModal>
   </div>
@@ -170,6 +195,33 @@ export default {
       const currentPage = this.historyPageIndex * this.historyPages;
       return this.historyData.slice(currentPage, currentPage + this.historyItemsPerPage);
     },
+
+    getHistoryStateInformation () {
+
+      const { current_state: currentState, prev_state: prevState } = this.selectedHistoryRow;
+
+      // result[field] = [prevValue, currentValue]
+      const result = {};
+
+      if (~prevState.indexOf('|')) {
+        // Multiple fields have been updated
+        const valuesArr = currentState.split('|');
+
+        prevState.split('|').forEach((kvPair, index) => {
+          const [key, value] = this.separateValues(kvPair, ':');
+
+          result[key] = [value, valuesArr[index]];
+        })
+
+      } else {
+        // Only one field has been updated
+        const [key, value] = this.separateValues(prevState, ':');
+
+        result[key] = [value, currentState];
+      }
+
+      return result
+    },
   },
 
   methods: {
@@ -201,6 +253,15 @@ export default {
     getHistoryIcon (actionType) {
       return { insert: 'plus', delete: 'minus', update: 'pencil-alt' }[actionType]
     },
+
+    // TODO: add to utils
+    separateValues (kvPair, separator) {
+      const sepIndex = kvPair.indexOf(separator);
+      const key = kvPair.slice(0, sepIndex);
+      const value = kvPair.slice(sepIndex + 1);
+
+      return [key, value];
+    }
   },
 
   async created () {
@@ -549,5 +610,11 @@ export default {
       display: flex;
       align-items: center;
     }
+  }
+
+  .c-table {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
   }
 </style>
