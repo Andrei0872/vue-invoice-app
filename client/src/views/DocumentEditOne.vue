@@ -100,7 +100,7 @@ export default {
             return parseInt(this.$route.params.id)
         },
 
-        ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges' }),
+        ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges', pristineData: 'getPristineData' }),
 
         ...mapState('provider', { providers: 'items' }),
 
@@ -137,8 +137,6 @@ export default {
     },
 
     methods: {
-        
-        testFn () { alert(1) },
 
         ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc', 'updateDocument', 'setAlreadyFetched']),
 
@@ -172,6 +170,37 @@ export default {
 
             return changeFound ? changes : changeFound;
         },
+        
+        /**
+         * @param { Map } pristine
+         */
+        verifyChanges (changed, pristine) {
+            let prevState = ``,
+                currentState = ``,
+                additionalInfo = ``,
+                changeFound = false;
+            
+            for (const [key, valueObj] of Object.entries(changed)) {
+                const pristineItem = pristine.get(+key);
+                console.log(pristineItem)
+
+                prevState !== `` && (prevState = prevState.slice(0, -1) + '\n', currentState = currentState.slice(0, -1) + '\n');
+                changeFound = false;
+
+                for (const k of Object.keys(valueObj)) {
+                    if (`${valueObj[k]}` !== `${pristineItem[k]}`) {
+                        prevState += `${k}:${pristineItem[k]}|`
+                        currentState += `${valueObj[k]}|`;
+
+                        changeFound = true;
+                    }
+                }
+
+                changeFound && (additionalInfo += `${pristineItem['product_name']}|`)
+            }
+            
+            return [prevState, currentState, additionalInfo]
+        },
 
         async sendUpdates () {
             let willChange = false;
@@ -203,12 +232,27 @@ export default {
             }
 
             // If any product from this document has been updated
-            if (Object.keys(this.changes).length) {
+            let productsChangedLen = Object.keys(this.changes).length;
+            if (productsChangedLen) {
+                const [prevState, currentState, additionalInfo] = this.verifyChanges(this.changes, this.pristineData)
+                
+                console.log(prevState, currentState, additionalInfo)
+                
+                if (prevState === ``)
+                    return;
+    
                 willChange = true;
                 this.updateItems(this.changes);
                 
-                const message = `Update product in document`;
-                this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'update' });
+                const message = `Update product${productsChangedLen > 1 ? 's' : ''} in document`;
+                this.$store.dispatch('dashboard/insertHistoryRow', {
+                    entity: `documents/edit/${this.id}`, 
+                    message, 
+                    action_type: 'update',
+                    prev_state: prevState.slice(0, -1),
+                    current_state: currentState.slice(0, -1),
+                    additional_info: additionalInfo.slice(0, -1)
+                });
             }
 
             if (this.newItems.length && !hasEmptyValues(this.newItems)) {

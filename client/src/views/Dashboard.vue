@@ -97,8 +97,9 @@
       </div>
     </div>
 
-     <VModal :showModal="showDetails" @closeModal="closeModal" v-bind="{ 'background-color': '#DCE4F2' }">
+     <VModal :showModal="showDetails" @closeModal="closeModal" v-bind="{ 'background-color': '#DCE4F2', 'max-height': '45rem' }">
       <template v-slot:header v-if="selectedHistoryRow">
+        <!-- TODO: tell the user what has been added / deleted -->
         {{ selectedHistoryRow.message }}
       </template>
       
@@ -126,6 +127,26 @@
           </div>
         </template>
 
+        <template v-else>
+          <template v-for="(product, productIndex) in computeProductRows">
+            <div :key="product.id">{{ getHistoryProductNames[productIndex] }}</div>
+            
+            <div :key="product.id + productIndex" class="c-table">
+              <VTableSimple  :columns="['Field', 'From', 'To']">
+                <template v-slot:tbody>
+                  <tr
+                    v-for="(field) in Object.keys(getRidOfObjProp(product, 'id'))"
+                    :key="product.id + field"
+                  >
+                    <td>{{ field }}</td>
+                    <td>{{ product[field][0] }}</td>
+                    <td>{{ product[field][1] }}</td>
+                  </tr>
+                </template>
+              </VTableSimple>
+          </div>
+          </template>
+        </template>
 
         <div align="right">
           {{ formatDate(selectedHistoryRow.inserted_date) }}
@@ -228,10 +249,37 @@ export default {
 
       return result
     },
+
+    getHistoryProductNames () {
+      return this.selectedHistoryRow.additional_info.split('|')
+    },
+
+    computeProductRows () {
+      const currentStateRows = this.selectedHistoryRow.current_state.split('\n');
+      const prevValuesRows = this.selectedHistoryRow.prev_state.split('\n');
+
+      return prevValuesRows.map((items, index) => {
+        const row = {};
+        const currentStateRow = currentStateRows[index].split('|');
+
+        items.split('|').forEach((kvPair, kvPairIndex) => {
+          const [key, value] = this.separateValues(kvPair, ':');
+
+          // row[field] = [prevValue, currentValue]
+          row[key] = [value, currentStateRow[kvPairIndex]]
+        });
+
+        row['id'] = uuidv1()
+
+        return row;
+      })
+    },
   },
 
   methods: {
     formatDate (date) { return formatDate(date) },
+
+    getRidOfObjProp (obj, prop) { return getRidOfObjProp(obj, prop) },
 
     ...mapActions(['changeEntity']),
     
