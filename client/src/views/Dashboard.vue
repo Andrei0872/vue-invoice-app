@@ -101,32 +101,31 @@
       <template v-slot:header v-if="selectedHistoryRow">
         {{ selectedHistoryRow.message }}
       </template>
+      
       <template v-slot:body v-if="selectedHistoryRow">
         <router-link class="redirect-link" :to="selectedHistoryRow.entity" v-if="selectedHistoryRow.entity.includes('documents/edit')">
           Read more about this document
         </router-link>
         
-        <div class="c-table">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Field</th>
-                  <th>From</th>
-                  <th>To</th>
-                </tr>
-              </thead>
-              <tbody>
+        <template v-if="!selectedHistoryRow.current_state.includes('\n')">
+          <div v-if="selectedHistoryRow.additional_info">{{ getHistoryProductNames[0] }}</div>
+
+          <div class="c-table">
+            <VTableSimple :columns="['Field', 'From', 'To']">
+              <template v-slot:tbody>
                 <tr
-                  v-for="(values, field) in getHistoryStateInformation"
-                  :key="field"
-                >
-                  <td>{{ field }}</td>
-                  <td>{{ values[0] }}</td>
-                  <td>{{ values[1] }}</td>
+                    v-for="(values, field) in getHistoryStateInformation"
+                    :key="field"
+                  >
+                    <td>{{ field }}</td>
+                    <td>{{ values[0] }}</td>
+                    <td>{{ values[1] }}</td>
                 </tr>
-              </tbody>
-          </table>
-        </div>
+              </template>
+            </VTableSimple>
+          </div>
+        </template>
+
 
         <div align="right">
           {{ formatDate(selectedHistoryRow.inserted_date) }}
@@ -139,8 +138,11 @@
 <script>
 import VCard from '../components/VCard';
 import VModal from '../components/VModal';
+import VTableSimple from '../components/VTableSimple';
 
-import { formatDate } from '../utils/';
+import uuidv1 from 'uuid/v1'
+
+import { formatDate, getRidOfObjProp } from '../utils/';
 
 const documentEntity = 'document';
 const currentEntity = 'dashboard';
@@ -158,7 +160,7 @@ export default {
 
   mixins: [titleMixin, modalMixin],
 
-  components: { VCard, VModal },
+  components: { VCard, VModal, VTableSimple },
 
   data: () => ({
     icons: ['cart-plus', 'industry', 'file', 'clipboard-list'],
@@ -265,7 +267,7 @@ export default {
       const value = kvPair.slice(sepIndex + 1);
 
       return [key, value];
-    }
+    },
   },
 
   async created () {
