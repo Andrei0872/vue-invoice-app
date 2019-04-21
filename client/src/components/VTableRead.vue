@@ -238,10 +238,17 @@ export default {
         },        
 
         confirmChanges (row) {
+
             const changes = this.compareChanges(this.untouchedRow, this.selectedRow);
 
             if (!this.isObjectEmpty(changes)) {
                 this.$emit('update', { ...changes, id: row.id });
+
+                if (this.$route.name === 'documentEditOne') {
+                    this.resetData();
+
+                    return;
+                }
 
                 const currentEntity = this.$store.getters['getEntityName'];
                 const message = `Update one ${currentEntity}`
