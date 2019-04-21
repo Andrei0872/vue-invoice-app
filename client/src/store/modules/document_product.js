@@ -3,6 +3,7 @@ export const namespaced = true;
 export const state = {
     items: [],
     changes: {},
+    pristineData: new Map,
     currentId: null,
     alreadyFetched: false,
     lastDeletedDocId: -1
@@ -11,7 +12,9 @@ export const state = {
 export const getters = {
     getItemsById: state => state.items.filter(({ document_id }) => document_id === state.currentId),
 
-    getChanges: state => state.changes
+    getChanges: state => state.changes,
+
+    getPristineData: state => state.pristineData
 }
 
 export const mutations = {
@@ -24,6 +27,8 @@ export const mutations = {
     SET_ALREADY_FETCHED: (state, payload) => state.alreadyFetched = payload,
 
     SET_LAST_DELETED_DOC_ID: (state, payload) => state.lastDeletedDocId = payload,
+
+    SET_PRISTINE_DATA: (state, { id, ...fields }) => state.pristineData.set(id, fields),
 
     RESET_ITEMS: state => state.items = []
 }
@@ -55,6 +60,7 @@ export const actions = {
         changesObj[id] = { ...changesObj[id], ...fields }
 
         commit('SET_CHANGES', changesObj);
+        commit('SET_PRISTINE_DATA', state.items.find(item => +item.id === +id));
     },
 
     updateItems: async ({ dispatch, rootState, rootGetters }, payload) => {
