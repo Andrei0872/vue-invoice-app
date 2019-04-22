@@ -209,7 +209,7 @@ export default {
     color: #DADAE3;
   }
 
-  .h-centered {
+  .h-centered, /deep/ .c-history .h-centered {
     width: 100%;
     height: 90%;
     display: flex;
