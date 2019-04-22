@@ -249,14 +249,15 @@ export default {
 
                     return;
                 }
-
+                
                 const currentEntity = this.$store.getters['getEntityName'];
                 const message = `Update one ${currentEntity}`
                 this.$store.dispatch('dashboard/insertHistoryRow', {
                     entity: currentEntity, message, 
                     action_type: 'update',
                     prev_state: this.prevState.slice(0, -1),
-                    current_state: this.crtState.slice(0, -1)
+                    current_state: this.crtState.slice(0, -1),
+                    additional_info: this.selectedRow.name
                 });
             }
 

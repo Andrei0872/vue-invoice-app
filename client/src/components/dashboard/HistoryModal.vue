@@ -15,6 +15,25 @@
 
           <div class="c-table">
             <VTableSimple :columns="['Field', 'From', 'To']">
+      <!-- If a product / provider / document has been updated -->
+      <template v-if="multipleRowsUpdated === false">
+        <div v-if="selectedHistoryRow.additional_info">{{ getHistoryProductNames[0] }}</div>
+
+        <div class="c-table">
+          <VTableSimple :columns="['Field', 'From', 'To']">
+            <template v-slot:tbody>
+              <tr
+                  v-for="(values, field) in getHistoryStateInformation"
+                  :key="field"
+                >
+                  <td>{{ field }}</td>
+                  <td>{{ values[0] }}</td>
+                  <td>{{ values[1] }}</td>
+              </tr>
+            </template>
+          </VTableSimple>
+        </div>
+      </template>
               <template v-slot:tbody>
                 <tr
                     v-for="(values, field) in getHistoryStateInformation"
