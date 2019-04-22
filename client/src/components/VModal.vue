@@ -1,7 +1,7 @@
 <script>
 const shouldCloseModal = (context, e) => {
     if (e.currentTarget === e.target) {
-        context.parent.showDetails = false
+        context.parent.closeModal();
         return;
     }
 }
