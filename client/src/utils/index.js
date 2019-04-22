@@ -57,3 +57,22 @@ export const formatColumnName = column => column.split('_').map(capitalize).join
  * @param {Array} arr 
  */
 export const hasEmptyValues = arr => arr.some(obj => Object.values(obj).some(val => typeof val !== 'object' && val.trim() === ''))
+
+/**
+ * Used mostly when parsing data that is stored in History table
+ * in order to show the user the previous and current states
+ * 
+ * @param {String} kvPair 
+ * @param {String} separator 
+ * 
+ * @example
+ * returns ['name', 'mozzarella']
+ * separateValues('name:mozzarella', ':')
+ */
+export const separateValues = (kvPair, separator) => {
+    const sepIndex = kvPair.indexOf(separator);
+    const key = kvPair.slice(0, sepIndex);
+    const value = kvPair.slice(sepIndex + 1);
+
+    return [key, value];
+}
