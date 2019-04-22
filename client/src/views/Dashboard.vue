@@ -10,45 +10,11 @@
     </div>
    
     <div class="main-cards">
+      
       <div class="main-cards__container">
-        <div class="c-card c-history">
-          <div class="c-card__title">
-            <div 
-              :class="{'c-card__arrow': 1, 'disabled': historyPageIndex === 0}" 
-              @click="historyPageIndex - 1 >= 0 ? historyPageIndex-- : null">
-              <font-awesome-icon icon="arrow-left" />
-            </div>
-            <div>History</div>
-            <div 
-              :class="{'c-card__arrow': 1, 'disabled': historyPageIndex + 1 === historyPages}" 
-              @click="historyPageIndex + 1 < historyPages ? historyPageIndex++ : null">
-                <font-awesome-icon icon="arrow-right" />
-            </div>
-          </div>
-          <div :class="{'c-card__content': true, 'vertical-line': historyData.length !== 0}">
-            <template v-if="historyData.length">
-              <div 
-                class="c-row"
-                v-for="item in historyDataShown"
-                :key="item.id"
-                @click="selectedHistoryRow = item; showDetails = true"
-              >
-                <div class="c-row__title">{{ item.entity.includes('documents/edit') ? 'document' : item.entity }}</div>
-                <div :class="['c-row__icon', `c-row__icon--${item.action_type}`]"><font-awesome-icon :icon="getHistoryIcon(item.action_type)" /></div>
-                <div class="c-row__content">
-                  <div class="c-row__message">{{ item.message }} </div>
-                  <div class="c-row__date">{{ formatDate(item.inserted_date) }}</div>
-                </div>
-              </div>
-            </template>
-            <template v-else-if="!historyDataShown.length && componentLoaded">
-              <div class="h-centered">
-                <p>No history</p>
-              </div>
-            </template>
-          </div>
-        </div>
+        <History :componentLoaded="componentLoaded" class="c-card c-hist" />
       </div>
+
       <div class="main-cards__container">
         <div class="c-card c-card--small-half c-vat">
           <div class="c-card__title">VAT</div>
@@ -97,73 +63,17 @@
       </div>
     </div>
 
-     <VModal :showModal="showDetails" @closeModal="closeModal" v-bind="{ 'background-color': '#DCE4F2', 'max-height': '45rem' }">
-      <template v-slot:header v-if="selectedHistoryRow">
-        <!-- TODO: tell the user what has been added / deleted -->
-        {{ selectedHistoryRow.message }}
-      </template>
-      
-      <template v-slot:body v-if="selectedHistoryRow">
-        <router-link class="redirect-link" :to="selectedHistoryRow.entity" v-if="selectedHistoryRow.entity.includes('documents/edit')">
-          Read more about this document
-        </router-link>
-        
-        <template v-if="!selectedHistoryRow.current_state.includes('\n')">
-          <div v-if="selectedHistoryRow.additional_info">{{ getHistoryProductNames[0] }}</div>
-
-          <div class="c-table">
-            <VTableSimple :columns="['Field', 'From', 'To']">
-              <template v-slot:tbody>
-                <tr
-                    v-for="(values, field) in getHistoryStateInformation"
-                    :key="field"
-                  >
-                    <td>{{ field }}</td>
-                    <td>{{ values[0] }}</td>
-                    <td>{{ values[1] }}</td>
-                </tr>
-              </template>
-            </VTableSimple>
-          </div>
-        </template>
-
-        <template v-else>
-          <template v-for="(product, productIndex) in computeProductRows">
-            <div :key="product.id">{{ getHistoryProductNames[productIndex] }}</div>
-            
-            <div :key="product.id + productIndex" class="c-table">
-              <VTableSimple  :columns="['Field', 'From', 'To']">
-                <template v-slot:tbody>
-                  <tr
-                    v-for="(field) in Object.keys(getRidOfObjProp(product, 'id'))"
-                    :key="product.id + field"
-                  >
-                    <td>{{ field }}</td>
-                    <td>{{ product[field][0] }}</td>
-                    <td>{{ product[field][1] }}</td>
-                  </tr>
-                </template>
-              </VTableSimple>
-          </div>
-          </template>
-        </template>
-
-        <div align="right">
-          {{ formatDate(selectedHistoryRow.inserted_date) }}
-        </div>
-      </template>
-    </VModal>
+    <HistoryModal />
   </div>
 </template>
 
 <script>
 import VCard from '../components/VCard';
 import VModal from '../components/VModal';
-import VTableSimple from '../components/VTableSimple';
+import History from '../components/dashboard/History';
+import HistoryModal from '../components/dashboard/HistoryModal';
 
-import uuidv1 from 'uuid/v1'
-
-import { formatDate, getRidOfObjProp } from '../utils/';
+import { formatDate } from '../utils/';
 
 const documentEntity = 'document';
 const currentEntity = 'dashboard';
@@ -181,16 +91,16 @@ export default {
 
   mixins: [titleMixin, modalMixin],
 
-  components: { VCard, VModal, VTableSimple },
+  components: { VCard, VModal, History, HistoryModal },
 
   data: () => ({
     icons: ['cart-plus', 'industry', 'file', 'clipboard-list'],
     shownDocumentsLen: 8,
-    historyItemsPerPage: 11,
-    historyPageIndex: 0,
+    // historyItemsPerPage: 11,
+    // historyPageIndex: 0,
     initialVat: {},
     componentLoaded: false,
-    selectedHistoryRow: null
+    // selectedHistoryRow: null
   }),
 
   computed: {
@@ -199,7 +109,7 @@ export default {
     ...mapState(currentEntity, {
       overviewData: 'dashboard/overview',
       vatData: 'vat',
-      historyData: 'history',
+      // historyData: 'history',
       needsUpdate: 'needsUpdate',
       isInit: 'isInit',
     }),
@@ -213,73 +123,10 @@ export default {
         ? this.documents.slice(0, this.shownDocumentsLen)
         : this.documents).map(document => ({ ...document, inserted_date: formatDate(document.inserted_date) }))
     },
-
-    historyPages () {
-      return Math.ceil(this.historyData.length / this.historyItemsPerPage)
-    },
-
-    historyDataShown () {
-      const currentPage = this.historyPageIndex * this.historyPages;
-      return this.historyData.slice(currentPage, currentPage + this.historyItemsPerPage);
-    },
-
-    getHistoryStateInformation () {
-
-      const { current_state: currentState, prev_state: prevState } = this.selectedHistoryRow;
-
-      // result[field] = [prevValue, currentValue]
-      const result = {};
-
-      if (~prevState.indexOf('|')) {
-        // Multiple fields have been updated
-        const valuesArr = currentState.split('|');
-
-        prevState.split('|').forEach((kvPair, index) => {
-          const [key, value] = this.separateValues(kvPair, ':');
-
-          result[key] = [value, valuesArr[index]];
-        })
-
-      } else {
-        // Only one field has been updated
-        const [key, value] = this.separateValues(prevState, ':');
-
-        result[key] = [value, currentState];
-      }
-
-      return result
-    },
-
-    getHistoryProductNames () {
-      return this.selectedHistoryRow.additional_info.split('|')
-    },
-
-    computeProductRows () {
-      const currentStateRows = this.selectedHistoryRow.current_state.split('\n');
-      const prevValuesRows = this.selectedHistoryRow.prev_state.split('\n');
-
-      return prevValuesRows.map((items, index) => {
-        const row = {};
-        const currentStateRow = currentStateRows[index].split('|');
-
-        items.split('|').forEach((kvPair, kvPairIndex) => {
-          const [key, value] = this.separateValues(kvPair, ':');
-
-          // row[field] = [prevValue, currentValue]
-          row[key] = [value, currentStateRow[kvPairIndex]]
-        });
-
-        row['id'] = uuidv1()
-
-        return row;
-      })
-    },
   },
 
   methods: {
     formatDate (date) { return formatDate(date) },
-
-    getRidOfObjProp (obj, prop) { return getRidOfObjProp(obj, prop) },
 
     ...mapActions(['changeEntity']),
     
@@ -302,19 +149,6 @@ export default {
 
     sendToRoute (newRoute) {
       return this.$router.push(newRoute)
-    },
-
-    getHistoryIcon (actionType) {
-      return { insert: 'plus', delete: 'minus', update: 'pencil-alt' }[actionType]
-    },
-
-    // TODO: add to utils
-    separateValues (kvPair, separator) {
-      const sepIndex = kvPair.indexOf(separator);
-      const key = kvPair.slice(0, sepIndex);
-      const value = kvPair.slice(sepIndex + 1);
-
-      return [key, value];
     },
   },
 
@@ -358,6 +192,7 @@ export default {
   $row-title-length: 8rem;
   $main-blue: #394263;
   $main-blue-border: rgba($color: $main-blue, $alpha: .4);
+
 
   %title-style {
     color: #fff;
@@ -413,13 +248,14 @@ export default {
       }
     }
 
-    .c-card {
+    // .c-history - the History.vue' root class
+    .c-card, /deep/ .c-history {
       background-color: #fff;
       display: flex;
       flex-direction: column;
       height: 100%;
 
-      &__title {
+      .c-card__title {
         @extend %title-style;
         flex-basis: 2rem;
         padding: 7px;
@@ -428,7 +264,7 @@ export default {
         font-size: 1.3rem;
       }
 
-      &__content {
+      .c-card__content {
         flex: 1;
         height: 100%;
       }
@@ -441,106 +277,6 @@ export default {
         margin-top: 50px;
         height: calc(100% - 170px);
       }
-    }
-  }
-
-  .c-history {
-    
-    .c-card {
-
-      &__title {
-        max-height: 2.3rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      &__arrow {
-        width: 2.2rem;
-        height: 2.2rem;
-        @extend %icon-dark-bg;
-
-        &.disabled {
-          cursor: not-allowed;
-          opacity: .4;
-        }
-      }
-
-      &__content {
-        position: relative;
-
-        &.vertical-line::before {
-          position: absolute;
-          content: "";
-          width: 1px;
-          background-color: darken(#f3f3f3, 10%);
-          left: $row-title-length;
-          top: 0;
-          bottom: 0;
-        }
-      }
-    }
-  }
-
-  .c-row {
-    display: flex;
-    width: 100%;
-    position: relative;
-    margin-top: 1rem;
-    height: 2.3rem;
-
-    &:hover {
-      background-color: rgba($color: $main-blue, $alpha: .3);
-      cursor: pointer;
-    }
-
-    &:first-of-type {
-      margin-top: .6rem;
-    }
-
-    &__title {
-      padding-left: 1rem;
-      padding-top: 10px;
-      flex-basis: $row-title-length;
-      max-height: 1.9rem;
-    }
-
-    &__icon {
-      position: absolute;
-      left: $row-title-length;
-      transform: translateX(-50%);
-      width: 2.2rem;
-      height: 2.2rem;
-      @extend %icon-dark-bg;
-      background-color: $main-blue;
-      color: #fff;
-      cursor: default;
-
-      &--insert {
-        background-color: green;
-      }
-      
-      &--delete {
-        background-color: red;
-      }
-
-      &--update {
-        background-color: orange;
-      }
-    }
-
-    &__content {
-      margin-left: 2rem;
-      padding-top: 10px;
-      width: calc(100% - #{$row-title-length + 2rem});
-      display: flex;
-      justify-content: space-between;
-    }
-
-    &__date {
-      margin-right: .7rem;
-      font-weight: bold;
-      color: $main-blue;
     }
   }
 
@@ -663,22 +399,6 @@ export default {
       flex-basis: 80%;
       display: flex;
       align-items: center;
-    }
-  }
-
-  .c-table {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1rem;
-    margin-top: 1rem;
-  }
-
-  .redirect-link {
-    color: darken($color: $main-blue, $amount: 15%);
-    font-style: italic;
-
-    &:hover {
-      font-weight: bold;
     }
   }
 </style>
