@@ -4,7 +4,7 @@ export default {
     }),
 
     watch: {
-        showDetails(shouldDisplayModal) {
+        showDetails (shouldDisplayModal) {
             shouldDisplayModal
                 ?
                 window.addEventListener("keyup", this.modalHandler) :
@@ -13,13 +13,13 @@ export default {
     },
 
     methods: {
-        modalHandler(e) {
+        modalHandler (e) {
                 e.which === 27 && this.closeModal();
         },
 
-        closeModal() {
+        closeModal () {
             this.showDetails = false;
             this.selectedItem = {};
         },
-    }
+    },
 }
