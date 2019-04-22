@@ -71,8 +71,8 @@ export default {
         transition: all .3s;
 
         &__container {
-            max-width: 100%;
-            width: 40rem;
+            max-width: 45rem;
+            min-width: 35rem;
             max-height: 35rem;
             background-color: #fff;
             display: flex;
