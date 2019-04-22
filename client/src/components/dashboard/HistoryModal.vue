@@ -1,20 +1,14 @@
 <template>
- <VModal :showModal="showModal" @closeModal="closeModal" v-bind="{ 'background-color': '#DCE4F2', 'max-height': '45rem' }">
-      <template v-slot:header v-if="selectedHistoryRow">
-        <!-- TODO: tell the user what has been added / deleted -->
-        {{ selectedHistoryRow.message }}
-      </template>
+ <VModal :showModal="showModal" @closeModal="closeModal" v-bind="{ 'background-color': '#DCE4F2', 'max-height': '45rem', 'max-width': '67rem' }">
+    <template v-slot:header v-if="selectedHistoryRow">
+      {{ selectedHistoryRow.message }}
+    </template>
       
-      <template v-slot:body v-if="selectedHistoryRow">
-        <router-link class="redirect-link" :to="selectedHistoryRow.entity" v-if="selectedHistoryRow.entity.includes('documents/edit')">
-          Read more about this document
-        </router-link>
-        
-        <template v-if="!selectedHistoryRow.current_state.includes('\n')">
-          <div v-if="selectedHistoryRow.additional_info">{{ getHistoryProductNames[0] }}</div>
-
-          <div class="c-table">
-            <VTableSimple :columns="['Field', 'From', 'To']">
+    <template v-slot:body v-if="selectedHistoryRow">
+      <router-link class="redirect-link" :to="selectedHistoryRow.entity" v-if="selectedHistoryRow.entity.includes('documents/edit')">
+        Read more about this document
+      </router-link>
+      
       <!-- If a product / provider / document has been updated -->
       <template v-if="multipleRowsUpdated === false">
         <div v-if="selectedHistoryRow.additional_info">{{ getHistoryProductNames[0] }}</div>
@@ -34,46 +28,51 @@
           </VTableSimple>
         </div>
       </template>
+
+      <!-- If products in a document have been updated-->
+      <template v-else-if="multipleRowsUpdated === true">
+        <template v-for="(product, productIndex) in computeProductRows">
+          <div :key="product.id">{{ getHistoryProductNames[productIndex] }}</div>
+          
+          <div :key="product.id + productIndex" class="c-table">
+            <VTableSimple  :columns="['Field', 'From', 'To']">
               <template v-slot:tbody>
                 <tr
-                    v-for="(values, field) in getHistoryStateInformation"
-                    :key="field"
-                  >
-                    <td>{{ field }}</td>
-                    <td>{{ values[0] }}</td>
-                    <td>{{ values[1] }}</td>
+                  v-for="(field) in Object.keys(getRidOfObjProp(product, 'id'))"
+                  :key="product.id + field"
+                >
+                  <td>{{ field }}</td>
+                  <td>{{ product[field][0] }}</td>
+                  <td>{{ product[field][1] }}</td>
                 </tr>
               </template>
             </VTableSimple>
-          </div>
+        </div>
         </template>
+      </template>
 
-        <template v-else>
-          <template v-for="(product, productIndex) in computeProductRows">
-            <div :key="product.id">{{ getHistoryProductNames[productIndex] }}</div>
-            
-            <div :key="product.id + productIndex" class="c-table">
-              <VTableSimple  :columns="['Field', 'From', 'To']">
-                <template v-slot:tbody>
-                  <tr
-                    v-for="(field) in Object.keys(getRidOfObjProp(product, 'id'))"
-                    :key="product.id + field"
-                  >
-                    <td>{{ field }}</td>
-                    <td>{{ product[field][0] }}</td>
-                    <td>{{ product[field][1] }}</td>
-                  </tr>
+      <!-- If multiple products (not in a document) / providers have been inserted -->
+      <!-- or (at list for now) if a product / document / provider has been deleted -->
+      <template v-else>
+        <div class="c-table" v-if="displayDeletedOrAdded">
+          <VTableSimple :columns="Object.keys(getRidOfObjProp((displayDeletedOrAdded[0] || displayDeletedOrAdded), 'id'))">
+            <template v-slot:tbody>
+              <tr v-for="item in displayDeletedOrAdded" :key="item.id">
+                <template v-for="k in Object.keys(item)">
+                  <!-- 'Not Specified' - in case a product doesn't have an expiration date -->
+                  <td v-if="k !== 'id'" :key="item.id + item[k]">{{ item[k] ? item[k] : item[k] === 0 ? item[k] : 'Not specified' }}</td>
                 </template>
-              </VTableSimple>
-          </div>
-          </template>
-        </template>
-
-        <div align="right">
-          {{ formatDate(selectedHistoryRow.inserted_date) }}
+              </tr>
+            </template>
+          </VTableSimple>
         </div>
       </template>
-    </VModal>
+
+      <div align="right">
+        {{ formatDate(selectedHistoryRow.inserted_date) }}
+      </div>
+    </template>
+  </VModal>
 </template>
 
 <script>
@@ -81,9 +80,6 @@ import VModal from '../VModal';
 import VTableSimple from '../VTableSimple';
 
 import uuidv1 from 'uuid/v1'
-
-import { createNamespacedHelpers } from 'vuex';
-const { mapState } = createNamespacedHelpers('dashboard')
 
 import modalMixin from '../../mixins/modalMixin';
 
@@ -96,7 +92,10 @@ export default {
 
     components: { VModal, VTableSimple },
 
-    data: () => ({}),
+    data: () => ({
+      multipleRowsUpdated: null,
+      displayDeletedOrAdded: null
+    }),
 
     mixins: [modalMixin],
 
@@ -106,6 +105,28 @@ export default {
                 ?
                 window.addEventListener("keyup", this.modalHandler) :
                 window.removeEventListener("keyup", this.modalHandler)
+        },
+
+        selectedHistoryRow (row) {
+          if (row !== null) {
+            if (row.current_state !== null) {
+              const hasLineBreaks = (row.current_state).includes('\n');
+              const isArray = /^\[(.*)\]$/.test(row.current_state)
+
+              console.log(hasLineBreaks)
+              console.log(isArray)
+              this.multipleRowsUpdated = hasLineBreaks && !isArray ? true : !hasLineBreaks && !isArray ? false : null;
+              
+              if (isArray) {
+                this.displayDeletedOrAdded = JSON.parse(row.current_state)
+              }
+            } else if (row.prev_state !== null) {
+              console.log('deleted')
+              this.multipleRowsUpdated = null;
+              this.displayDeletedOrAdded = [JSON.parse(row.prev_state)]
+              this.displayDeletedOrAdded[0]['id'] = uuidv1();
+            }
+          }
         }
     },
 

@@ -78,8 +78,17 @@ export default {
             this.$store.dispatch('api/insertItem', this.newItems)
                 .then(() => {
                     
-                    const message = `Add new ${this.currentEntity.slice(0, -1)}`
-                    this.$store.dispatch('dashboard/insertHistoryRow', { entity: this.currentEntity, message, action_type: 'insert' });
+                    const message = `Add new ${this.newItems.length === 1 ? this.currentEntity.slice(0, -1) : this.currentEntity}`
+                    this.$store.dispatch('dashboard/insertHistoryRow', {
+                        entity: this.currentEntity, 
+                        message, 
+                        action_type: 'insert',
+                        /**
+                         * If the current_state is not empty and the prev_state is, it means that the history row
+                         * should display which items have been added
+                         */
+                        current_state: JSON.stringify(this.newItems)
+                    });
                 })
 
 
