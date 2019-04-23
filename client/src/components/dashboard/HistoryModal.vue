@@ -94,10 +94,12 @@
         <div class="c-table" v-if="displayDeletedOrAdded">
           <VTableSimple :columns="Object.keys(getRidOfObjProp((displayDeletedOrAdded[0] || displayDeletedOrAdded), 'id'))">
             <template v-slot:tbody>
-              <tr v-for="item in displayDeletedOrAdded" :key="item.id">
-                <template v-for="k in Object.keys(item)">
+              <!-- Decided to use the index for key's computation in order to reduce -->
+              <!-- the possibility of key duplication -->
+              <tr v-for="(item, rowIndex) in displayDeletedOrAdded" :key="item.id + rowIndex">
+                <template v-for="(k, kIndex) in Object.keys(item)">
                   <!-- 'Not Specified' - in case a product doesn't have an expiration date -->
-                  <td v-if="k !== 'id'" :key="item.id + item[k]">{{ item[k] ? item[k] : item[k] === 0 ? item[k] : 'Not specified' }}</td>
+                  <td v-if="k !== 'id'" :key="item.id + item[k] + kIndex + rowIndex">{{ item[k] ? k === 'product_name' ? item[k]['name'] : item[k] : item[k] === 0 ? item[k] : 'Not specified' }}</td>
                 </template>
               </tr>
             </template>
