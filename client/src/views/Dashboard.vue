@@ -82,14 +82,13 @@ import * as common from '@/store/modules/common';
 import { mapActions, mapState } from 'vuex';
 
 import titleMixin from '../mixins/titleMixin';
-import modalMixin from '../mixins/modalMixin';
 
 export default {
   name: 'home',
 
   title: 'Dashboard',
 
-  mixins: [titleMixin, modalMixin],
+  mixins: [titleMixin],
 
   components: { VCard, VModal, History, HistoryModal },
 
@@ -182,6 +181,7 @@ export default {
       shouldRefetchDocs && this.$store.dispatch('api/FETCH_DATA');
     }
     
+    this.$children[1].closeModal();
     next();
   }
 }
