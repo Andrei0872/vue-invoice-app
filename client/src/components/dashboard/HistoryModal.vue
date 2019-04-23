@@ -5,9 +5,19 @@
     </template>
       
     <template v-slot:body v-if="selectedHistoryRow">
+      
       <router-link class="redirect-link" :to="selectedHistoryRow.entity" v-if="selectedHistoryRow.entity.includes('documents/edit')">
         Read more about this document
       </router-link>
+      
+      <div v-else-if="selectedHistoryRow.entity.includes('empty')">
+        <template v-if="getEmptyEntityName === 'document'">
+          This document does not exist anymore. <br>
+        </template>
+        <template>
+          There are no more {{ getEmptyEntityName }}s
+        </template>
+      </div>
       
       <!-- If a product / provider / document has been updated -->
       <template v-if="multipleRowsUpdated === false">
@@ -133,6 +143,10 @@ export default {
     computed: {
         // Decided to name this way because the `modalMixin` already contains a property `showDetails`
         showModal () { return historySharedData.showModal },
+
+        getEmptyEntityName () {
+          return this.selectedHistoryRow.entity.slice(0, this.selectedHistoryRow.entity.indexOf('/'))
+        },
 
         selectedHistoryRow () { return historySharedData.selectedHistoryRow },
 
