@@ -6,7 +6,7 @@ module.exports = {
         'action_type varchar(20) not null',
         'prev_state text',
         'current_state text',
-        'additional_info varchar(300)',
+        'additional_info text',
         'inserted_date TIMESTAMP'
     ]
 }
