@@ -21,7 +21,7 @@
                 :key="item.id"
                 @click="historySharedData.selectedHistoryRow = item; historySharedData.showModal = true"
               >
-                <div class="c-row__title">{{ item.entity.includes('documents/edit') ? 'document' : item.entity }}</div>
+                <div class="c-row__title">{{ item.entity.includes('/') ? item.entity.slice(0, item.entity.indexOf('/')) : item.entity }}</div>
                 <div :class="['c-row__icon', `c-row__icon--${item.action_type}`]"><font-awesome-icon :icon="getHistoryIcon(item.action_type)" /></div>
                 <div class="c-row__content">
                   <div class="c-row__message">{{ item.message }} </div>

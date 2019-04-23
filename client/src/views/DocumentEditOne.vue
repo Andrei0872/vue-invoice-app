@@ -100,7 +100,7 @@ export default {
             return parseInt(this.$route.params.id)
         },
 
-        ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges', pristineData: 'getPristineData' }),
+        ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges', pristineData: 'getPristineData', deletedItems: 'getDeletedItems' }),
 
         ...mapState('provider', { providers: 'items' }),
 
@@ -138,7 +138,7 @@ export default {
 
     methods: {
 
-        ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc', 'updateDocument', 'setAlreadyFetched']),
+        ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc', 'updateDocument', 'setAlreadyFetched', 'resetDeletedItems']),
 
         ...mapActions('document', ['addNewItem', 'resetArr', 'deleteItem', 'addFieldValue']),
 
@@ -282,9 +282,6 @@ export default {
             // Send a different request in order to only delete this item from its document
             this.deleteFromDoc(this.selectedItem.id)
             this.closeModal();
-
-            const message = `Delete one product from document`
-            this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'delete' });
         }
     },
 
@@ -316,6 +313,23 @@ export default {
     beforeRouteLeave (to, from, next) {
         this.$store.commit('SET_PROVIDER', null);
         this.$store.commit('document_product/SET_LAST_DELETED_DOC_ID', -1);
+        
+        let deletedItemsLen;
+        if ((deletedItemsLen = this.deletedItems.length)) {
+            
+            const isDocumentDeleted = this.items.length === 0 && this.newItems.length === 0
+
+            const message = `Delete ${deletedItemsLen === 1 ? 'one product' : 'products'} from document`
+            this.$store.dispatch('dashboard/insertHistoryRow', {
+                entity: `${isDocumentDeleted ? 'document/empty' : 'documents/edit/' + this.id}`,
+                message, 
+                action_type: 'delete',
+                additional_info: JSON.stringify(this.deletedItems.map(({ product_id = null, document_id, product_name, ...rest }) => ({ product_name, ...rest })))
+            });
+
+            this.resetDeletedItems();
+        }
+
         next();   
     },
 }
