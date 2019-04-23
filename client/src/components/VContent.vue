@@ -78,7 +78,7 @@ export default {
             this.$store.dispatch('api/insertItem', this.newItems)
                 .then(() => {
                     
-                    const message = `Add new ${this.newItems.length === 1 ? this.currentEntity.slice(0, -1) : this.currentEntity}`
+                    const message = `Add new ${this.newItems.length === 1 || this.$route.name === 'documents' ? this.currentEntity.slice(0, -1) : this.currentEntity}`
                     this.$store.dispatch('dashboard/insertHistoryRow', {
                         entity: this.currentEntity, 
                         message, 
