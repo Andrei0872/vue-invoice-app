@@ -61,6 +61,33 @@
         </template>
       </template>
 
+      <!-- If products have been added / removed from a document -->
+      <template v-else-if="displayDeletedOrAddedProductsInDoc">
+        <div>
+          {{ selectedHistoryRow.action_type === 'insert' ? 'Added' : 'Removed' }} {{ displayDeletedOrAddedProductsInDoc.length === 1 ? 'product' : 'products' }}
+        </div>
+
+        <div class="c-table">
+          <VTableSimple :columns="Object.keys(getRidOfObjProp(displayDeletedOrAddedProductsInDoc[0], 'id'))">
+            <template v-slot:tbody>
+              <tr
+                  v-for="item in displayDeletedOrAddedProductsInDoc"
+                  :key="item.id"
+                >
+                  <template v-for="(k, kIndex) in Object.keys(item)">
+                    <td
+                      :key="item.id + item[k] + kIndex"
+                      v-if="k !== 'id'"
+                    >
+                      {{ typeof item[k] === 'object' && k === 'product_name' ? item[k]['name'] : item[k] }}
+                    </td>
+                  </template>
+              </tr>
+            </template>
+          </VTableSimple>
+        </div>
+      </template>
+
       <!-- If multiple products (not in a document) / providers have been inserted -->
       <!-- or (at list for now) if a product / document / provider has been deleted -->
       <template v-else>
@@ -104,7 +131,9 @@ export default {
 
     data: () => ({
       multipleRowsUpdated: null,
-      displayDeletedOrAdded: null
+      displayDeletedOrAdded: null,
+      // Couldn't think of a better name...
+      displayDeletedOrAddedProductsInDoc: null,
     }),
 
     mixins: [modalMixin],
@@ -135,6 +164,9 @@ export default {
               this.multipleRowsUpdated = null;
               this.displayDeletedOrAdded = [JSON.parse(row.prev_state)]
               this.displayDeletedOrAdded[0]['id'] = uuidv1();
+            } else if (row.additional_info !== null) {
+              // Products have been added / deleted from a DOCUMENT
+              this.displayDeletedOrAddedProductsInDoc = JSON.parse(row.additional_info);
             }
           }
         }
