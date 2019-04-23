@@ -262,11 +262,16 @@ export default {
                     ...this.$store.getters['api/config'],
                     body: JSON.stringify({ items: this.newItems, docId: this.id })
                 }
-
+                
                 await this.$store.dispatch('api/makeRequest', { url, config })
 
                 const message = `Add new products in a document`;
-                this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'insert' });
+                this.$store.dispatch('dashboard/insertHistoryRow', {
+                    entity: `documents/edit/${this.id}`, 
+                    message,
+                    action_type: 'insert',
+                    additional_info: JSON.stringify(this.newItems)
+                });
             }
 
             if (!willChange)
