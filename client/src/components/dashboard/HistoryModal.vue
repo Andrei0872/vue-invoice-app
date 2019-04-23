@@ -89,7 +89,7 @@
       </template>
 
       <!-- If multiple products (not in a document) / providers have been inserted -->
-      <!-- or (at list for now) if a product / document / provider has been deleted -->
+      <!-- or (at least for now) if a product / document / provider has been deleted / added-->
       <template v-else>
         <div class="c-table" v-if="displayDeletedOrAdded">
           <VTableSimple :columns="Object.keys(getRidOfObjProp((displayDeletedOrAdded[0] || displayDeletedOrAdded), 'id'))">
@@ -151,6 +151,7 @@ export default {
         selectedHistoryRow (row) {
           if (row !== null) {
             if (row.current_state !== null) {
+              // Products / Providers have been added
               const hasLineBreaks = (row.current_state).includes('\n');
               const isArray = /^\[(.*)\]$/.test(row.current_state)
 
@@ -162,7 +163,7 @@ export default {
                 this.displayDeletedOrAdded = JSON.parse(row.current_state)
               }
             } else if (row.prev_state !== null) {
-              console.log('deleted')
+              // Products / Providers have been deleted
               this.multipleRowsUpdated = null;
               this.displayDeletedOrAdded = [JSON.parse(row.prev_state)]
               this.displayDeletedOrAdded[0]['id'] = uuidv1();
@@ -246,6 +247,7 @@ export default {
         closeModal () {
             historySharedData.showModal = false
             historySharedData.selectedHistoryRow = null
+            this.multipleRowsUpdated = null;
         },
     },
 }
