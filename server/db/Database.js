@@ -26,7 +26,7 @@ class Database {
         try {
             this._initTables();
             await this._promisifyConn();
-            
+
             !(await this._tablesExist()) && this._initTablesAndProcedures();
 
             Database.prototype.isConnecting = false;

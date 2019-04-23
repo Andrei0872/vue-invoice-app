@@ -116,7 +116,10 @@ export default {
             inputValue: '',
             selectedRowId: '',
             selectedField: '',
-            untouchedRow: null
+            untouchedRow: null,
+            // Fields from `History` table
+            prevState: ``,
+            crtState: ``
         }
     },
 
@@ -216,10 +219,17 @@ export default {
         compareChanges (rowBeforeChanges, rowAfterChange) {
             return Object.entries(rowAfterChange)
                 .reduce((changes, [key, value]) => {
-                    return rowBeforeChanges[key] !== value
-                        ? (changes[key] = value, changes) 
-                        : changes
+                    if (key === 'id') return changes;
+                    
+                    if (`${rowBeforeChanges[key]}` !== `${value}`) {
+                        changes[key] = value
 
+                        // We need these 2 in order to display what actually changed in history card
+                        this.prevState += `${key}:${rowBeforeChanges[key]}|`
+                        this.crtState += `${value}|`
+                    }
+
+                    return changes;
                 }, {})
         },
 
@@ -228,13 +238,28 @@ export default {
         },        
 
         confirmChanges (row) {
+
             const changes = this.compareChanges(this.untouchedRow, this.selectedRow);
 
-            !(this.isObjectEmpty(changes)) && this.$emit('update', { ...changes, id: row.id });
+            if (!this.isObjectEmpty(changes)) {
+                this.$emit('update', { ...changes, id: row.id });
 
-            const currentEntity = this.$store.getters['getEntityName'];
-            const message = `Update one ${currentEntity}.`
-            this.$store.dispatch('dashboard/insertHistoryRow', { entity: currentEntity, message, action_type: 'update' });
+                if (this.$route.name === 'documentEditOne') {
+                    this.resetData();
+
+                    return;
+                }
+                
+                const currentEntity = this.$store.getters['getEntityName'];
+                const message = `Update one ${currentEntity}`
+                this.$store.dispatch('dashboard/insertHistoryRow', {
+                    entity: currentEntity, message, 
+                    action_type: 'update',
+                    prev_state: this.prevState.slice(0, -1),
+                    current_state: this.crtState.slice(0, -1),
+                    additional_info: this.selectedRow.name
+                });
+            }
 
             this.resetData();
         },
@@ -372,67 +397,6 @@ td.blurred {
             color: darken(tomato, 10%);
         }
     }
-}
-
-.table {
-    border-collapse: collapse;
-    background-color: #FFF;
-    border-radius: 13px;
-    width: 100%;
-
-    td, th {
-        padding: 15px;
-        text-align: center;
-    }
-
-    thead {
-        background-color: darken($color: #394263, $amount: 5%);
-        color: #fff;
-        font-weight: 300;
-
-        tr {            
-
-            th:not(:last-child) {
-                border-right: 1px solid #ccc;
-            }
-
-            th:first-child {
-                border-top-left-radius: 13px;
-            }
-
-            th:last-child {
-                border-top-right-radius: 13px;
-            }
-        }
-    }
-
-    tbody {
-        tr > td:not(:last-child) {
-            border-right: 1px solid #ccc;
-        }
-        
-        tr:last-child {
-
-            td:first-child {
-                border-bottom-left-radius: 13px;
-            }
-
-            td:last-child {
-                border-bottom-right-radius: 13px;
-            }
-        }
-
-        tr:not(:last-child) {
-            border-bottom: 1px solid #ccc;
-        }
-
-        tr td {
-            outline: 0;
-            border: none;
-            padding: 15px 1px;
-        }
-    }
-
 }
 
 .table-responsive {

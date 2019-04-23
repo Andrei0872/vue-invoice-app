@@ -42,7 +42,12 @@ export default {
             
             const currentEntity = this.$store.getters['getEntityName'];
             const message = `Delete ${currentEntity}`
-            this.$store.dispatch('dashboard/insertHistoryRow', { entity: currentEntity, message, action_type: 'delete' });
+            this.$store.dispatch('dashboard/insertHistoryRow', {
+                entity: `${this.$store.getters['getEntityItems'].length === 0 ? currentEntity + '/empty' : currentEntity}`,
+                message, 
+                action_type: 'delete',
+                prev_state: JSON.stringify(this.selectedItem)
+            });
         },
 
         cancelDelete () {

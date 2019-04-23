@@ -4,4 +4,5 @@
 
 <style lang="scss">
 @import './styles/base';
+@import './styles/table';
 </style>

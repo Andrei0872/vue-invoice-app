@@ -1,7 +1,7 @@
 <script>
 const shouldCloseModal = (context, e) => {
     if (e.currentTarget === e.target) {
-        context.parent.showDetails = false
+        context.parent.closeModal();
         return;
     }
 }
@@ -11,13 +11,14 @@ export default {
 
     functional: true,
 
+    inheritAttrs: false,
+
     props: {
         showModal: Boolean,
         isAboutToDelete: Boolean
     },
 
     render (h, context) {
-
         const isAboutToDelete = context.props.isAboutToDelete;
         const modalContainerClasses = ['modal__container'];
         isAboutToDelete && (modalContainerClasses.push('warning'))
@@ -36,9 +37,9 @@ export default {
 
         const modal =  context.props.showModal 
             ? h(
-                'div', { class: 'modal', on: { click: shouldCloseModal.bind(null, context) } }, [
+                'div', { class: 'modal',  on: { click: shouldCloseModal.bind(null, context) } }, [
                     h(
-                        'div', { class: modalContainerClasses, }, [
+                        'div', { class: modalContainerClasses, style: context.data.attrs }, [
                         h('div', { class: 'modal__header', props: { name: 'header' } }, [header, closeModal]),
                         h('div', { class: 'modal__body', props: { name: 'body' } }, bodyContent),
                     ])
@@ -70,8 +71,8 @@ export default {
         transition: all .3s;
 
         &__container {
-            max-width: 100%;
-            width: 40rem;
+            max-width: 45rem;
+            min-width: 35rem;
             max-height: 35rem;
             background-color: #fff;
             display: flex;

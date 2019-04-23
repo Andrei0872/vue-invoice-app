@@ -100,7 +100,7 @@ export default {
             return parseInt(this.$route.params.id)
         },
 
-        ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges' }),
+        ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges', pristineData: 'getPristineData', deletedItems: 'getDeletedItems' }),
 
         ...mapState('provider', { providers: 'items' }),
 
@@ -137,10 +137,8 @@ export default {
     },
 
     methods: {
-        
-        testFn () { alert(1) },
 
-        ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc', 'updateDocument', 'setAlreadyFetched']),
+        ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc', 'updateDocument', 'setAlreadyFetched', 'resetDeletedItems']),
 
         ...mapActions('document', ['addNewItem', 'resetArr', 'deleteItem', 'addFieldValue']),
 
@@ -154,7 +152,6 @@ export default {
                 if (key === 'inserted_date' || key === 'URC')
                     continue;
 
-                // FIXME: switch
                 const currentItemKey = key === 'id' 
                     ? 'provider_id' 
                     : key === 'invoiceNr' 
@@ -165,13 +162,44 @@ export default {
                                 ? 'provider_name'
                                 : key
 
-                if (this.selectedProvider[key] !== this.currentItem[currentItemKey]) {
+                if (`${this.selectedProvider[key]}` !== `${this.currentItem[currentItemKey]}`) {
                     changes[currentItemKey] = this.selectedProvider[key];
                     changeFound = true;
                 }
             }
 
             return changeFound ? changes : changeFound;
+        },
+        
+        /**
+         * @param { Map } pristine
+         */
+        verifyChanges (changed, pristine) {
+            let prevState = ``,
+                currentState = ``,
+                additionalInfo = ``,
+                changeFound = false;
+            
+            for (const [key, valueObj] of Object.entries(changed)) {
+                const pristineItem = pristine.get(+key);
+                console.log(pristineItem)
+
+                prevState !== `` && (prevState = prevState.slice(0, -1) + '\n', currentState = currentState.slice(0, -1) + '\n');
+                changeFound = false;
+
+                for (const k of Object.keys(valueObj)) {
+                    if (`${valueObj[k]}` !== `${pristineItem[k]}`) {
+                        prevState += `${k}:${pristineItem[k]}|`
+                        currentState += `${valueObj[k]}|`;
+
+                        changeFound = true;
+                    }
+                }
+
+                changeFound && (additionalInfo += `${pristineItem['product_name']}|`)
+            }
+            
+            return [prevState, currentState, additionalInfo]
         },
 
         async sendUpdates () {
@@ -183,17 +211,48 @@ export default {
                 willChange = true
                 await this.updateDocument({ ...changes, id: this.currentItem.id })
 
+                let prevState = ``,
+                    currentState = ``;
+
+                console.log(changes)
+                Object.entries(changes).forEach(([key, value]) => {
+                    if (key !== 'provider_id') {
+                        prevState += `${key}:${this.currentItem[key]}|`
+                        currentState += `${value}|`
+                    }
+                })
+
                 const message = `Update document information`;
-                this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'update' });
+                this.$store.dispatch('dashboard/insertHistoryRow', {
+                    entity: `documents/edit/${this.id}`, 
+                    message, action_type: 'update',
+                    prev_state: prevState.slice(0, -1),
+                    current_state: currentState.slice(0, -1),
+                });
             }
 
             // If any product from this document has been updated
-            if (Object.keys(this.changes).length) {
+            let productsChangedLen = Object.keys(this.changes).length;
+            if (productsChangedLen) {
+                const [prevState, currentState, additionalInfo] = this.verifyChanges(this.changes, this.pristineData)
+                
+                console.log(prevState, currentState, additionalInfo)
+                
+                if (prevState === ``)
+                    return;
+    
                 willChange = true;
                 this.updateItems(this.changes);
                 
-                const message = `Update product in document`;
-                this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'update' });
+                const message = `Update product${productsChangedLen > 1 ? 's' : ''} in document`;
+                this.$store.dispatch('dashboard/insertHistoryRow', {
+                    entity: `documents/edit/${this.id}`, 
+                    message, 
+                    action_type: 'update',
+                    prev_state: prevState.slice(0, -1),
+                    current_state: currentState.slice(0, -1),
+                    additional_info: additionalInfo.slice(0, -1)
+                });
             }
 
             if (this.newItems.length && !hasEmptyValues(this.newItems)) {
@@ -203,11 +262,16 @@ export default {
                     ...this.$store.getters['api/config'],
                     body: JSON.stringify({ items: this.newItems, docId: this.id })
                 }
-
+                
                 await this.$store.dispatch('api/makeRequest', { url, config })
 
                 const message = `Add new products in a document`;
-                this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'insert' });
+                this.$store.dispatch('dashboard/insertHistoryRow', {
+                    entity: `documents/edit/${this.id}`, 
+                    message,
+                    action_type: 'insert',
+                    additional_info: JSON.stringify(this.newItems)
+                });
             }
 
             if (!willChange)
@@ -223,9 +287,6 @@ export default {
             // Send a different request in order to only delete this item from its document
             this.deleteFromDoc(this.selectedItem.id)
             this.closeModal();
-
-            const message = `Delete one product from document`
-            this.$store.dispatch('dashboard/insertHistoryRow', { entity: 'document', message, action_type: 'delete' });
         }
     },
 
@@ -257,6 +318,23 @@ export default {
     beforeRouteLeave (to, from, next) {
         this.$store.commit('SET_PROVIDER', null);
         this.$store.commit('document_product/SET_LAST_DELETED_DOC_ID', -1);
+        
+        let deletedItemsLen;
+        if ((deletedItemsLen = this.deletedItems.length)) {
+            
+            const isDocumentDeleted = this.items.length === 0 && this.newItems.length === 0
+
+            const message = `Delete ${deletedItemsLen === 1 ? 'one product' : 'products'} from document`
+            this.$store.dispatch('dashboard/insertHistoryRow', {
+                entity: `${isDocumentDeleted ? 'document/empty' : 'documents/edit/' + this.id}`,
+                message, 
+                action_type: 'delete',
+                additional_info: JSON.stringify(this.deletedItems.map(({ product_id = null, document_id, product_name, ...rest }) => ({ product_name, ...rest })))
+            });
+
+            this.resetDeletedItems();
+        }
+
         next();   
     },
 }

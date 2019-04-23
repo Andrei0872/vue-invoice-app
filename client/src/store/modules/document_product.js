@@ -2,7 +2,9 @@ export const namespaced = true;
 
 export const state = {
     items: [],
+    deletedItems: [],
     changes: {},
+    pristineData: new Map,
     currentId: null,
     alreadyFetched: false,
     lastDeletedDocId: -1
@@ -11,7 +13,11 @@ export const state = {
 export const getters = {
     getItemsById: state => state.items.filter(({ document_id }) => document_id === state.currentId),
 
-    getChanges: state => state.changes
+    getChanges: state => state.changes,
+
+    getPristineData: state => state.pristineData,
+
+    getDeletedItems: state => state.deletedItems,
 }
 
 export const mutations = {
@@ -25,7 +31,13 @@ export const mutations = {
 
     SET_LAST_DELETED_DOC_ID: (state, payload) => state.lastDeletedDocId = payload,
 
-    RESET_ITEMS: state => state.items = []
+    SET_PRISTINE_DATA: (state, { id, ...fields }) => state.pristineData.set(id, fields),
+
+    RESET_ITEMS: state => state.items = [],
+
+    DELETE_ITEM: (state, payload) => state.deletedItems.push(payload),
+
+    RESET_DELETED_ITEMS: state => state.deletedItems.length = 0
 }
 
 export const actions = {
@@ -55,6 +67,7 @@ export const actions = {
         changesObj[id] = { ...changesObj[id], ...fields }
 
         commit('SET_CHANGES', changesObj);
+        commit('SET_PRISTINE_DATA', state.items.find(item => +item.id === +id));
     },
 
     updateItems: async ({ dispatch, rootState, rootGetters }, payload) => {
@@ -83,9 +96,9 @@ export const actions = {
         const url = `${rootState.mainUrl}documents/delete_from_doc`;
         const config = { ...rootGetters['api/config'], method: "DELETE", body: JSON.stringify({ id, docId: state.currentId }) };
         
-        const dataAfterDeletion = await dispatch('api/makeRequest', { url, config }, { root: true });
+        commit('DELETE_ITEM', state.items.find(item => +item.id === +id));
 
-        console.log('item deleted!', dataAfterDeletion)
+        const dataAfterDeletion = await dispatch('api/makeRequest', { url, config }, { root: true });
 
         commit('SET_LAST_DELETED_DOC_ID', state.currentId);
         const products = rootState.product.items
@@ -113,5 +126,7 @@ export const actions = {
         }
     },
 
-    setAlreadyFetched: ({ commit }, payload) => commit('SET_ALREADY_FETCHED', payload)
+    setAlreadyFetched: ({ commit }, payload) => commit('SET_ALREADY_FETCHED', payload),
+
+    resetDeletedItems: ({ commit }) => commit('RESET_DELETED_ITEMS'),
 }

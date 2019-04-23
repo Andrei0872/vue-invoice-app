@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    
     <div class="c-overview">
       <VCard 
         v-for="(value, title, index) in overviewData"
@@ -7,42 +8,13 @@
         :card-info="{ icon: icons[index], title: title, value }"
       />
     </div>
+   
     <div class="main-cards">
+      
       <div class="main-cards__container">
-        <div class="c-card c-history">
-          <div class="c-card__title">
-            <div 
-              :class="{'c-card__arrow': 1, 'disabled': historyPageIndex === 0}" 
-              @click="historyPageIndex - 1 >= 0 ? historyPageIndex-- : null">
-              <font-awesome-icon icon="arrow-left" />
-            </div>
-            <div>History</div>
-            <div 
-              :class="{'c-card__arrow': 1, 'disabled': historyPageIndex + 1 === historyPages}" 
-              @click="historyPageIndex + 1 < historyPages ? historyPageIndex++ : null">
-                <font-awesome-icon icon="arrow-right" />
-            </div>
-          </div>
-          <div :class="{'c-card__content': true, 'vertical-line': historyData.length !== 0}">
-            <template v-if="historyData.length">
-              <div 
-                class="c-row"
-                v-for="item in historyDataShown"
-                :key="item.id"
-              >
-                <div class="c-row__title">{{ item.entity }}</div>
-                <div :class="['c-row__icon', `c-row__icon--${item.action_type}`]"><font-awesome-icon :icon="getHistoryIcon(item.action_type)" /></div>
-                <div class="c-row__content">{{ item.message }}</div>
-              </div>
-            </template>
-            <template v-else-if="!historyDataShown.length && componentLoaded">
-              <div class="h-centered">
-                <p>No history</p>
-              </div>
-            </template>
-          </div>
-        </div>
+        <History :componentLoaded="componentLoaded" class="c-card c-hist" />
       </div>
+
       <div class="main-cards__container">
         <div class="c-card c-card--small-half c-vat">
           <div class="c-card__title">VAT</div>
@@ -90,11 +62,16 @@
         </div>
       </div>
     </div>
+
+    <HistoryModal />
   </div>
 </template>
 
 <script>
 import VCard from '../components/VCard';
+import VModal from '../components/VModal';
+import History from '../components/dashboard/History';
+import HistoryModal from '../components/dashboard/HistoryModal';
 
 import { formatDate } from '../utils/';
 
@@ -113,15 +90,16 @@ export default {
 
   mixins: [titleMixin],
 
-  components: { VCard },
+  components: { VCard, VModal, History, HistoryModal },
 
   data: () => ({
     icons: ['cart-plus', 'industry', 'file', 'clipboard-list'],
     shownDocumentsLen: 8,
-    historyItemsPerPage: 9,
-    historyPageIndex: 0,
+    // historyItemsPerPage: 11,
+    // historyPageIndex: 0,
     initialVat: {},
-    componentLoaded: false
+    componentLoaded: false,
+    // selectedHistoryRow: null
   }),
 
   computed: {
@@ -130,7 +108,7 @@ export default {
     ...mapState(currentEntity, {
       overviewData: 'dashboard/overview',
       vatData: 'vat',
-      historyData: 'history',
+      // historyData: 'history',
       needsUpdate: 'needsUpdate',
       isInit: 'isInit',
     }),
@@ -144,18 +122,11 @@ export default {
         ? this.documents.slice(0, this.shownDocumentsLen)
         : this.documents).map(document => ({ ...document, inserted_date: formatDate(document.inserted_date) }))
     },
-
-    historyPages () {
-      return Math.ceil(this.historyData.length / this.historyItemsPerPage)
-    },
-
-    historyDataShown () {
-      const currentPage = this.historyPageIndex * this.historyPages;
-      return this.historyData.slice(currentPage, currentPage + this.historyItemsPerPage);
-    },
   },
 
   methods: {
+    formatDate (date) { return formatDate(date) },
+
     ...mapActions(['changeEntity']),
     
     ...mapActions(currentEntity, ['fetchMainOverview', 'setNewVat', 'updateDocVat', 'insertHistoryRow']),
@@ -177,10 +148,6 @@ export default {
 
     sendToRoute (newRoute) {
       return this.$router.push(newRoute)
-    },
-
-    getHistoryIcon (actionType) {
-      return { insert: 'plus', delete: 'minus', update: 'pencil-alt' }[actionType]
     },
   },
 
@@ -214,6 +181,7 @@ export default {
       shouldRefetchDocs && this.$store.dispatch('api/FETCH_DATA');
     }
     
+    this.$children[1].closeModal();
     next();
   }
 }
@@ -224,6 +192,7 @@ export default {
   $row-title-length: 8rem;
   $main-blue: #394263;
   $main-blue-border: rgba($color: $main-blue, $alpha: .4);
+
 
   %title-style {
     color: #fff;
@@ -240,7 +209,7 @@ export default {
     color: #DADAE3;
   }
 
-  .h-centered {
+  .h-centered, /deep/ .c-history .h-centered {
     width: 100%;
     height: 90%;
     display: flex;
@@ -279,13 +248,14 @@ export default {
       }
     }
 
-    .c-card {
+    // .c-history - the History.vue' root class
+    .c-card, /deep/ .c-history {
       background-color: #fff;
       display: flex;
       flex-direction: column;
       height: 100%;
 
-      &__title {
+      .c-card__title {
         @extend %title-style;
         flex-basis: 2rem;
         padding: 7px;
@@ -294,7 +264,7 @@ export default {
         font-size: 1.3rem;
       }
 
-      &__content {
+      .c-card__content {
         flex: 1;
         height: 100%;
       }
@@ -307,91 +277,6 @@ export default {
         margin-top: 50px;
         height: calc(100% - 170px);
       }
-    }
-  }
-
-  .c-history {
-    
-    .c-card {
-
-      &__title {
-        max-height: 2.3rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      &__arrow {
-        width: 2.2rem;
-        height: 2.2rem;
-        @extend %icon-dark-bg;
-
-        &.disabled {
-          cursor: not-allowed;
-          opacity: .4;
-        }
-      }
-
-      &__content {
-        position: relative;
-
-        &.vertical-line::before {
-          position: absolute;
-          content: "";
-          width: 1px;
-          background-color: darken(#f3f3f3, 10%);
-          left: $row-title-length;
-          top: 0;
-          bottom: 0;
-        }
-      }
-    }
-  }
-
-  .c-row {
-    display: flex;
-    width: 100%;
-    position: relative;
-    margin-top: 2rem;
-
-    &:first-of-type {
-      margin-top: .6rem;
-    }
-
-    &__title {
-      padding-left: 1rem;
-      flex-basis: $row-title-length;
-      max-height: 1.9rem;
-    }
-
-    &__icon {
-      position: absolute;
-      left: $row-title-length;
-      transform: translateX(-50%);
-      width: 2.2rem;
-      height: 2.2rem;
-      @extend %icon-dark-bg;
-      background-color: $main-blue;
-      color: #fff;
-      cursor: default;
-
-      &--insert {
-        background-color: green;
-      }
-      
-      &--delete {
-        background-color: red;
-      }
-
-      &--update {
-        background-color: orange;
-      }
-    }
-
-    &__content {
-      margin-left: 2rem;
-      padding-top: 10px;
-      width: calc(100% - #{$row-title-length + 2rem});
     }
   }
 

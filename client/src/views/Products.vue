@@ -11,7 +11,7 @@
                     @deleteRow="deleteRow($event)"
                 />
                 <div v-else class="no-items">
-                    There are no items!
+                    There are no products!
                 </div>
             </template>
             <template v-slot:createItems>
