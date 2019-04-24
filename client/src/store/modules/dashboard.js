@@ -5,7 +5,9 @@ export const state = {
     vat: {},
     history: [],
     needsUpdate: false,
-    isInit: false
+    isInit: false,
+    // Used to identify which documents no longer exist
+    documentIds: null,
 }
 
 export const getters = {
@@ -17,7 +19,9 @@ export const getters = {
 
     getHistoryLen: state => state.history.length,
 
-    needsInit: state => !state.isInit
+    needsInit: state => !state.isInit,
+
+    getDocumentsLen: (state, getters, rootState) => rootState['document'] ? rootState['document'].items.length : null
 }
 
 export const mutations = {
@@ -27,7 +31,9 @@ export const mutations = {
 
     SET_UPDATE_STATE: (state, payload) => state.needsUpdate = payload,
 
-    SET_INIT_FALSE: state => state.isInit = true
+    SET_INIT_FALSE: state => state.isInit = true,
+
+    ADD_DOCUMENT_IDS: (state, payload) => state.documentIds = new Map(payload)
 }
 
 export const actions = {

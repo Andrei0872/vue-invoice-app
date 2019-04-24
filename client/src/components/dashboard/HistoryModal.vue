@@ -6,9 +6,16 @@
       
     <template v-slot:body v-if="selectedHistoryRow">
       
-      <router-link class="redirect-link" :to="selectedHistoryRow.entity" v-if="selectedHistoryRow.entity.includes('documents/edit')">
-        Read more about this document
-      </router-link>
+      <template v-if="selectedHistoryRow.entity.includes('documents/edit')">
+        <router-link  
+          class="redirect-link" 
+          :to="selectedHistoryRow.entity"
+          v-if="documentIds !== null && documentIds.get(+selectedHistoryRow.entity.slice(selectedHistoryRow.entity.lastIndexOf('/') + 1)) === true"
+        >
+          Read more about this document
+        </router-link>
+        <p v-else>This document no longer exists</p>
+      </template>
       
       <div v-else-if="selectedHistoryRow.entity.includes('empty')">
         <p v-if="getEmptyEntityName === 'document'">
@@ -122,6 +129,8 @@
 <script>
 import VModal from '../VModal';
 import VTableSimple from '../VTableSimple';
+
+import { mapState } from 'vuex'
 
 import uuidv1 from 'uuid/v1'
 
@@ -241,6 +250,8 @@ export default {
 
             return result
         },
+
+        ...mapState('dashboard', ['documentIds'])
     },
 
     methods: {

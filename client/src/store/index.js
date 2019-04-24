@@ -5,8 +5,6 @@ import * as api from './modules/api';
 import * as document_product from './modules/document_product';
 import * as dashboard from './modules/dashboard';
 
-import { capitalize } from '../utils/'; 
-
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
@@ -32,7 +30,9 @@ const store = new Vuex.Store({
 
         getEntityItems: (state, getters) => {
             return state[getters.getEntityName].items
-        }
+        },
+
+        hasDocumentRegistered: (state, getters, rootState) => !!rootState['document']
     },
 
     mutations: {
@@ -122,18 +122,22 @@ store.subscribeAction(action => {
             payload: action.payload.id
         }
 
-        const deletedProvider = (store.state['provider'].items.find(({ id }) => id === action.payload.id)).name
+        let deletedProvider;
+
+        currentEntity === 'provider' && (deletedProvider = (store.state['provider'].items.find(({ id }) => +id === +action.payload.id)).name)
         
-        store.dispatch('api/deleteItem', data).then(({ rowsInfo }) => {
-            const affectedRows = rowsInfo[0][0]['affectedRows']
+        store.dispatch('api/deleteItem', data).then(({ rowsInfo = null }) => {
+            if (currentEntity !== 'provider') return;
             
+            const affectedRows = rowsInfo[0][0]['affectedRows']
+
             if (affectedRows) {
                 store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'documents' })
                 
                 const message = `${affectedRows === 1 ? 'A document has' : affectedRows + ' documents have'} been removed`
                 
                 store.dispatch('dashboard/insertHistoryRow', {
-                    // `document/indirectProvider` ==> doc deleted because its provider has been removed
+                    // `document/indirectProvider`: doc deleted because its provider has been removed
                     entity: 'document/indirectProvider',
                     message,
                     action_type: 'delete',
@@ -152,6 +156,15 @@ store.subscribeAction(action => {
         const url = `${store.getters['api/mainURL']}/vat/update`;
         
         store.dispatch('api/makeRequest', { url, config });
+    }
+})
+
+store.watch((state, getters) => getters['dashboard/getDocumentsLen'], documentsLen => {
+    if (documentsLen) {
+        console.log(documentsLen)
+        const docIds = store.state['document'].items.map(({ id }) => ([id, true]))
+
+        store.commit('dashboard/ADD_DOCUMENT_IDS', docIds);
     }
 })
 
