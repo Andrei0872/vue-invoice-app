@@ -143,6 +143,8 @@ class Database {
             delete from document_product where document_product.document_id = any (select id from document where document.provider_id = provider_id);
 
             delete from document where document.provider_id = provider_id;
+
+            select row_count() as affectedRows;
             end;
             `
         )

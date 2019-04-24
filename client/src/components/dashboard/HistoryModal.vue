@@ -11,16 +11,21 @@
       </router-link>
       
       <div v-else-if="selectedHistoryRow.entity.includes('empty')">
-        <template v-if="getEmptyEntityName === 'document'">
+        <p v-if="getEmptyEntityName === 'document'">
           This document does not exist anymore. <br>
-        </template>
-        <template>
+        </p>
+        <p>
           There are no more {{ getEmptyEntityName }}s
-        </template>
+        </p>
       </div>
+
+      <!-- Show when a document has been deleted because its provider has been removed -->
+      <template v-else-if="selectedHistoryRow.entity.includes('indirectProvider')">
+        <p>Removed because the provider <b>{{ selectedHistoryRow.additional_info }}</b> has been deleted</p>
+      </template>
       
       <!-- If a product / provider / document has been updated -->
-      <template v-if="multipleRowsUpdated === false">
+      <template v-else-if="multipleRowsUpdated === false">
         <div v-if="selectedHistoryRow.additional_info">{{ getHistoryProductNames[0] }}</div>
 
         <div class="c-table">

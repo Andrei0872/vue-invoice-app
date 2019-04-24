@@ -89,14 +89,15 @@ class Service {
 
     async deleteOne ({ id }) {
         try {
-            
+            let rowsInfo;
             // If a provider is deleted, we must also delete all the documents that have that provider
             // To do that, call the procedure
             this.table.currentTable !== 'provider' && (await this.table.deleteOne(id))
-                || (await this.table._promisify(`call remove_provider(${id})`))
+                || (rowsInfo = await this.table._promisify(`call remove_provider(${id})`))
 
             return {
-                message: 'Successfully deleted'
+                message: 'Successfully deleted',
+                rowsInfo
             }
         } catch (err) {
             console.error(err)

@@ -112,21 +112,36 @@ store.subscribeAction(action => {
             })
 
     } else if (action.type === `${currentEntity}/deleteItem` && action.payload.prop === 'items') {
+        /**
+         * This makes sure that every time a provider is removed,
+         * all the documents that depend on that provider are removed as well
+         */
         
         const data = {
             url: `${store.state.mainUrl}${currentEntity}s`,
             payload: action.payload.id
         }
 
-        store.dispatch('api/deleteItem', data)
+        const deletedProvider = (store.state['provider'].items.find(({ id }) => id === action.payload.id)).name
+        
+        store.dispatch('api/deleteItem', data).then(({ rowsInfo }) => {
+            const affectedRows = rowsInfo[0][0]['affectedRows']
+            
+            if (affectedRows) {
+                store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'documents' })
+                
+                const message = `${affectedRows === 1 ? 'A document has' : affectedRows + ' documents have'} been removed`
+                
+                store.dispatch('dashboard/insertHistoryRow', {
+                    // `document/indirectProvider` ==> doc deleted because its provider has been removed
+                    entity: 'document/indirectProvider',
+                    message,
+                    action_type: 'delete',
+                    additional_info: JSON.stringify(deletedProvider)
+                });
 
-        if (
-            currentEntity === 'provider' 
-                && store.state['document'] 
-                && store.state['document'].items.some(({ provider_id }) => provider_id === action.payload.id)
-        ) {
-            store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'documents' })
-        }
+            }
+        });
     } else if (action.type === 'dashboard/setNewVat') {
         // Updating VAT 
         const config = {

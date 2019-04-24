@@ -70,7 +70,8 @@ export const actions = {
             // Update data from Dashboard
             dispatch('dashboard/fetchMainOverview', 'dashboard/overview', { root: true });
             commit('dashboard/SET_UPDATE_STATE', false, { root: true });
-            console.log('response', response)
+            
+            return response
         } catch (err) {
             console.error(err)
         }
