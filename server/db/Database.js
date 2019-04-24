@@ -120,13 +120,11 @@ class Database {
             from document_product
             group by document_id
             having sum(sell_price_vat) = (
-                select max(total_sell_vat)
-                from (
-                    select sum(sell_price_vat) as total_sell_vat
-                    from document_product
-                    group by document_id
+                select max(total_sell_vat) from(
+                    select sum(sell_price_vat) as total_sell_vat from document_product group by document_id
                 ) tab
-            );
+            )
+            limit 1;
 
             select total_products, total_providers, total_documents, most_expensive_doc;
             end;
