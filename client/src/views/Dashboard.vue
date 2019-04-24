@@ -95,11 +95,8 @@ export default {
   data: () => ({
     icons: ['cart-plus', 'industry', 'file', 'clipboard-list'],
     shownDocumentsLen: 8,
-    // historyItemsPerPage: 11,
-    // historyPageIndex: 0,
     initialVat: {},
     componentLoaded: false,
-    // selectedHistoryRow: null
   }),
 
   computed: {
@@ -108,7 +105,6 @@ export default {
     ...mapState(currentEntity, {
       overviewData: 'dashboard/overview',
       vatData: 'vat',
-      // historyData: 'history',
       needsUpdate: 'needsUpdate',
       isInit: 'isInit',
     }),

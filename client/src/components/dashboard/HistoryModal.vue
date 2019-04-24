@@ -17,7 +17,7 @@
         <p v-else>This document no longer exists</p>
       </template>
       
-      <div v-else-if="selectedHistoryRow.entity.includes('empty')">
+      <div v-if="selectedHistoryRow.entity.includes('empty')">
         <p v-if="getEmptyEntityName === 'document'">
           This document does not exist anymore. <br>
         </p>
@@ -27,7 +27,7 @@
       </div>
 
       <!-- Show when a document has been deleted because its provider has been removed -->
-      <template v-else-if="selectedHistoryRow.entity.includes('indirectProvider')">
+      <template v-if="selectedHistoryRow.entity.includes('indirectProvider')">
         <p>Removed because the provider <b>{{ selectedHistoryRow.additional_info }}</b> has been deleted</p>
       </template>
       
@@ -226,29 +226,29 @@ export default {
 
         getHistoryStateInformation () {
 
-            const { current_state: currentState, prev_state: prevState } = this.selectedHistoryRow;
+          const { current_state: currentState, prev_state: prevState } = this.selectedHistoryRow;
 
-            // result[field] = [prevValue, currentValue]
-            const result = {};
+          // result[field] = [prevValue, currentValue]
+          const result = {};
 
-            if (~prevState.indexOf('|')) {
-                // Multiple fields have been updated
-                const valuesArr = currentState.split('|');
+          if (~prevState.indexOf('|')) {
+              // Multiple fields have been updated
+              const valuesArr = currentState.split('|');
 
-                prevState.split('|').forEach((kvPair, index) => {
-                const [key, value] = separateValues(kvPair, ':');
+              prevState.split('|').forEach((kvPair, index) => {
+              const [key, value] = separateValues(kvPair, ':');
 
-                result[key] = [value, valuesArr[index]];
-                })
+              result[key] = [value, valuesArr[index]];
+              })
 
-            } else {
-                // Only one field has been updated
-                const [key, value] = separateValues(prevState, ':');
+          } else {
+              // Only one field has been updated
+              const [key, value] = separateValues(prevState, ':');
 
-                result[key] = [value, currentState];
-            }
+              result[key] = [value, currentState];
+          }
 
-            return result
+          return result
         },
 
         ...mapState('dashboard', ['documentIds'])
