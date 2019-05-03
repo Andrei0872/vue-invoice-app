@@ -30,7 +30,9 @@ export default {
             class: {[`button--${props.btnClass}`]: true, 'h-disabled': props.disabled},
         }, content);
 
-        return props.btnClass === 'success'
+        const hasTransition = props.btnClass === 'success';
+
+        return hasTransition
             ? h('transition', { props: { name: 'slide-in' } }, [
                 props.showBtn ? button : null
             ])
@@ -44,6 +46,7 @@ export default {
     $button-color-shadow: darken($color: #394263, $amount: 15%);
     $button-color-success: #08A045;
     $button-color-danger: #DD4132;
+    $button-color-utility: #3C709A;
 
     @mixin boxShadow ($c) {
         box-shadow: 1px 2px 3px darken($c,15%);
@@ -86,6 +89,12 @@ export default {
         background-color: $button-color-success;
         @include boxShadow($button-color-success);
         transition: all .4s linear;
+    }
+
+    .button--FABtn {
+        background: transparent;
+        color: $button-color-utility;
+        transition: none;
     }
 
     /* Transitions */

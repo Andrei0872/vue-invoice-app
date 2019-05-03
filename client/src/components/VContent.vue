@@ -5,6 +5,12 @@
                 <VButton :disabled="disableButton" @toggleState="isCreating = !isCreating" :btnClass="btnState">
                 {{ mainButtonContent }}
                 </VButton>
+                <VButton v-if="showUndoButton" :btnClass="'FABtn'">
+                    <font-awesome-icon icon="undo"/>
+                </VButton>
+                <VButton v-if="showRedoButton" :btnClass="'FABtn'">
+                    <font-awesome-icon icon="redo"/>
+                </VButton>
             </div>
             <div>
                 <VButton 
@@ -81,7 +87,15 @@ export default {
         //     newItems: 'getEntityNewItems'
         // }),
 
-        // ...mapState(['currentEntity'])
+        ...mapState(['currentEntity']),
+
+        showUndoButton () {
+            return this.$history.state.undoStack.length !== 0
+        },
+
+        showRedoButton () {
+            return this.$history.state.redoStack.length !== 0
+        }
     },
 
     data: () => ({
