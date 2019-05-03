@@ -3,7 +3,7 @@
 An application meant to facilitate the process of writing up a traditional invoice.
 Keeping track of goods sent and services provided should be a computer's job.
 
-## WIP: undo feature
+## [WIP: undo feature](https://github.com/Andrei0872/vue-invoice-app/tree/feat/undo-redo)
 
 ## [Demo](https://www.youtube.com/watch?v=BpFPk3wXWZk&t=4s)
 
