@@ -5,7 +5,7 @@ import store from './store/'
 
 // Use the module as a plugin in order to use it globally
 import historyPlugin from './plugins/historyPlugin';
-Vue.use(historyPlugin);
+
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 // Load Icons
@@ -41,6 +41,7 @@ library.add(
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 Vue.config.productionTip = false
+Vue.use(historyPlugin);
 
 new Vue({
   router,

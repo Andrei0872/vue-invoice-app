@@ -335,6 +335,7 @@ td.blurred {
     color: #ccc;
 }
 
+// TODO: create a FA icon component with isolated css
 .icon {
     position: absolute;
     transform: translateY(60%) translateX(-120%);
