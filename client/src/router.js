@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import store from './store/';
 
+import { historyStore as history } from './store/globals/history';
+
 import { capitalize } from './utils';
 
 const loadComp = (path = '/', children = null, name = path.slice(1), component = capitalize(name)) => {
@@ -13,7 +15,6 @@ const loadComp = (path = '/', children = null, name = path.slice(1), component =
     } || { name }
   }
 }
-
 
 Vue.use(Router)
 
@@ -44,5 +45,13 @@ router.beforeEach((to, from, next) => {
   
   next();
 });
+
+
+router.afterEach((to, from) => {
+  if (from.name === null)
+    return
+
+  history.commit('RESET_ALL');
+}) 
 
 export default router;
