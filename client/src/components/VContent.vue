@@ -5,10 +5,10 @@
                 <VButton :disabled="disableButton" @toggleState="isCreating = !isCreating" :btnClass="btnState">
                 {{ mainButtonContent }}
                 </VButton>
-                <VButton v-if="showUndoButton" :btnClass="'FABtn'">
+                <VButton @click="undo" v-if="showUndoButton" :btnClass="'FABtn'">
                     <font-awesome-icon icon="undo"/>
                 </VButton>
-                <VButton v-if="showRedoButton" :btnClass="'FABtn'">
+                <VButton @click="redo" v-if="showRedoButton" :btnClass="'FABtn'">
                     <font-awesome-icon icon="redo"/>
                 </VButton>
             </div>
@@ -95,12 +95,28 @@ export default {
 
         showRedoButton () {
             return this.$history.state.redoStack.length !== 0
+        },
+
+        historyStoreParams () {
+            return {
+                store: this.$store,
+                currentEntity: this.currentEntity.slice(0, -1)
+            }
         }
     },
 
     data: () => ({
         isCreating: false,
     }),
+    methods: {
+        undo () {
+            this.$history.dispatch('undo', this.historyStoreParams);
+        },
+
+        redo () {
+            this.$history.dispatch('redo', this.historyStoreParams);
+        }
+    },
 }
 </script>
 

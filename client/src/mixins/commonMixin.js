@@ -55,14 +55,13 @@ export default {
             this.deleteItem(this.selectedItem.id);
             this.resetModalContent();
             
-            // const currentEntity = this.$store.getters['getEntityName'];
-            // const message = `Delete ${currentEntity}`
-            // this.$store.dispatch('dashboard/insertHistoryRow', {
-            //     entity: `${this.$store.getters['getEntityItems'].length === 0 ? currentEntity + '/empty' : currentEntity}`,
-            //     message, 
-            //     action_type: 'delete',
-            //     prev_state: JSON.stringify(this.selectedItem)
-            // });
+            const index = this.$store.getters['getEntityItems'].findIndex(({ id }) => id === this.selectedItem.id);
+
+            this.$history.dispatch('addUndoAction', {
+                action: 'delete',
+                item: this.selectedItem,
+                index,
+            });
         },
 
         cancelDelete () {
@@ -160,7 +159,7 @@ export default {
                 : `About ${this.selectedItem.name}`
         },
 
-        everythingReady() {
+        everythingReady () {
             return this.$store.state['everythingReady']
         },
 
