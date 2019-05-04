@@ -5,6 +5,7 @@ import store from './store/';
 import { historyStore as history } from './store/globals/history';
 
 import { capitalize } from './utils';
+import { ENGINE_METHOD_DIGESTS } from 'constants';
 
 const loadComp = (path = '/', children = null, name = path.slice(1), component = capitalize(name)) => {
   return {
@@ -40,6 +41,7 @@ const router = new Router({
 })
 
 const entities = ["documents", "products", "providers"];
+
 router.beforeEach((to, from, next) => {
   entities.includes(to.name) && store.dispatch('changeEntity', to.name)
   
@@ -52,6 +54,10 @@ router.afterEach((to, from) => {
     return
 
   history.commit('RESET_ALL');
+ 
+  if (entities.includes(from.name)) {
+    store.commit(`${from.name.slice(0, -1)}/RESET_ARR`, { prop: 'deletedItems' })
+  }
 }) 
 
 export default router;

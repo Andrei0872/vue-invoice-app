@@ -1,3 +1,5 @@
+// Shared between {Products, Providers, Documents}.vue
+
 import uuidv1 from 'uuid/v1';
 
 import {
