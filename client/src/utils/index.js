@@ -77,6 +77,26 @@ export const separateValues = (kvPair, separator) => {
     return [key, value];
 }
 
+
+/**
+ * 
+ * @param {Object} o1 
+ * @param {Object} o2 
+ * 
+ * @example
+ * return { p1: 'prop1' }
+ * o1 = { p1: 'prop1', p2: 'prop2' }
+ * o2 = { p2: 'prop2' }
+ */
+export const getDifferenceBetweenTwoObjects = (o1, o2) => {
+    return Object.keys(o1).reduce((memo, k) => {
+        if (`${o1[k]}`.trim() !== `${o2[k]}`.trim()) {
+            memo[k] = o1[k];
+        }
+
+        return memo;
+    }, {})
+}
 export const compareObjects = (pristineObj, changedObj, cbWhenChangeFound = undefined) => {
     return Object.entries(changedObj)
         .reduce((changes, [key, value]) => {
