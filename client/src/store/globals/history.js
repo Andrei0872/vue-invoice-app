@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
+import { getDifferenceBetweenTwoObjects } from '../../utils/index';
+
 Vue.use(Vuex);
 
 export const historyStore = new Vuex.Store({
@@ -41,10 +43,11 @@ export const historyStore = new Vuex.Store({
         },
 
         undo: ({ commit, getters }, { store, currentEntity = null }) => {
-            const { item, action, index }  = getters.getLastUndoItem;
+            const { action, ...lastUndoItem } = getters.getLastUndoItem;
             commit('POP_UNDO');
             
             if (action === 'delete') {
+                const { item, index } = lastUndoItem;
                 const data = { index, payload: item };
                 store.commit(`${currentEntity}/ADD_ITEM_AT_INDEX`, data);
                 
@@ -57,6 +60,26 @@ export const historyStore = new Vuex.Store({
                     commit('ADD_REDO_ACTION', { action, index, item });
                 }
                 
+            } else if (action === 'update') {
+                const { id, beforeChanges } = lastUndoItem;
+                
+                const { pristineItems, updatedItems } = store.state[currentEntity]
+                const pristineItem = pristineItems.get(+id);
+                const remainingChanges = getDifferenceBetweenTwoObjects(beforeChanges, pristineItem);
+
+                
+                // Apply changes visually
+                store.dispatch(`${currentEntity}/updateItems`, { id, ...beforeChanges });
+
+                /**
+                 * If the changes result in something identical with the initial state
+                 * there is no need to consider the item in question updated
+                 */
+                if (Object.keys(remainingChanges).length === 0) {
+                    updatedItems.delete(+id);
+                } else {
+                    updatedItems.set(+id, remainingChanges);
+                }
             }
         },
 
