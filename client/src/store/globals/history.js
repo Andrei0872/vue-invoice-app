@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import { getDifferenceBetweenTwoObjects } from '../../utils/index';
+import { getDifferenceBetweenTwoObjects, getObjectSpecificProps, getObjectWithoutProps } from '../../utils/index';
 
 Vue.use(Vuex);
 
@@ -42,6 +42,7 @@ export const historyStore = new Vuex.Store({
             }
         },
 
+        // TODO: maybe split this fn in undoDelete & undoAction
         undo: ({ commit, getters }, { store, currentEntity = null }) => {
             const { action, ...lastUndoItem } = getters.getLastUndoItem;
             commit('POP_UNDO');
@@ -65,21 +66,31 @@ export const historyStore = new Vuex.Store({
                 
                 const { pristineItems, updatedItems } = store.state[currentEntity]
                 const pristineItem = pristineItems.get(+id);
-                const remainingChanges = getDifferenceBetweenTwoObjects(beforeChanges, pristineItem);
-
+                const updatedItem = updatedItems.get(+id);
                 
+                /**
+                 * Delete props whose values would lead to a state of an item
+                 * that is identical with its pristine state
+                 */
+                const { 
+                    kept: newUpdatedItem, 
+                    deleted: deletedPropsFromCrtUpdatedItem 
+                } = getDifferenceBetweenTwoObjects(beforeChanges, pristineItem);
+
+                const changesLeftAfterUndo = getObjectWithoutProps(updatedItem, Object.keys(deletedPropsFromCrtUpdatedItem))
+                const hasItemChangesLeft = Object.keys(changesLeftAfterUndo).length !== 0
+
+                if (!hasItemChangesLeft) {
+                    updatedItems.delete(+id);
+                } else {
+                    updatedItems.set(+id, { ...updatedItem, ...newUpdatedItem });
+                }
+
                 // Apply changes visually
                 store.dispatch(`${currentEntity}/updateItems`, { id, ...beforeChanges });
 
-                /**
-                 * If the changes result in something identical with the initial state
-                 * there is no need to consider the item in question updated
-                 */
-                if (Object.keys(remainingChanges).length === 0) {
-                    updatedItems.delete(+id);
-                } else {
-                    updatedItems.set(+id, remainingChanges);
-                }
+                const prevState = getObjectSpecificProps(updatedItem, Object.keys(beforeChanges));
+                commit('ADD_REDO_ACTION', { id, beforeChanges: prevState });
             }
         },
 
