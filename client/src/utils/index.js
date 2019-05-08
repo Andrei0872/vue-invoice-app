@@ -235,3 +235,13 @@ export const convertMapToArrExcludingProps = (m, propsToExclude) => {
 
     return result;
 }
+
+export const getObjectWithoutProps = (obj, props) => {
+    return Object.keys(obj).reduce((memo, crtProp) => {
+        if (!props.includes(crtProp)) {
+            memo[crtProp] = obj[crtProp]
+        }
+
+        return memo;
+    }, {});
+}
