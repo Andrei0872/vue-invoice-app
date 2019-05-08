@@ -91,13 +91,16 @@ export const separateValues = (kvPair, separator) => {
 export const getDifferenceBetweenTwoObjects = (o1, o2) => {
     return Object.keys(o1).reduce((memo, k) => {
         if (`${o1[k]}`.trim() !== `${o2[k]}`.trim()) {
-            memo[k] = o1[k];
+            memo.kept[k] = o1[k];
+        } else {
+            memo.deleted[k] = o1[k]
         }
 
         return memo;
-    }, {})
+    }, { kept: {}, deleted: {} })
 }
-export const compareObjects = (pristineObj, changedObj, cbWhenChangeFound = undefined) => {
+
+}export const compareObjects = (pristineObj, changedObj, cbWhenChangeFound = undefined) => {
     return Object.entries(changedObj)
         .reduce((changes, [key, value]) => {
             if (`${pristineObj[key]}` !== `${value}`) {
