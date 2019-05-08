@@ -100,7 +100,7 @@ export const getDifferenceBetweenTwoObjects = (o1, o2) => {
     }, { kept: {}, deleted: {} })
 }
 
-}export const compareObjects = (pristineObj, changedObj, cbWhenChangeFound = undefined) => {
+export const compareObjects = (pristineObj, changedObj, cbWhenChangeFound = undefined) => {
     return Object.entries(changedObj)
         .reduce((changes, [key, value]) => {
             if (`${pristineObj[key]}` !== `${value}`) {
