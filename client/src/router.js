@@ -5,7 +5,6 @@ import store from './store/';
 import { historyStore as history } from './store/globals/history';
 
 import { capitalize } from './utils';
-import { ENGINE_METHOD_DIGESTS } from 'constants';
 
 const loadComp = (path = '/', children = null, name = path.slice(1), component = capitalize(name)) => {
   return {
