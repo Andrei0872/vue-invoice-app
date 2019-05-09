@@ -57,6 +57,7 @@ router.afterEach((to, from) => {
  
   if (entities.includes(from.name)) {
     store.commit(`${from.name.slice(0, -1)}/RESET_ARR`, { prop: 'deletedItems' })
+    store.commit(`${from.name.slice(0, -1)}/RESET_ARR`, { prop: 'updatedItems' })
   }
 }) 
 
