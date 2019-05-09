@@ -63,7 +63,7 @@ export const historyStore = new Vuex.Store({
                 
             } else if (action === 'update') {
                 const { id, beforeChanges } = lastUndoItem;
-                
+
                 const { pristineItems, updatedItems } = store.state[currentEntity]
                 const pristineItem = pristineItems.get(+id);
                 const updatedItem = updatedItems.get(+id);
@@ -90,7 +90,7 @@ export const historyStore = new Vuex.Store({
                 store.dispatch(`${currentEntity}/updateItems`, { id, ...beforeChanges });
 
                 const prevState = getObjectSpecificProps(updatedItem, Object.keys(beforeChanges));
-                commit('ADD_REDO_ACTION', { id, beforeChanges: prevState });
+                commit('ADD_REDO_ACTION', { id, beforeChanges: prevState, action });
             }
         },
 
