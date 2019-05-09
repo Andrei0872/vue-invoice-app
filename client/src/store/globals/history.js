@@ -22,7 +22,7 @@ export const historyStore = new Vuex.Store({
 
         POP_UNDO: state => state.undoStack.pop(),
 
-        CLEAN_UNDO_STACK: (state, id) => state.undoStack = state.undoStack.filter(({ item }) => +item.id !== id),
+        CLEAN_UNDO_STACK: (state, id) => state.undoStack = state.undoStack.filter(({ item = null }) => item ? +item.id !== id : true),
 
         ADD_REDO_ACTION: (state, payload) => state.redoStack.push(payload),
         
@@ -50,6 +50,7 @@ export const historyStore = new Vuex.Store({
             if (action === 'delete') {
                 const { item, index } = lastUndoItem;
                 const data = { index, payload: item };
+
                 store.commit(`${currentEntity}/ADD_ITEM_AT_INDEX`, data);
                 
                 store.commit(`${currentEntity}/POP_FROM_DELETED_ITEMS`);
@@ -99,7 +100,7 @@ export const historyStore = new Vuex.Store({
             commit('POP_REDO');
 
             if (action === 'delete') {
-                const { action, index, item = null } = lastRedoItem;
+                const { index, item = null } = lastRedoItem;
 
                 const deleteData = {
                     prop: 'items',
@@ -116,7 +117,7 @@ export const historyStore = new Vuex.Store({
                     commit('ADD_UNDO_ACTION', { action, index, item });
                 }
             } else {
-                const { id, beforeChanges, woudLeadToPristine } = lastRedoItem;
+                const { id, beforeChanges } = lastRedoItem;
 
                 const { updatedItems, pristineItems } = store.state[currentEntity];
                 const updatedItem = updatedItems.get(+id) || {};
