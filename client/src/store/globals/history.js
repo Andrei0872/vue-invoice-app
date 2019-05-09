@@ -95,10 +95,12 @@ export const historyStore = new Vuex.Store({
         },
 
         redo: ({ commit, getters }, { store, currentEntity = null }) => {
-            const { action, index, item = null } = getters.getLastRedoItem;
+            const { action, ...lastRedoItem } = getters.getLastRedoItem;
             commit('POP_REDO');
 
             if (action === 'delete') {
+                const { action, index, item = null } = lastRedoItem;
+
                 const deleteData = {
                     prop: 'items',
                     id: item.id,
@@ -113,7 +115,26 @@ export const historyStore = new Vuex.Store({
                     commit('CLEAN_UNDO_STACK', item.id);
                     commit('ADD_UNDO_ACTION', { action, index, item });
                 }
-            }            
+            } else {
+                const { id, beforeChanges, woudLeadToPristine } = lastRedoItem;
+
+                const { updatedItems, pristineItems } = store.state[currentEntity];
+                const updatedItem = updatedItems.get(+id) || {};
+                const pristineItem = pristineItems.get(+id)
+
+                let prevState = getObjectSpecificProps(
+                    Object.keys(updatedItem).length ? updatedItem : pristineItem, 
+                    Object.keys(beforeChanges)
+                );
+
+                commit('ADD_UNDO_ACTION', { id, beforeChanges: prevState, action });
+                
+                const newUpdatedItem = { ...updatedItem, ...beforeChanges }
+                updatedItems.set(+id, newUpdatedItem);
+
+                // Apply changes visually
+                store.dispatch(`${currentEntity}/updateItems`, { id, ...beforeChanges });
+            }
         }
     },
 })
