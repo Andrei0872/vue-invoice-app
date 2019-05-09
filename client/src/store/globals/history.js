@@ -123,6 +123,10 @@ export const historyStore = new Vuex.Store({
                 const updatedItem = updatedItems.get(+id) || {};
                 const pristineItem = pristineItems.get(+id)
 
+                /**
+                 * The updated item might have got deleted because the previous
+                 * changes would lead to its pristine state
+                 */
                 let prevState = getObjectSpecificProps(
                     Object.keys(updatedItem).length ? updatedItem : pristineItem, 
                     Object.keys(beforeChanges)
