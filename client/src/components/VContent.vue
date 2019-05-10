@@ -1,16 +1,18 @@
 <template>
+    <!-- Used by Providers, Products, Documents(partially) -->
     <div class="c-container">
         <div class="c-container__main-buttons">
             <div>
                 <VButton :disabled="disableButton" @toggleState="isCreating = !isCreating" :btnClass="btnState">
                 {{ mainButtonContent }}
                 </VButton>
-                <VButton @click="undo" v-if="showUndoButton" :btnClass="'FABtn'">
-                    <font-awesome-icon icon="undo"/>
-                </VButton>
-                <VButton @click="redo" v-if="showRedoButton" :btnClass="'FABtn'">
-                    <font-awesome-icon icon="redo"/>
-                </VButton>
+                <VUndoRedo 
+                    :historyStore="$history" 
+                    :mainStore="$store"
+                    :currentEntity="entityName"
+                    :callbacks="undoRedoCallbacks"
+                />
+                
             </div>
             <div>
                 <VButton 
@@ -53,10 +55,11 @@
 import { mapGetters, mapActions, mapState } from 'vuex';
 
 import VButton from '../components/VButton';
+import VUndoRedo from '../components/VUndoRedo';
 
 export default {
 
-    components: { VButton },
+    components: { VButton, VUndoRedo },
 
     props: {
         entityName: String,
@@ -74,6 +77,12 @@ export default {
         }
     },
     // TODO: test created btn disabled states
+
+    data: () => ({
+        isCreating: false,
+        undoRedoCallbacks: null,
+    }),
+
     computed: {
         mainButtonContent () {
             return this.isCreating ? 'Go Back' : `Add ${this.entityName}`
@@ -96,18 +105,8 @@ export default {
         showRedoButton () {
             return this.$history.state.redoStack.length !== 0
         },
-
-        historyStoreParams () {
-            return {
-                store: this.$store,
-                currentEntity: this.currentEntity.slice(0, -1)
-            }
-        }
     },
 
-    data: () => ({
-        isCreating: false,
-    }),
     methods: {
         undo () {
             this.$history.dispatch('undo', this.historyStoreParams);
@@ -115,6 +114,33 @@ export default {
 
         redo () {
             this.$history.dispatch('redo', this.historyStoreParams);
+        }
+    },
+
+    created () {
+        /**
+         * Provide the right callbacks depending on event
+         * The data that would be modified may vary, so this was my way 
+         * to allow the user the decide what's getting updated
+         */
+        this.undoRedoCallbacks = {
+            'undo': {
+                'delete': (data, currentEntity) => {
+                    this.$store.commit(`${currentEntity}/ADD_ITEM_AT_INDEX`, data);
+                    this.$store.commit(`${currentEntity}/POP_FROM_DELETED_ITEMS`);
+                },
+                'update': (data, currentEntity) => {
+                    this.$store.dispatch(`${currentEntity}/updateItems`, data);
+                }
+            },
+            'redo': {
+                'delete': (data, currentEntity) => {
+                    this.$store.dispatch(`${currentEntity}/deleteItem`, data);
+                },
+                'update': (data, currentEntity) => {
+                    this.$store.dispatch(`${currentEntity}/updateItems`, data);
+                }
+            }
         }
     },
 }

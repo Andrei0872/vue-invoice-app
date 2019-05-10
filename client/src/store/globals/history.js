@@ -42,18 +42,18 @@ export const historyStore = new Vuex.Store({
             }
         },
 
-        // TODO: maybe split this fn in undoDelete & undoAction
-        undo: ({ commit, getters }, { store, currentEntity = null }) => {
+        undo: ({ commit, getters, state }) => {
+            
+            const { mainStore, currentEntity, callbacks: { undo: cb } } = state
+
             const { action, ...lastUndoItem } = getters.getLastUndoItem;
             commit('POP_UNDO');
-            
+
             if (action === 'delete') {
                 const { item, index } = lastUndoItem;
                 const data = { index, payload: item };
 
-                store.commit(`${currentEntity}/ADD_ITEM_AT_INDEX`, data);
-                
-                store.commit(`${currentEntity}/POP_FROM_DELETED_ITEMS`);
+                cb['delete'](data, currentEntity);
 
                 const { item: lastItem = undefined } = getters.getLastRedoItem || {};
 
@@ -61,21 +61,21 @@ export const historyStore = new Vuex.Store({
                     commit('CLEAN_REDO_STACK', item.id);
                     commit('ADD_REDO_ACTION', { action, index, item });
                 }
-                
+
             } else if (action === 'update') {
                 const { id, beforeChanges } = lastUndoItem;
 
-                const { pristineItems, updatedItems } = store.state[currentEntity]
+                const { pristineItems, updatedItems } = mainStore.state[currentEntity]
                 const pristineItem = pristineItems.get(+id);
                 const updatedItem = updatedItems.get(+id);
-                
+
                 /**
                  * Delete props whose values would lead to a state of an item
                  * that is identical with its pristine state
                  */
-                const { 
-                    kept: newUpdatedItem, 
-                    deleted: deletedPropsFromCrtUpdatedItem 
+                const {
+                    kept: newUpdatedItem,
+                    deleted: deletedPropsFromCrtUpdatedItem
                 } = getDifferenceBetweenTwoObjects(beforeChanges, pristineItem);
 
                 const changesLeftAfterUndo = getObjectWithoutProps(updatedItem, Object.keys(deletedPropsFromCrtUpdatedItem))
@@ -84,18 +84,19 @@ export const historyStore = new Vuex.Store({
                 if (!hasItemChangesLeft) {
                     updatedItems.delete(+id);
                 } else {
-                    updatedItems.set(+id, { ...updatedItem, ...newUpdatedItem });
+                    updatedItems.set(+id, { ...changesLeftAfterUndo, ...newUpdatedItem });
                 }
 
-                // Apply changes visually
-                store.dispatch(`${currentEntity}/updateItems`, { id, ...beforeChanges });
+                cb['update']({ id, ...beforeChanges }, currentEntity)
 
                 const prevState = getObjectSpecificProps(updatedItem, Object.keys(beforeChanges));
                 commit('ADD_REDO_ACTION', { id, beforeChanges: prevState, action });
             }
         },
 
-        redo: ({ commit, getters }, { store, currentEntity = null }) => {
+        redo: ({ commit, getters, state }) => {
+            const { mainStore, currentEntity, callbacks: { redo: cb } } = state;
+
             const { action, ...lastRedoItem } = getters.getLastRedoItem;
             commit('POP_REDO');
 
@@ -108,7 +109,8 @@ export const historyStore = new Vuex.Store({
                     initialState: item
                 }
                 
-                store.dispatch(`${currentEntity}/deleteItem`, deleteData);
+                cb['delete'](deleteData, currentEntity);
+                // store.dispatch(`${currentEntity}/deleteItem`, deleteData);
 
                 const { item: lastItem = undefined } = getters.getLastUndoItem || {};
 
@@ -119,7 +121,9 @@ export const historyStore = new Vuex.Store({
             } else {
                 const { id, beforeChanges } = lastRedoItem;
 
-                const { updatedItems, pristineItems } = store.state[currentEntity];
+                console.log(beforeChanges)
+
+                const { updatedItems, pristineItems } = mainStore.state[currentEntity];
                 const updatedItem = updatedItems.get(+id) || {};
                 const pristineItem = pristineItems.get(+id)
 
@@ -127,10 +131,7 @@ export const historyStore = new Vuex.Store({
                  * The updated item might have got deleted because the previous
                  * changes would lead to its pristine state
                  */
-                let prevState = getObjectSpecificProps(
-                    Object.keys(updatedItem).length ? updatedItem : pristineItem, 
-                    Object.keys(beforeChanges)
-                );
+                let prevState = getObjectSpecificProps(updatedItem, Object.keys(beforeChanges), pristineItem);
 
                 commit('ADD_UNDO_ACTION', { id, beforeChanges: prevState, action });
                 
@@ -138,8 +139,9 @@ export const historyStore = new Vuex.Store({
                 updatedItems.set(+id, newUpdatedItem);
 
                 // Apply changes visually
-                store.dispatch(`${currentEntity}/updateItems`, { id, ...beforeChanges });
+                cb['update']({ id, ...beforeChanges }, currentEntity);
+                // store.dispatch(`${currentEntity}/updateItems`, { id, ...beforeChanges });
             }
-        }
+        },
     },
 })
