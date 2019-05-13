@@ -219,7 +219,7 @@ export default {
                 additionalInfo = ``,
                 changeFound = false;
             
-            for (const [key, valueObj] of Object.entries(changed)) {
+            for (const [key, valueObj] of updatedItems.entries()) {
                 const pristineItem = pristine.get(+key);
                 console.log(pristineItem)
 
