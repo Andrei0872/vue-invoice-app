@@ -245,3 +245,23 @@ export const getObjectWithoutProps = (obj, props) => {
         return memo;
     }, {});
 }
+
+
+/**
+ * 
+ * @param {Map} m
+ * 
+ * @example
+ * return { 1: {}, 2: {}, 3: {} }
+ * 
+ * m = [[1, {}], [2, {}], [3, {}]]
+ * convertMapToObjI(m) 
+ */
+export const convertMapToObj = m => {
+    const result = Object.create(null);
+
+    for (const [k, val] of m.entries())
+        result[k] = val;
+
+    return result
+}
