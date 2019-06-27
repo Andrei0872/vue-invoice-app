@@ -1,5 +1,13 @@
 <template>
+    
     <div class="container">
+        <VUndoRedo 
+            :historyStore="$history" 
+            :mainStore="$store"
+            :currentEntity="entityName"
+            :callbacks="undoRedoCallbacks"
+        />
+
         <VTableRead
             v-if="this.documentProducts.length"
             :fields="createColumns"
@@ -82,6 +90,7 @@ import VSelect from '../components/VSelect';
 import VInput from '../components/VInput';
 import VVat from '../components/VVat';
 import VButton from '../components/VButton';
+import VUndoRedo from '../components/VUndoRedo';
 
 import documentMixin from '../mixins/documentMixin';
 import commonMixin from '../mixins/commonMixin';
@@ -95,7 +104,7 @@ import { hasEmptyValues } from '../utils/';
 const entity = 'singleDocument';
 
 export default {
-    components: { VTableRead, VModal, VSelect, VInput, VVat, VTableCreate, VButton },
+    components: { VTableRead, VModal, VSelect, VInput, VVat, VTableCreate, VButton, VUndoRedo, },
 
     mixins: [documentMixin, commonMixin, modalMixin],
 
@@ -126,7 +135,7 @@ export default {
         
         selectedProvider () {
             return this.$store.state.selectedProvider
-        },
+        },  
 
         results () {
             const { total_buy, total_sell, total_vat, total_sell_vat } = [...this.documentProducts, ...this.createdProducts].reduce((memo, product) => {
@@ -282,6 +291,15 @@ export default {
 
         confirmDelete () {
             this.addDeletedProduct(this.selectedItem);
+
+            const index = this.items.findIndex(({ id }) => id === this.selectedItem.id);
+
+            this.$history.dispatch('addUndoAction', {
+                action: 'delete',
+                item: this.selectedItem,
+                index,
+            });    
+
             this.closeModal();
         }
     },
@@ -308,6 +326,31 @@ export default {
     async created () {
 
         this.currentDocument = { ...this.documents.find(document => document.id === this.currentDocumentId) };
+        this.items.length === 0 && this.$store.dispatch(`${entity}/fetchById`, this.id);
+
+        this.undoRedoCallbacks = {
+            'undo': {
+                'delete': (data, currentEntity) => {
+                    this.$store.commit(`${currentEntity}/ADD_ITEM_AT_INDEX`, data);
+                    this.$store.commit(`${currentEntity}/POP_FROM_DELETED_ITEMS`);
+                },
+                'update': (data, currentEntity) => {
+                    // this.$store.dispatch(`${currentEntity}/addUpdatedItem`, data);
+                    console.log('undo update', data, currentEntity)
+                }
+            },
+            'redo': {
+                'delete': (data, currentEntity) => {
+                    // this.$store.dispatch(`${currentEntity}/deleteItem`, data);
+                    console.log('redo delete', data, currentEntity)
+                    this.deleteFromDoc(data.id);
+                },
+                'update': (data, currentEntity) => {
+                    // this.$store.dispatch(`${currentEntity}/addUpdatedItem`, data);
+                    console.log('redo update', data, currentEntity)
+                }
+            }
+        }
 
         if (this.$store && !this.$store.state['provider']) {
             this.$store.dispatch('api/FETCH_DATA', { 

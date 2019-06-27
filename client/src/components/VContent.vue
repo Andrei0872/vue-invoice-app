@@ -98,10 +98,12 @@ export default {
 
         ...mapState(['currentEntity']),
 
+        //? delete
         showUndoButton () {
             return this.$history.state.undoStack.length !== 0
         },
 
+        //? delete  
         showRedoButton () {
             return this.$history.state.redoStack.length !== 0
         },
