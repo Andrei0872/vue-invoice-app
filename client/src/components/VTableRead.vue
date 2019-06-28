@@ -1,5 +1,5 @@
 <template>
-    <div class="table-responsive">
+    <div class="table-responsive" v-if="componentLoaded && items.length && fields.length">
         <table class="table">
             <thead>
                 <tr>
@@ -125,7 +125,8 @@ export default {
             untouchedRow: null,
             // Fields from `History` table
             prevState: ``,
-            crtState: ``
+            crtState: ``,
+            componentLoaded: false,
         }
     },
 
@@ -141,8 +142,9 @@ export default {
             return !this.readonly
         },
 
+        //! Can be deleted
         ...mapState('document_product', { allItems : 'items' }),
-        
+        //! Can be deleted
         ...mapGetters('document_product', { documentProducts: 'getItemsById' }),
     },
 
@@ -164,6 +166,7 @@ export default {
             fetchExcelFile.call(this, url, rowIndex, id);
         },
 
+        // TODO: add props to be avoided
         handleFocus (rowId, field, ev) {
             if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId || ['sell_price', 'product_name', 'product_vat', 'sell_price_vat'].includes(field)) {
                 ev.target.blur();
@@ -182,24 +185,26 @@ export default {
             ev.target.children[0].focus();
         },
 
-        selectItem (itemInfo) {
-            this.selectedItemFromList = { ...itemInfo };
+        // selectItem (itemInfo) {
+        //     console.log('item selected')
 
-            if (this.needsAdditionalUpdate()) {
-                console.log('new update')
-                this.$emit('update', [this.selectedRowId, { [this.selectedField]: this.inputValue }])
-            }
+        //     this.selectedItemFromList = { ...itemInfo };
 
-            this.$emit('update', [this.selectedRowId, { [this.selectedField]: itemInfo.name }]);
-            this.inputValue = null;
-        },
+        //     if (this.needsAdditionalUpdate()) {
+        //         console.log('new update')
+        //         this.$emit('update', [this.selectedRowId, { [this.selectedField]: this.inputValue }])
+        //     }
 
-        needsAdditionalUpdate () {
-            return this.items.some(
-                item => item.id === this.selectedRowId 
-                    && item[this.selectedField] === this.selectedItemFromList.name
-            )
-        },
+        //     this.$emit('update', [this.selectedRowId, { [this.selectedField]: itemInfo.name }]);
+        //     this.inputValue = null;
+        // },
+
+        // needsAdditionalUpdate () {
+        //     return this.items.some(
+        //         item => item.id === this.selectedRowId 
+        //             && item[this.selectedField] === this.selectedItemFromList.name
+        //     )
+        // },
 
         updateRow (row) {
             if (this.$store.state['currentEntity'] === 'documents' && this.$route.name !== 'documentEditOne') {
@@ -306,6 +311,8 @@ export default {
 
     mounted () {
         this.itemsFromProps = JSON.parse(JSON.stringify(this.items));
+
+        this.componentLoaded = true;
     }
 }
 </script>
