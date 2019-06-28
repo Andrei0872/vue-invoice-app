@@ -76,3 +76,19 @@ export const separateValues = (kvPair, separator) => {
 
     return [key, value];
 }
+
+export const compareObjects = (pristineObj, changedObj, cbWhenChangeFound = undefined) => {
+    return Object.entries(changedObj)
+        .reduce((changes, [key, value]) => {
+            if (`${pristineObj[key]}` !== `${value}`) {
+                changes[key] = value
+                
+                if (cbWhenChangeFound !== undefined) 
+                    cbWhenChangeFound(pristineObj, changedObj, key);
+            }
+
+            return changes;
+        }, {})
+};
+
+export const isObjectEmpty = obj => Object.keys(obj).length === 0

@@ -83,7 +83,13 @@
 <script>
 import VInput from '../components/VInput';
 
-import { fetchExcelFile, formatColumnName, capitalize } from '../utils/'; 
+import { 
+    fetchExcelFile, 
+    formatColumnName, 
+    capitalize, 
+    compareObjects, 
+    isObjectEmpty,
+} from '../utils/'; 
 
 import computeDoc from '../mixins/computeDoc';
 
@@ -214,34 +220,23 @@ export default {
         resetData (rowId) {
             this.isUpdating = false;
             this.selectedRowId = this.selectedRow = this.untouchedRow = null;
+            this.prevState = this.crtState = ``;
         },
 
         compareChanges (rowBeforeChanges, rowAfterChange) {
-            return Object.entries(rowAfterChange)
-                .reduce((changes, [key, value]) => {
-                    if (key === 'id') return changes;
-                    
-                    if (`${rowBeforeChanges[key]}` !== `${value}`) {
-                        changes[key] = value
+            const cbWhenChangeFound = (beforeCh, afterCh, k) => {
+                this.prevState += `${k}:${beforeCh[k]}|`
+                this.crtState += `${afterCh[k]}|`
+            };
 
-                        // We need these 2 in order to display what actually changed in history card
-                        this.prevState += `${key}:${rowBeforeChanges[key]}|`
-                        this.crtState += `${value}|`
-                    }
-
-                    return changes;
-                }, {})
+            return compareObjects(rowBeforeChanges, rowAfterChange, cbWhenChangeFound);
         },
-
-        isObjectEmpty (obj) {
-            return Object.keys(obj).length === 0
-        },        
 
         confirmChanges (row) {
 
             const changes = this.compareChanges(this.untouchedRow, this.selectedRow);
 
-            if (!this.isObjectEmpty(changes)) {
+            if (!isObjectEmpty(changes)) {
                 this.$emit('update', { ...changes, id: row.id });
 
                 if (this.$route.name === 'documentEditOne') {
