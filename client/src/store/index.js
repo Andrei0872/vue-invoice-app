@@ -28,8 +28,10 @@ const store = new Vuex.Store({
                 return state[entityName].newItems
         },
 
-        getEntityItems: (state, getters) => {
-            return state[getters.getEntityName].items
+        getEntityItems: (state, getters, rootState, rootGetters) => {
+            // return state[getters.getEntityName].items
+
+            return rootGetters[`${getters.getEntityName}/getItemsAsArr`];
         },
 
         hasDocumentRegistered: (state, getters, rootState) => !!rootState['document']

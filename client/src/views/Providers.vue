@@ -1,6 +1,6 @@
 <template>
     <div>
-        <VContent v-if="everythingReady === true" entityName="provider">
+        <VContent v-if="isEverythingLoaded" entityName="provider">
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="items.length"
@@ -74,7 +74,7 @@ import uuidv1 from 'uuid/v1';
 
 import { createNamespacedHelpers } from 'vuex';
 import * as common from '@/store/modules/common';
-const { mapState, mapActions } = createNamespacedHelpers(entityName)
+const { mapState, mapActions, mapGetters } = createNamespacedHelpers(entityName)
 
 export default {
     name: 'providers',
@@ -87,17 +87,28 @@ export default {
 
     data: () => ({
         readColumns: ['name', 'URC', 'inserted_date'],
-        createColumns: ['name', 'URC']
+        createColumns: ['name', 'URC'],
+        isEverythingLoaded: false
     }),
 
     methods: mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
 
-    computed: mapState(['items', 'newItems']),
+    computed: {
+        ...mapState([/* 'items',  */'newItems']),
+        
+        ...mapGetters({
+            items: 'getItemsAsArr'
+        })
+    },
 
-    created () {
-        !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
+    async created () {
+        if (this.$store && !this.$store.state[entityName]) {
+            this.$store.registerModule(entityName, common);
 
-        !this.items.length && this.$store.dispatch('api/FETCH_DATA');
+            await this.$store.dispatch('api/FETCH_DATA');
+        }
+
+        this.isEverythingLoaded = true;
     }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="isEverythingLoaded">
         <VContent v-if="everythingReady === true" entityName="document" :disableButton="errorMessage !== 'Documents' && errorMessage !== null || vat['food_vat'] === null || vat['non_food_vat'] === null">
             <template v-slot:existingItems>
                 <VTableRead 
@@ -85,9 +85,9 @@ const productEntity = 'product';
 import { createNamespacedHelpers } from 'vuex';
 import * as common from '@/store/modules/common';
 
-const { mapState, mapActions } = createNamespacedHelpers(entityName);
-const { mapState: mapStateProvider } = createNamespacedHelpers(providerEntity);
-const { mapState: mapStateProduct } = createNamespacedHelpers(productEntity);
+const { mapState, mapActions, mapGetters } = createNamespacedHelpers(entityName);
+const { mapGetters: mapGettersProvider } = createNamespacedHelpers(providerEntity);
+const { mapGetters: mapGettersProduct } = createNamespacedHelpers(productEntity);
 
 
 export default {
@@ -98,7 +98,8 @@ export default {
     mixins: [modalMixin, commonMixin, documentMixin],
 
     data: () => ({
-        errorMessage: null
+        errorMessage: null,
+        isEverythingLoaded: false
     }),
 
     methods: {
@@ -110,11 +111,15 @@ export default {
     },
 
     computed: {
-        ...mapState(['items', 'newItems']),
+        ...mapState([/* 'items',  */'newItems']),
 
-        ...mapStateProvider({ providers: 'items' }),
+        ...mapGetters({
+            items: 'getItemsAsArr'
+        }),
 
-        ...mapStateProduct({ products: 'items' }),
+        ...mapGettersProvider({ providers: 'getItemsAsArr' }),
+
+        ...mapGettersProduct({ products: 'getItemsAsArr' }),
 
         containsErrors () {
             this.errorMessage = this.providers && !this.providers.length 
@@ -150,18 +155,44 @@ export default {
         next();
     },
 
-    mounted () {
-        !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
+    async created () {
+        const promises = [];
         
-        !(this.items.length) && this.$store.dispatch('api/FETCH_DATA');
+        if (this.$store && !this.$store.state[entityName]) {
+            this.$store.registerModule(entityName, common);
 
-        !(this.$store && this.$store.state['product']) 
-            && ((this.$store.registerModule('product', common)), console.log('ok'), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
+            promises.push(this.$store.dispatch('api/FETCH_DATA'));
+        }
+        
+        // this.items.length === 0 && ;
 
-        !(this.$store && this.$store.state['provider']) 
-            && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
+        if (this.$store && !this.$store.state['product']) {
+            this.$store.registerModule('product', common);
+
+            promises.push(
+                this.$store.dispatch('api/FETCH_DATA', { 
+                    avoidChangingState: true, 
+                    anotherEntity: 'products' 
+                })
+            );
+        }
+
+        if (this.$store && !this.$store.state['provider']) {
+            this.$store.registerModule('provider', common);
+            
+            promises.push(
+                this.$store.dispatch('api/FETCH_DATA', { 
+                    avoidChangingState: true, 
+                    anotherEntity: 'providers' 
+                })
+            );
+        }
 
         this.$store.getters['dashboard/needsInit'] && this.$store.dispatch('dashboard/fetchMainOverview');
+
+        await Promise.all(promises);
+
+        this.isEverythingLoaded = true;
     },
 }
 </script>

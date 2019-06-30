@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="isEverythingLoaded">
         <VContent v-if="everythingReady === true" entityName="product">
             <template v-slot:existingItems>
                 <VTableRead 
@@ -72,7 +72,7 @@ const entityName = 'product';
 
 import { createNamespacedHelpers } from 'vuex';
 import * as common from '@/store/modules/common';
-const { mapState, mapActions } = createNamespacedHelpers(entityName)
+const { mapState, mapActions, mapGetters } = createNamespacedHelpers(entityName)
 
 
 export default {
@@ -99,17 +99,25 @@ export default {
             "comestible",
             "expiration_date",
             "inserted_date"
-        ]
+        ],
+        isEverythingLoaded: false
     }),
 
     methods: mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
 
-    computed: mapState(['items', 'newItems']),
+    computed: {
+        ...mapState([/* 'items',  */'newItems']),
 
-    created () {
-        !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
+        ...mapGetters({ items: 'getItemsAsArr' })
+    },
 
-        !(this.items.length) && this.$store.dispatch('api/FETCH_DATA');
+    async created () {
+        if (this.$store && !this.$store.state[entityName]) {
+            this.$store.registerModule(entityName, common);
+            await this.$store.dispatch('api/FETCH_DATA');
+        }
+
+        this.isEverythingLoaded = true;
     }
 }
 </script>
