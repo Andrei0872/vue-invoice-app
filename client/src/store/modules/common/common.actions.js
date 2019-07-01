@@ -76,10 +76,9 @@ export const actions = {
         commit('TRACK_DELETED_ITEMS');
     },
 
-    setItems: ({ commit, dispatch, rootGetters, state }, payload) => {
+    setItems: ({ commit, dispatch, rootGetters }, payload) => {
         payload.forEach(({ id, ...item }) => commit('ADD_ITEM', { id, ...item }))
-        commit('TRACK_ITEM');
-        console.log(state)
+        commit('TRACK_ITEMS');
 
         if (rootGetters['dashboard/getUpdateState']) {
             dispatch('dashboard/fetchMainOverview', 'dashboard/overview', {
