@@ -12,7 +12,7 @@
                     :items="items" 
                     @update="updateRow($event)"
                     @showInfo="showInfo($event)"
-                    @deleteRow="deleteRow($event)"
+                    @deleteRow="prepareRowForDeletion($event)"
                 />
                 <div v-else class="no-items">
                     There are no providers!

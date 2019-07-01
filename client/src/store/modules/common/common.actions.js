@@ -10,6 +10,10 @@ export const actions = {
         commit('TRACK_CREATED_ITEMS');
     },
 
+    deleteCreatedItem: ({ commit }, rowId) => {
+        commit('DELETE_CREATED_ITEM', rowId);
+        commit('TRACK_CREATED_ITEMS');
+    },
 
     /**
      * TODO: improvement
@@ -63,8 +67,13 @@ export const actions = {
         commit('TRACK_UPDATED_ITEMS');
     },
 
+    deleteItem: ({ state, commit }, id) => {
+        const deletedItem = state.items.get(id);
 
-        commit('SET_ITEMS', itemsCopy)
+        commit('DELETE_ITEM', id);
+        commit('TRACK_ITEMS');
+        commit('ADD_DELETED_ITEM', { id, ...deletedItem });
+        commit('TRACK_DELETED_ITEMS');
     },
 
     setItems: ({ commit, dispatch, rootGetters, state }, payload) => {

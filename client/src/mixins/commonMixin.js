@@ -32,17 +32,14 @@ export default {
             }
         },
 
-        deleteRow (row) {
+        prepareRowForDeletion (row) {
             this.isAboutToDelete = true;
             this.selectedItem = { ...row };
             this.showDetails = true;
         },
 
         deleteRowInstantly (rowId) {
-            this.deleteItem({
-                prop: 'newItems',
-                id: rowId
-            });
+            this.deleteCreatedItem(rowId);
 
             if (this.createdItems.length === 0) {
                 this.disableCreateButton = true;
@@ -50,17 +47,17 @@ export default {
         },
 
         confirmDelete () {
-            this.deleteItem({ prop: 'items', id: this.selectedItem.id });
+            this.deleteItem(this.selectedItem.id);
             this.resetModalContent();
             
-            const currentEntity = this.$store.getters['getEntityName'];
-            const message = `Delete ${currentEntity}`
-            this.$store.dispatch('dashboard/insertHistoryRow', {
-                entity: `${this.$store.getters['getEntityItems'].length === 0 ? currentEntity + '/empty' : currentEntity}`,
-                message, 
-                action_type: 'delete',
-                prev_state: JSON.stringify(this.selectedItem)
-            });
+            // const currentEntity = this.$store.getters['getEntityName'];
+            // const message = `Delete ${currentEntity}`
+            // this.$store.dispatch('dashboard/insertHistoryRow', {
+            //     entity: `${this.$store.getters['getEntityItems'].length === 0 ? currentEntity + '/empty' : currentEntity}`,
+            //     message, 
+            //     action_type: 'delete',
+            //     prev_state: JSON.stringify(this.selectedItem)
+            // });
         },
 
         cancelDelete () {
