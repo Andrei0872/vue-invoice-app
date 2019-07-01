@@ -43,6 +43,10 @@ export default {
                 prop: 'newItems',
                 id: rowId
             });
+
+            if (this.createdItems.length === 0) {
+                this.disableCreateButton = true;
+            }
         },
 
         confirmDelete () {

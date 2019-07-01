@@ -1,6 +1,10 @@
 <template>
-    <div>
-        <VContent v-if="isEverythingLoaded" entityName="provider">
+    <div v-if="isEverythingLoaded">
+        <VContent 
+            :disableCreateButton="disableCreateButton" 
+            entityName="provider"
+            @insertCreatedItems="insertCreatedItems"
+        >
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="items.length"
@@ -21,15 +25,15 @@
                 <VTableCreate 
                     @deleteRow="deleteRowInstantly($event)" 
                     :fields="createColumns" 
-                    :items="newItems"
+                    :items="createdItems"
                     @addField="addField($event)"
-                    @init="init"
+                    @tableCreateReady="onTableCreateReady"
                 />
             </template>
         </VContent>
-        <div v-else-if="everythingReady !== 'pending'">
+        <!-- <div v-else-if="everythingReady !== 'pending'">
             Some other error happened
-        </div>
+        </div> -->
 
         <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
@@ -72,9 +76,9 @@ const entityName = 'provider';
 
 import uuidv1 from 'uuid/v1';
 
-import { createNamespacedHelpers } from 'vuex';
+import { createNamespacedHelpers, mapMutations } from 'vuex';
 import * as common from '@/store/modules/common';
-const { mapState, mapActions, mapGetters } = createNamespacedHelpers(entityName)
+const { /* mapState */ mapActions, mapGetters } = createNamespacedHelpers(entityName)
 
 export default {
     name: 'providers',
@@ -91,13 +95,18 @@ export default {
         isEverythingLoaded: false
     }),
 
-    methods: mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
+    methods: {
+        ...mapActions([
+            'resetArr', 'deleteCreatedItem', 'addFieldValue', 
+            'updateItem', 'addCreatedItem', 'resetCreatedItems',
+            'insertCreatedItems', 'deleteItem'
+        ]),
+    },
 
     computed: {
-        ...mapState([/* 'items',  */'newItems']),
-        
         ...mapGetters({
-            items: 'getItemsAsArr'
+            items: 'getItemsAsArr',
+            createdItems: 'getCreatedItemsAsArr',
         })
     },
 
