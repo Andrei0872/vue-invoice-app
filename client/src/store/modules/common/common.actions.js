@@ -49,16 +49,20 @@ export const actions = {
         commit('TRACK_CREATED_ITEMS');
     },
 
-    resetArr: ({ commit }, payload) => commit('RESET_ARR', payload),
+    updateItem: ({ state, commit }, { id, ...updatedItemDetails }) => {
+        const currentUpdatedItem = state.updatedItems.get(id) || {};
+        let newUpdatedItem = {};
 
-    updateItems: ({ state, commit }, { id, ...changes }) => {
-        const indexRow = state.items.findIndex(item => item.id === id);
-        const itemsCopy = JSON.parse(JSON.stringify(state.items))
+        Object.entries(updatedItemDetails).forEach(([key, val]) => {
+            newUpdatedItem[key] = val;
+        })  
 
-        itemsCopy[indexRow] = {
-            ...itemsCopy[indexRow],
-            ...changes
-        }
+        newUpdatedItem = { ...currentUpdatedItem, ...newUpdatedItem };
+
+        commit('ADD_UPDATED_ITEM', { id, ...newUpdatedItem });
+        commit('TRACK_UPDATED_ITEMS');
+    },
+
 
         commit('SET_ITEMS', itemsCopy)
     },

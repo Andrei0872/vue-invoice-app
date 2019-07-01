@@ -81,9 +81,8 @@ export default {
             this.addCreatedItem(this.createNewItem());
         },
 
-        update (data) {
-            console.log('changes obj:', data)
-            this.updateItems(data);
+        updateRow (data) {
+            this.updateItem(data);
         },
     },
 

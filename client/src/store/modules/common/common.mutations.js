@@ -5,6 +5,8 @@ export const mutations = {
 
     ADD_CREATED_ITEM: (state, { id, ...newItemDetails }) => state.createdItems.set(id, newItemDetails),
 
+    ADD_UPDATED_ITEM: (state, { id, ...newUpdatedItemDetails }) => state.updatedItems.set(id, newUpdatedItemDetails),
+
 
     UPDATE_NEW_DATA: (state, payload) => state.newItems = payload,
 
@@ -24,5 +26,7 @@ export const mutations = {
     TRACK_CREATED_ITEMS: state => state.createdItemsTracker++,
 
     TRACK_ITEMS: state => state.itemsTracker++,
+
+    TRACK_UPDATED_ITEMS: state => state.updatedItemsTracker++,
 
 }

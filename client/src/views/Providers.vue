@@ -10,7 +10,7 @@
                     v-if="items.length"
                     :fields="readColumns" 
                     :items="items" 
-                    @update="update($event)"
+                    @update="updateRow($event)"
                     @showInfo="showInfo($event)"
                     @deleteRow="deleteRow($event)"
                 />
@@ -107,6 +107,7 @@ export default {
         ...mapGetters({
             items: 'getItemsAsArr',
             createdItems: 'getCreatedItemsAsArr',
+            updatedItems: 'getUpdatedItemsAsArr'
         })
     },
 
