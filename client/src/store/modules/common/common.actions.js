@@ -1,16 +1,52 @@
 export const actions = {
 
-    addNewItem: ({ commit }, payload) => commit('ADD_NEW_ITEM', payload),
+    addCreatedItem: ({ commit }, payload) => {
+        commit('ADD_CREATED_ITEM', payload);
+        commit('TRACK_CREATED_ITEMS');
+    },
 
-    deleteItem: ({ commit }, payload) => commit('DELETE_ITEM', payload),
+    resetCreatedItems: ({ commit }) => {
+        commit('RESET_CREATED_ITEMS');
+        commit('TRACK_CREATED_ITEMS');
+    },
 
+
+    /**
+     * TODO: improvement
+     * receive the new inserted row ids from the BE,
+     * and append them to the existing items
+     * 
+     * Current behavior:
+     * after items are inserted, **another** request is made to fetch again 
+     * all the existing items;
+     */
+    insertCreatedItems: ({ dispatch, getters, rootGetters }) => {
+        const createdItemsAsArr = getters.getCreatedItemsAsArr;
+        const createItemsWithoutId = createdItemsAsArr.map(({ id, ...rest }) => rest);
+        const entityNameSingularForm = rootGetters['getEntityNameSingularForm'];
+        const entityNamePluralForm = rootGetters['getEntityNamePluralForm'];
+
+        return dispatch('api/insertItem', createdItemsAsArr, { root: true })
+            .then(() => {
+                
+                const message = `Add new ${createdItemsAsArr.length === 1 ? entityNameSingularForm : entityNamePluralForm}`;
+                
+                dispatch('dashboard/insertHistoryRow', {
+                    entity: entityNamePluralForm, 
+                    message, 
+                    action_type: 'insert',
+                    current_state: JSON.stringify(createItemsWithoutId),
+                }, { root: true });
+            })
+    },
+
+    // TODO: add test
     addFieldValue: ({ commit, state }, { rowId, fieldName, value }) => {
-        const newItemsCopy = JSON.parse(JSON.stringify(state.newItems))
-        let rowIndex = newItemsCopy.findIndex(item => item.id === rowId);
+        const newCurrentItem = state.createdItems.get(rowId) || {};
+        const modifiedItem = { ...newCurrentItem, [fieldName]: value };
 
-        newItemsCopy[rowIndex][fieldName] = value;
-
-        commit('UPDATE_NEW_DATA', newItemsCopy);
+        commit('ADD_CREATED_ITEM', { id: rowId, ...modifiedItem });
+        commit('TRACK_CREATED_ITEMS');
     },
 
     resetArr: ({ commit }, payload) => commit('RESET_ARR', payload),

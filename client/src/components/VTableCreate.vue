@@ -206,7 +206,7 @@ export default {
     },
 
     created () {
-        this.$emit('init');
+        this.$emit('tableCreateReady');
     }
 }
 </script>

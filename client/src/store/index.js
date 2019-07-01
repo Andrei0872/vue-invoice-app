@@ -21,6 +21,10 @@ const store = new Vuex.Store({
     getters: {
         getEntityName: state => state.currentEntity.slice(0, -1),
 
+        getEntityNameSingularForm: state => state.currentEntity.slice(0, -1),
+
+        getEntityNamePluralForm: state => state.currentEntity,
+
         getEntityNewItems: state => {
             const entityName = state.currentEntity.slice(0, -1)
             

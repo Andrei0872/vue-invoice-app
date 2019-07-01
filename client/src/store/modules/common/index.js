@@ -6,6 +6,7 @@ export const state = () => ({
     updatedItems: new Map(),
     deletedItems: new Map(),
     itemsTracker: 1,
+    createdItemsTracker: 1,
 })
 
 export { getters } from './common.getters'; 

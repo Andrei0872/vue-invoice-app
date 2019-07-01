@@ -6,12 +6,17 @@ export default {
         isCreating: false,
         isAboutToDelete: false,
         showDetails: false,
+        disableCreateButton: false,
     }),
 
     methods: {
 
-        createRandomObj () {
-            return Object.assign({}, ... (this.createColumns.map(field => ({ [field]: '' }))), { id: uuidv1() });
+        createNewItem () {
+            const newItemDetails = Object.assign({}, ... (this.createColumns.map(field => ({ [field]: '' }))));
+
+            const id = uuidv1();
+
+            return { id, ...newItemDetails };
         },
 
         showInfo (row) {
@@ -20,7 +25,11 @@ export default {
         },
 
         addRow () {
-            this.addNewItem(this.createRandomObj());
+            this.addCreatedItem(this.createNewItem());
+
+            if (this.disableCreateButton) {
+                this.disableCreateButton = false;
+            }
         },
 
         deleteRow (row) {
@@ -63,9 +72,9 @@ export default {
             this.addFieldValue({ rowId, fieldName, value });
         },
 
-        init () {
-            this.resetArr({ prop: 'newItems' });
-            this.addNewItem(this.createRandomObj());
+        onTableCreateReady() {
+            this.resetCreatedItems();
+            this.addCreatedItem(this.createNewItem());
         },
 
         update (data) {

@@ -96,6 +96,8 @@ import computeDoc from '../mixins/computeDoc';
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
+    name: 'table-read',
+
     props: {
         fields: Array,
         items: Array,

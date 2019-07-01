@@ -3,7 +3,8 @@ export const mutations = {
 
     ADD_ITEM: (state, { id, ...itemDetails }) => state.items.set(id, itemDetails),
 
-    ADD_NEW_ITEM: (state, payload) => state.newItems.push(payload),
+    ADD_CREATED_ITEM: (state, { id, ...newItemDetails }) => state.createdItems.set(id, newItemDetails),
+
 
     UPDATE_NEW_DATA: (state, payload) => state.newItems = payload,
 
@@ -16,5 +17,12 @@ export const mutations = {
         prop
     }) => state[prop] = [],
 
-    TRACK_ITEM: state => state.itemsTracker++,
+    RESET_CREATED_ITEMS: state => state.createdItems.clear(),
+
+    DELETE_CREATED_ITEM: (state, rowId) => state.createdItems.delete(rowId),
+
+    TRACK_CREATED_ITEMS: state => state.createdItemsTracker++,
+
+    TRACK_ITEMS: state => state.itemsTracker++,
+
 }
