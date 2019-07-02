@@ -38,8 +38,10 @@
                             />
                             <component
                                 @itemSelected="selectItem($event)" 
+                                @displayOrHideList="listVisible = $event"
                                 v-if="field === 'product_name' && selectedField === 'product_name' && inputValue && row.id === selectedRowId"
                                 :is="VList"
+                                :listItems="listItems"
                                 :filterKey="inputValue"
                                 :key="row.id"
                                 :currentTdWidth="currentTdWidth"
@@ -62,7 +64,8 @@ import { formatColumnName, capitalize } from '../utils/'
 export default {
     props: {
         fields: Array,
-        items: Array
+        items: Array,
+        listItems: Array
     },
 
     mixins: [computeDoc],
