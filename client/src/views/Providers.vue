@@ -97,7 +97,7 @@ export default {
 
     methods: {
         ...mapActions([
-            'resetArr', 'deleteCreatedItem', 'addFieldValue', 
+            'deleteCreatedItem', 'addFieldValue', 
             'updateItem', 'addCreatedItem', 'resetCreatedItems',
             'insertCreatedItems', 'deleteItem'
         ]),
