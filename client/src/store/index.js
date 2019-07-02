@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import * as api from './modules/api';
-import * as document_product from './modules/document_product';
+import * as documentProduct from './modules/single-document';
 import * as dashboard from './modules/dashboard';
 
 Vue.use(Vuex)
@@ -59,7 +59,7 @@ const store = new Vuex.Store({
 
     modules: {
         api,
-        document_product,
+        documentProduct,
         dashboard
     }
 });
@@ -69,11 +69,11 @@ store.subscribeAction(action => {
     const currentEntity = store.state.currentEntity && store.state.currentEntity.slice(0, -1) || null
 
     // Re-fetch main overview from Dashboard on: create / delete / update
-    if (['api/insertItem', 'document_product/updateItems', 'document_product/deleteFromDoc', 'api/deleteItem'].includes(action.type)) {
+    if (['api/insertItem', 'documentProduct/updateItems', 'documentProduct/deleteFromDoc', 'api/deleteItem'].includes(action.type)) {
         let willUpdate = true;
 
         // Check if there is any update that is significant to the main overview 
-        if (action.type === 'document_product/updateItems') {
+        if (action.type === 'documentProduct/updateItems') {
             willUpdate = false;
 
             for (const objValues of Object.values(action.payload)) {

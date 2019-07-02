@@ -164,7 +164,7 @@ export default {
     beforeRouteEnter (to, from, next) {
         if (from.name === 'documentEditOne') {
             return next(vm => {
-                vm.$store.dispatch('document_product/fetchById', from.params.id);
+                vm.$store.dispatch('documentProduct/fetchById', from.params.id);
                 vm.$store.dispatch('api/FETCH_DATA');
             })
         }

@@ -143,11 +143,6 @@ export default {
         shouldDisplayButtons () {
             return !this.readonly
         },
-
-        //! Can be deleted
-        ...mapState('document_product', { allItems : 'items' }),
-        //! Can be deleted
-        ...mapGetters('document_product', { documentProducts: 'getItemsById' }),
     },
 
     methods: {
@@ -155,7 +150,7 @@ export default {
         
         capitalize (field) { return capitalize(field) },
 
-        ...mapActions('document_product', ['setId', 'fetchById']),
+        ...mapActions('documentProduct', ['setId', 'fetchById']),
 
         generateFile (type, id, rowIndex = null) {
             const url = `${this.$store.getters['api/mainURL']}/file`;
