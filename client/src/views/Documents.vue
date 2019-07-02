@@ -1,6 +1,16 @@
 <template>
     <div v-if="isEverythingLoaded">
-        <VContent v-if="everythingReady === true" entityName="document" :disableButton="errorMessage !== 'Documents' && errorMessage !== null || vat['food_vat'] === null || vat['non_food_vat'] === null">
+        <VContent 
+            v-if="everythingReady === true" entityName="document" 
+            :disableButton="
+                errorMessage !== 'Documents' 
+                    && errorMessage !== null 
+                    || vat['food_vat'] === null 
+                    || vat['non_food_vat'] === null
+                "
+            :disableCreateButton="disableCreateButton" 
+            @insertCreatedItems="insertCreatedItems"
+            >
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="!containsErrors && !!items"
@@ -8,7 +18,7 @@
                     :items="items"
                     showDelete
                     @showInfo="showInfo($event)"
-                    @deleteRow="deleteRow($event)"
+                    @deleteRow="prepareRowForDeletion($event)"
                 />
                 <div class="no-items" v-else-if="vat['food_vat'] === null || vat['non_food_vat'] === null">
                     Please make sure you specify the VAT!
@@ -23,15 +33,16 @@
                         <font-awesome-icon icon="plus-circle" />
                     </div>
                     <VSelect @addProvider="$store.commit('SET_PROVIDER', $event)" class="c-select" :items="providers" />
-                    <VInput @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" placeholder="Invoice Nr." class="c-input" />
+                    <VInput @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" placeholder="Invoice Nr" class="c-input" />
                     <VVat />
                 </div>
                 <VTableCreate 
                     @deleteRow="deleteRowInstantly($event)" 
                     :fields="createColumns" 
-                    :items="newItems"
+                    :items="createdItems"
                     @addField="addField($event)"
-                    @init="init"
+                    @tableCreateReady="onTableCreateReady"
+                    :listItems="products"
                 />
             </template>
         </VContent>
@@ -62,6 +73,7 @@
                 </div>
             </template>
         </VModal>
+
     </div>
 </template>
 
@@ -103,7 +115,11 @@ export default {
     }),
 
     methods: {
-        ...mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
+        ...mapActions([
+            'deleteCreatedItem', 'addFieldValue', 
+            'updateItem', 'addCreatedItem', 'resetCreatedItems',
+            'insertCreatedItems', 'deleteItem'
+        ]),
 
         showInfo ({ id }) {
             this.$router.replace({ name: 'documentEditOne', params: { id } });
@@ -111,10 +127,11 @@ export default {
     },
 
     computed: {
-        ...mapState([/* 'items',  */'newItems']),
 
         ...mapGetters({
-            items: 'getItemsAsArr'
+            items: 'getItemsAsArr',
+            createdItems: 'getCreatedItemsAsArr',
+            updatedItems: 'getUpdatedItemsAsArr' 
         }),
 
         ...mapGettersProvider({ providers: 'getItemsAsArr' }),
