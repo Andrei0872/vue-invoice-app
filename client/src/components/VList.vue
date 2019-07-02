@@ -1,5 +1,5 @@
 <template>
-    <div class="list" v-if="this.items.length" :style="{ width: currentTdWidth + 'px' }">
+    <div class="list" v-if="this.listItems.length" :style="{ width: currentTdWidth + 'px' }">
         <div
             v-for="(item, index) in filteredItems"
             :class="['list__row', index === currentIndex ? 'selected-row' : null ]"
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
     name: 'list',
@@ -23,7 +23,9 @@ export default {
             default: ''
         },
 
-        currentTdWidth: Number
+        currentTdWidth: Number,
+
+        listItems: Array
     },
 
     data: () => ({
@@ -35,10 +37,6 @@ export default {
         filterKey (newVal) {
             this.updateItems();
         },
-    },
-
-    destroyed() {
-        window.removeEventListener("keyup", this.handleKeys);
     },
 
     methods: {
@@ -67,25 +65,23 @@ export default {
         },
 
         updateItems () {
-            this.filteredItems = this.items.filter(
+            this.filteredItems = this.listItems.filter(
                 ({ name }) => ~(name.toLowerCase().indexOf(this.filterKey.toLowerCase()))
             )
 
-            this.$parent.listVisible = (this.filteredItems.length !== 0)
+            this.$emit('displayOrHideList', this.filteredItems.length !== 0);
         }
-    },
-
-    computed: {
-        ...mapState('product', ['items'])
-    },
-
-    mounted () {
-        window.addEventListener("keyup", this.handleKeys);
     },
 
     created () {
         this.updateItems();
-    }
+        
+        window.addEventListener("keyup", this.handleKeys);
+    },
+
+    destroyed() {
+        window.removeEventListener("keyup", this.handleKeys);
+    },
 }
 </script>
 
