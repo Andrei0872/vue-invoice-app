@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import * as api from './modules/api';
-import * as documentProduct from './modules/single-document';
+import * as documentProduct from './modules/single-document/';
 import * as dashboard from './modules/dashboard';
 
 Vue.use(Vuex)

@@ -16,7 +16,7 @@
             <VTableCreate 
                 @deleteRow="deleteRowInstantly($event)" 
                 :fields="createColumns" 
-                :items="newItems"
+                :items="newAddedProducts"
                 @addField="addField($event)"
             />
         </div>
@@ -84,7 +84,7 @@ import { mapGetters, mapActions, mapState } from 'vuex'
 
 import { hasEmptyValues } from '../utils/';
 
-const entity = 'document_product'
+const entity = 'documentProduct'
 
 export default {
     components: { VTableRead, VModal, VSelect, VInput, VVat, VTableCreate, VButton },
@@ -100,18 +100,26 @@ export default {
             return parseInt(this.$route.params.id)
         },
 
-        ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges', pristineData: 'getPristineData', deletedItems: 'getDeletedItems' }),
+        ...mapGetters(entity, { 
+            items: 'getItemsById', 
+            changes: 'getChanges', 
+            pristineData: 'getPristineData', 
+            deletedItems: 'getDeletedItems' 
+        }),
 
-        ...mapState('provider', { providers: 'items' }),
+        ...mapGetters('provider', { providers: 'getItemsAsArr' }),
 
-        ...mapState('document', ['newItems']),
+        // ...mapState('provider', { providers: 'items' }),
+
+        ...mapGetters('document', { newAddedProducts: 'getCreatedItemsAsArr' }),
+        // ...mapState('document', ['newAddedProducts']),
         
         selectedProvider () {
             return this.$store.state.selectedProvider
         },
 
         results () {
-            const { total_buy, total_sell, total_vat, total_sell_vat } = [...this.items, ...this.newItems].reduce((memo, item) => {
+            const { total_buy, total_sell, total_vat, total_sell_vat } = [...this.items, ...this.newAddedProducts].reduce((memo, item) => {
                 memo['total_buy'] += +(this.changes[item.id] && this.changes[item.id]['buy_price'] || item['buy_price'])
                 memo['total_sell'] += +(this.changes[item.id] && this.changes[item.id]['sell_price'] || item['sell_price'])
                 memo['total_vat'] += +(this.changes[item.id] && this.changes[item.id]['product_vat'] || item['product_vat'])
@@ -129,7 +137,7 @@ export default {
                 provider_name: this.selectedProvider.name, 
                 provider_id: this.selectedProvider.id,
                 invoice_number: this.selectedProvider.invoiceNr || this.currentItem.invoice_number,
-                nr_products: this.items.length + this.newItems.length
+                nr_products: this.items.length + this.newAddedProducts.length
             };
         },
 
@@ -255,12 +263,12 @@ export default {
                 });
             }
 
-            if (this.newItems.length && !hasEmptyValues(this.newItems)) {
+            if (this.newAddedProducts.length && !hasEmptyValues(this.newAddedProducts)) {
                 willChange = true;
                 const url = `${this.$store.getters['api/mainURL']}/documents/insert_products_only`
                 const config = {
                     ...this.$store.getters['api/config'],
-                    body: JSON.stringify({ items: this.newItems, docId: this.id })
+                    body: JSON.stringify({ items: this.newAddedProducts, docId: this.id })
                 }
                 
                 await this.$store.dispatch('api/makeRequest', { url, config })
@@ -270,7 +278,7 @@ export default {
                     entity: `documents/edit/${this.id}`, 
                     message,
                     action_type: 'insert',
-                    additional_info: JSON.stringify(this.newItems)
+                    additional_info: JSON.stringify(this.newAddedProducts)
                 });
             }
 
@@ -292,23 +300,34 @@ export default {
 
     async created () {
 
+        /**
+         * Avoid showing any errors when we're in this view
+         * and we refresh the page
+         */
         if (!this.$store.state.currentEntity) {
             this.$router.push({ name: 'documents' });
-            // Avoid showing any errors
+            
             return;
         }
 
-        this.resetArr({ prop: 'newItems' })
+        this.resetArr({ prop: 'newAddedProducts' })
         this.setChange({})
         this.setId(this.id);
 
         this.currentItem = { ...this.$store.getters['getEntityItems'].find(item => item.id === this.id) };
 
-        !(this.$store && this.$store.state['provider']) 
-            && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
+        if (this.$store && !this.$store.state['provider']) {
+            this.$store.dispatch('api/FETCH_DATA', { 
+                avoidChangingState: true, 
+                anotherEntity: 'providers',
+            });
+        }
+
+        // !(this.$store && this.$store.state['provider']) 
+        //     && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
 
         // We want to get the products first, because the items will depend on them
-        // Have a look at store/modules/document_product: actions/fetchById
+        // Have a look at store/modules/documentProduct: actions/fetchById
         !(this.$store && this.$store.state['product'])
         && ((this.$store.registerModule('product', common)), await this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
 
@@ -317,12 +336,12 @@ export default {
 
     beforeRouteLeave (to, from, next) {
         this.$store.commit('SET_PROVIDER', null);
-        this.$store.commit('document_product/SET_LAST_DELETED_DOC_ID', -1);
+        this.$store.commit('documentProduct/SET_LAST_DELETED_DOC_ID', -1);
         
         let deletedItemsLen;
         if ((deletedItemsLen = this.deletedItems.length)) {
             
-            const isDocumentDeleted = this.items.length === 0 && this.newItems.length === 0
+            const isDocumentDeleted = this.items.length === 0 && this.newAddedProducts.length === 0
 
             const message = `Delete ${deletedItemsLen === 1 ? 'one product' : 'products'} from document`
             this.$store.dispatch('dashboard/insertHistoryRow', {
