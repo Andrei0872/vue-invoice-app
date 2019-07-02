@@ -1,14 +1,19 @@
 <template>
     <div v-if="isEverythingLoaded">
-        <VContent v-if="everythingReady === true" entityName="product">
+        <VContent 
+            v-if="everythingReady === true" 
+            entityName="product"
+            @insertCreatedItems="insertCreatedItems"
+            :disableCreateButton="disableCreateButton" 
+        >
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="items.length"
                     :fields="readColumns" 
                     :items="items" 
-                    @update="update($event)"
+                    @update="updateRow($event)"
                     @showInfo="showInfo($event)"
-                    @deleteRow="deleteRow($event)"
+                    @deleteRow="prepareRowForDeletion($event)"
                 />
                 <div v-else class="no-items">
                     There are no products!
@@ -21,9 +26,9 @@
                 <VTableCreate 
                     @deleteRow="deleteRowInstantly($event)" 
                     :fields="createColumns" 
-                    :items="newItems"
+                    :items="createdItems"
                     @addField="addField($event)"
-                    @init="init"
+                    @tableCreateReady="onTableCreateReady"
                 />
             </template>
         </VContent>
@@ -103,12 +108,20 @@ export default {
         isEverythingLoaded: false
     }),
 
-    methods: mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
+    methods: {
+        ...mapActions([
+            'resetArr', 'deleteCreatedItem', 'addFieldValue', 
+            'updateItem', 'addCreatedItem', 'resetCreatedItems',
+            'insertCreatedItems', 'deleteItem'
+        ]),
+    },
 
     computed: {
-        ...mapState([/* 'items',  */'newItems']),
-
-        ...mapGetters({ items: 'getItemsAsArr' })
+        ...mapGetters({
+            items: 'getItemsAsArr',
+            createdItems: 'getCreatedItemsAsArr',
+            updatedItems: 'getUpdatedItemsAsArr'
+        })
     },
 
     async created () {
