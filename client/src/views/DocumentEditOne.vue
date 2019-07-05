@@ -145,7 +145,15 @@ export default {
 
     methods: {
 
-        ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc', 'updateDocument', 'setAlreadyFetched', 'resetDeletedItems']),
+        ...mapActions(entity, [
+            'setId', 'setChange', 'updateItems', 
+            'deleteFromDoc', 'updateDocument', 
+            'setAlreadyFetched', 'resetDeletedItems',
+            'fetchProductsByDocumentId', 'resetUpdatedProducts',
+            'resetCreatedProducts', 'addUpdatedProduct', 'addCreatedProduct',
+            'deleteCreatedProduct', 'addFieldToCreatedProduct', 
+            'resetDeletedProducts', 'addDeletedProduct'
+        ]),
 
         ...mapActions('document', ['addNewItem', 'resetArr', 'deleteItem', 'addFieldValue']),
 
