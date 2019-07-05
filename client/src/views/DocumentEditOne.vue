@@ -9,19 +9,21 @@
         />
 
         <div class="c-new">
-            <div @click="addRow" class="icon icon--add-row">
+            <div @click="addCreatedProduct(createNewItem())" class="icon icon--add-row">
                 <font-awesome-icon icon="plus-circle" />
             </div>
 
             <VTableCreate 
-                @deleteRow="deleteRowInstantly($event)" 
+                v-if="createdProducts.length"
+                @deleteRow="deleteCreatedProduct($event)" 
                 :fields="createColumns" 
-                :items="newAddedProducts"
-                @addField="addField($event)"
+                :items="createdProducts"
+                @addField="addFieldToCreatedProduct($event)"
+                :listItems="products"
             />
         </div>
 
-        <div class="c-provider-info">
+        <div class="c-provider-info" :style="{ 'margin-top':  createdProducts.length ? 0 : '2rem' }">
             <VSelect
                 v-if="providers.length"
                 @change.native="$refs.invoiceNr.$el.value = ''"
@@ -41,11 +43,13 @@
         </div>
 
         <VTableRead
-            v-if="selectedProvider"
+            v-if="selectedProvider && documentProducts.length + createdProducts.length > 0"
             :fields="readColumns" 
             :readonly="true" 
             :items="[results]"
         />
+
+        <div v-if="documentProducts.length + createdProducts.length === 0" style="margin-top: 2rem;"></div>
         
         <span class="h-mleft"></span>
         <VButton @click="$router.push('/documents')">Back</VButton>
@@ -102,6 +106,7 @@ export default {
 
         ...mapGetters(entity, { 
             documentProducts: 'getProductsAsArr', 
+            createdProducts: 'getCreatedProductsAsArr',
 
             pristineData: 'getPristineData', 
             deletedItems: 'getDeletedItems' 
@@ -109,7 +114,7 @@ export default {
 
         ...mapGetters('provider', { providers: 'getItemsAsArr' }),
 
-        // ...mapState('provider', { providers: 'items' }),
+        ...mapGetters('product', { products: 'getItemsAsArr' }),
 
         ...mapGetters('document', { documents: 'getItemsAsArr', }),
         
@@ -135,8 +140,8 @@ export default {
                 total_sell_vat: total_sell_vat.toFixed(2), 
                 provider_name: this.selectedProvider.name, 
                 provider_id: this.selectedProvider.id,
-                nr_products: this.items.length + this.newAddedProducts.length
                 invoice_number: this.selectedProvider.invoiceNr || this.currentDocument.invoice_number,
+                nr_products: this.documentProducts.length + this.createdProducts.length
             };
         },
 
