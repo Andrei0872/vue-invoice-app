@@ -28,11 +28,11 @@
                 @addProvider="$store.commit('SET_PROVIDER', $event)" 
                 class="c-select c-select--no-margin" 
                 :items="providers"
-                :selectedFieldId="currentItem.provider_id"
+                :selectedFieldId="currentDocument.provider_id"
             />
             <VInput
                 ref="invoiceNr"
-                :key="currentItem.provider_id"
+                :key="currentDocument.provider_id"
                 @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" 
                 placeholder="Invoice Nr."
                 class="c-input" 
@@ -92,11 +92,11 @@ export default {
     mixins: [documentMixin, commonMixin, modalMixin],
 
     data: () => ({
-        currentItem: null,
+        currentDocument: null,
     }),
 
     computed: {
-        id () {
+        currentDocumentId () {
             return parseInt(this.$route.params.id)
         },
 
@@ -111,8 +111,7 @@ export default {
 
         // ...mapState('provider', { providers: 'items' }),
 
-        ...mapGetters('document', { newAddedProducts: 'getCreatedItemsAsArr' }),
-        // ...mapState('document', ['newAddedProducts']),
+        ...mapGetters('document', { documents: 'getItemsAsArr', }),
         
         selectedProvider () {
             return this.$store.state.selectedProvider
@@ -129,15 +128,15 @@ export default {
             }, { total_buy: 0, total_sell: 0, total_vat: 0, total_sell_vat: 0 })
 
             return { 
-                ...this.currentItem, 
+                ...this.currentDocument, 
                 total_buy: total_buy.toFixed(2), 
                 total_sell: total_sell.toFixed(2), 
                 total_vat: total_vat.toFixed(2), 
                 total_sell_vat: total_sell_vat.toFixed(2), 
                 provider_name: this.selectedProvider.name, 
                 provider_id: this.selectedProvider.id,
-                invoice_number: this.selectedProvider.invoiceNr || this.currentItem.invoice_number,
                 nr_products: this.items.length + this.newAddedProducts.length
+                invoice_number: this.selectedProvider.invoiceNr || this.currentDocument.invoice_number,
             };
         },
 
@@ -314,7 +313,7 @@ export default {
         this.setChange({})
         this.setId(this.id);
 
-        this.currentItem = { ...this.$store.getters['getEntityItems'].find(item => item.id === this.id) };
+        this.currentDocument = { ...this.documents.find(document => document.id === this.currentDocumentId) };
 
         if (this.$store && !this.$store.state['provider']) {
             this.$store.dispatch('api/FETCH_DATA', { 
