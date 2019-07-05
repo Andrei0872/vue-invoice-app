@@ -18,5 +18,36 @@ export const mutations = {
 
     DELETE_ITEM: (state, payload) => state.deletedItems.push(payload),
 
-    RESET_DELETED_ITEMS: state => state.deletedItems.length = 0
+    RESET_DELETED_ITEMS: state => state.deletedItems.length = 0,
+
+    // Existing
+    ADD_PRODUCT: (state, { id, ...productDetails }) => state.products.set(id, productDetails),
+
+    TRACK_PRODUCTS: state => state.productsTracker++,
+
+    DELETE_PRODUCT: (state, id) => state.products.delete(id),
+
+    // Updated
+    ADD_UPDATED_PRODUCT: (state, { id, ...productDetails }) => state.updatedProducts.set(id, productDetails),
+
+    TRACK_UPDATED_PRODUCTS: state => state.updatedProductsTracker++,
+
+    RESET_UPDATED_PRODUCTS: state => state.updatedProducts.clear(),
+
+    // Created
+    ADD_CREATED_PRODUCT: (state, { id, ...newProductDetails }) => state.createdProducts.set(id, newProductDetails),
+
+    TRACK_CREATED_PRODUCTS: state => state.createdProductsTracker++,
+
+    RESET_CREATED_PRODUCTS: state => state.createdProducts.clear(),
+
+    DELETE_CREATED_PRODUCT: (state, id) => state.createdProducts.delete(id),
+
+    // Deleted
+    ADD_DELETED_PRODUCT: (state, { id, ...deletedProductDetails }) => state.deletedProducts.set(id, deletedProductDetails),
+
+    TRACK_DELETED_PRODUCTS: state => state.deletedProductsTracker++,
+
+    RESET_DELETED_PRODUCTS: state => state.deletedProducts.clear(),
+
 }
