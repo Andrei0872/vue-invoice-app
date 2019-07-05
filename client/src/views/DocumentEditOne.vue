@@ -1,11 +1,11 @@
 <template>
-    <div class="container" v-if="currentId !== null">
+    <div class="container">
         <VTableRead
-            v-if="this.items.length"
+            v-if="this.documentProducts.length"
             :fields="createColumns"
-            :items="items"
             @deleteRow="deleteRow($event)"
             @update="setChange($event)"
+            :items="documentProducts"
         />
 
         <div class="c-new">
@@ -101,8 +101,8 @@ export default {
         },
 
         ...mapGetters(entity, { 
-            items: 'getItemsById', 
-            changes: 'getChanges', 
+            documentProducts: 'getProductsAsArr', 
+
             pristineData: 'getPristineData', 
             deletedItems: 'getDeletedItems' 
         }),
@@ -331,7 +331,8 @@ export default {
         !(this.$store && this.$store.state['product'])
         && ((this.$store.registerModule('product', common)), await this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
 
-        this.items.length === 0 && this.$store.dispatch(`${entity}/fetchById`, this.id);
+        // console.log(this.documentProducts)
+        await this.fetchProductsByDocumentId(this.currentDocumentId);
     },
 
     beforeRouteLeave (to, from, next) {
