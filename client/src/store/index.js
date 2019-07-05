@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import * as api from './modules/api';
-import * as documentProduct from './modules/single-document/';
+import * as singleDocument from './modules/single-document/';
 import * as dashboard from './modules/dashboard';
 
 Vue.use(Vuex)
@@ -59,7 +59,7 @@ const store = new Vuex.Store({
 
     modules: {
         api,
-        documentProduct,
+        singleDocument,
         dashboard
     }
 });
