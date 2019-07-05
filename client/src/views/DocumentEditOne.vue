@@ -4,8 +4,8 @@
             v-if="this.documentProducts.length"
             :fields="createColumns"
             @deleteRow="deleteRow($event)"
-            @update="setChange($event)"
             :items="documentProducts"
+            @update="addUpdatedProduct($event)"
         />
 
         <div class="c-new">
@@ -107,6 +107,7 @@ export default {
         ...mapGetters(entity, { 
             documentProducts: 'getProductsAsArr', 
             createdProducts: 'getCreatedProductsAsArr',
+            updatedProducts: 'getUpdatedProducts',
 
             pristineData: 'getPristineData', 
             deletedItems: 'getDeletedItems' 
@@ -123,11 +124,14 @@ export default {
         },
 
         results () {
-            const { total_buy, total_sell, total_vat, total_sell_vat } = [...this.items, ...this.newAddedProducts].reduce((memo, item) => {
-                memo['total_buy'] += +(this.changes[item.id] && this.changes[item.id]['buy_price'] || item['buy_price'])
-                memo['total_sell'] += +(this.changes[item.id] && this.changes[item.id]['sell_price'] || item['sell_price'])
-                memo['total_vat'] += +(this.changes[item.id] && this.changes[item.id]['product_vat'] || item['product_vat'])
-                memo['total_sell_vat'] += +(this.changes[item.id] && this.changes[item.id]['sell_price_vat'] || item['sell_price_vat'])
+            const { total_buy, total_sell, total_vat, total_sell_vat } = [...this.documentProducts, ...this.createdProducts].reduce((memo, product) => {
+
+                const currentUpdatedItem = this.updatedProducts.get(product.id);
+                
+                memo['total_buy'] += +(currentUpdatedItem && currentUpdatedItem['buy_price'] || product['buy_price'])
+                memo['total_sell'] += +(currentUpdatedItem && currentUpdatedItem['sell_price'] || product['sell_price'])
+                memo['total_vat'] += +(currentUpdatedItem && currentUpdatedItem['product_vat'] || product['product_vat'])
+                memo['total_sell_vat'] += +(currentUpdatedItem && currentUpdatedItem['sell_price_vat'] || product['sell_price_vat'])
 
                 return memo;
             }, { total_buy: 0, total_sell: 0, total_vat: 0, total_sell_vat: 0 })
@@ -322,9 +326,10 @@ export default {
             return;
         }
 
-        this.resetArr({ prop: 'newAddedProducts' })
-        this.setChange({})
-        this.setId(this.id);
+        // TODO: add in beforeRouterLeave
+        this.resetUpdatedProducts();
+        this.resetCreatedProducts();
+        this.resetDeletedProducts();
 
         this.currentDocument = { ...this.documents.find(document => document.id === this.currentDocumentId) };
 
