@@ -3,8 +3,8 @@
         <VTableRead
             v-if="this.documentProducts.length"
             :fields="createColumns"
-            @deleteRow="deleteRow($event)"
             :items="documentProducts"
+            @deleteRow="prepareRowForDeletion($event)"
             @update="addUpdatedProduct($event)"
         />
 
@@ -56,7 +56,11 @@
         <span class="h-mleft"></span>
         <VButton @click="sendUpdates">Confirm</VButton>
 
-        <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
+        <VModal 
+            :showModal="showDetails" 
+            :isAboutToDelete="isAboutToDelete" 
+            @closeModal="closeModal"
+        >
             <template v-slot:header>
                 <span>{{ modalTitle }}</span>
             </template>
@@ -109,8 +113,10 @@ export default {
             createdProducts: 'getCreatedProductsAsArr',
             updatedProducts: 'getUpdatedProducts',
 
+            // ? needs a deeper look
             pristineData: 'getPristineData', 
             deletedItems: 'getDeletedItems' 
+            // ? =======================
         }),
 
         ...mapGetters('provider', { providers: 'getItemsAsArr' }),
@@ -149,6 +155,7 @@ export default {
             };
         },
 
+        // ? needs a deeper look
         ...mapState(entity, ['currentId', 'alreadyFetched'])
     },
 
@@ -186,7 +193,7 @@ export default {
                                 ? 'provider_name'
                                 : key
 
-                if (`${this.selectedProvider[key]}` !== `${this.currentItem[currentItemKey]}`) {
+                if (`${this.selectedProvider[key]}` !== `${this.currentDocument[currentItemKey]}`) {
                     changes[currentItemKey] = this.selectedProvider[key];
                     changeFound = true;
                 }
@@ -227,13 +234,16 @@ export default {
         },
 
         async sendUpdates () {
+
+            return;
+
             let willChange = false;
 
             // If the document is updated
             let changes = null;
             if ((changes = this.shouldUpdateDocument())) {
                 willChange = true
-                await this.updateDocument({ ...changes, id: this.currentItem.id })
+                await this.updateDocument({ ...changes, id: this.currentDocument.id })
 
                 let prevState = ``,
                     currentState = ``;
@@ -241,7 +251,7 @@ export default {
                 console.log(changes)
                 Object.entries(changes).forEach(([key, value]) => {
                     if (key !== 'provider_id') {
-                        prevState += `${key}:${this.currentItem[key]}|`
+                        prevState += `${key}:${this.currentDocument[key]}|`
                         currentState += `${value}|`
                     }
                 })
@@ -279,12 +289,12 @@ export default {
                 });
             }
 
-            if (this.newAddedProducts.length && !hasEmptyValues(this.newAddedProducts)) {
+            if (this.createdProducts.length && !hasEmptyValues(this.createdProducts)) {
                 willChange = true;
                 const url = `${this.$store.getters['api/mainURL']}/documents/insert_products_only`
                 const config = {
                     ...this.$store.getters['api/config'],
-                    body: JSON.stringify({ items: this.newAddedProducts, docId: this.id })
+                    body: JSON.stringify({ documentProducts: this.createdProducts, docId: this.id })
                 }
                 
                 await this.$store.dispatch('api/makeRequest', { url, config })
@@ -294,7 +304,7 @@ export default {
                     entity: `documents/edit/${this.id}`, 
                     message,
                     action_type: 'insert',
-                    additional_info: JSON.stringify(this.newAddedProducts)
+                    additional_info: JSON.stringify(this.createdProducts)
                 });
             }
 
@@ -309,14 +319,13 @@ export default {
 
         confirmDelete () {
             // Send a different request in order to only delete this item from its document
-            this.deleteFromDoc(this.selectedItem.id)
+            this.addDeletedProduct(this.selectedItem);
             this.closeModal();
         }
     },
 
     async created () {
-
-        /**
+        /** 
          * Avoid showing any errors when we're in this view
          * and we refresh the page
          */
@@ -340,40 +349,44 @@ export default {
             });
         }
 
-        // !(this.$store && this.$store.state['provider']) 
-        //     && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
+        if (this.$store && !this.$store.state['product']) {
+            await this.$store.dispatch('api/FETCH_DATA', { 
+                avoidChangingState: true, 
+                anotherEntity: 'products' 
+            });
+        }
 
-        // We want to get the products first, because the items will depend on them
-        // Have a look at store/modules/documentProduct: actions/fetchById
-        !(this.$store && this.$store.state['product'])
-        && ((this.$store.registerModule('product', common)), await this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
+        // if singleDocument.currentDoc id !== this.currentDocumentId... 
+        // || this.documentProducts.length === 0
+        // this.setId(this.id);
+        // await this.fetchProductsByDocumentId(this.currentDocumentId);
 
         // console.log(this.documentProducts)
         await this.fetchProductsByDocumentId(this.currentDocumentId);
     },
 
-    beforeRouteLeave (to, from, next) {
-        this.$store.commit('SET_PROVIDER', null);
-        this.$store.commit('documentProduct/SET_LAST_DELETED_DOC_ID', -1);
+    // beforeRouteLeave (to, from, next) {
+    //     this.$store.commit('SET_PROVIDER', null);
+    //     this.$store.commit('documentProduct/SET_LAST_DELETED_DOC_ID', -1);
         
-        let deletedItemsLen;
-        if ((deletedItemsLen = this.deletedItems.length)) {
+    //     let deletedItemsLen;
+    //     if ((deletedItemsLen = this.deletedItems.length)) {
             
-            const isDocumentDeleted = this.items.length === 0 && this.newAddedProducts.length === 0
+    //         const isDocumentDeleted = this.documentProducts.length === 0 && this.createdProducts.length === 0
 
-            const message = `Delete ${deletedItemsLen === 1 ? 'one product' : 'products'} from document`
-            this.$store.dispatch('dashboard/insertHistoryRow', {
-                entity: `${isDocumentDeleted ? 'document/empty' : 'documents/edit/' + this.id}`,
-                message, 
-                action_type: 'delete',
-                additional_info: JSON.stringify(this.deletedItems.map(({ product_id = null, document_id, product_name, ...rest }) => ({ product_name, ...rest })))
-            });
+    //         const message = `Delete ${deletedItemsLen === 1 ? 'one product' : 'products'} from document`
+    //         this.$store.dispatch('dashboard/insertHistoryRow', {
+    //             entity: `${isDocumentDeleted ? 'document/empty' : 'documents/edit/' + this.id}`,
+    //             message, 
+    //             action_type: 'delete',
+    //             additional_info: JSON.stringify(this.deletedItems.map(({ product_id = null, document_id, product_name, ...rest }) => ({ product_name, ...rest })))
+    //         });
 
-            this.resetDeletedItems();
-        }
+    //         this.resetDeletedItems();
+    //     }
 
-        next();   
-    },
+    //     next();   
+    // },
 }
 </script>
 
