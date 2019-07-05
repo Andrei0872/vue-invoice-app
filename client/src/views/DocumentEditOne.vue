@@ -84,7 +84,7 @@ import { mapGetters, mapActions, mapState } from 'vuex'
 
 import { hasEmptyValues } from '../utils/';
 
-const entity = 'documentProduct'
+const entity = 'singleDocument';
 
 export default {
     components: { VTableRead, VModal, VSelect, VInput, VVat, VTableCreate, VButton },
