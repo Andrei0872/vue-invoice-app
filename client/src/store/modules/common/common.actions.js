@@ -55,13 +55,8 @@ export const actions = {
 
     updateItem: ({ state, commit }, { id, ...updatedItemDetails }) => {
         const currentUpdatedItem = state.updatedItems.get(id) || {};
-        let newUpdatedItem = {};
-
-        Object.entries(updatedItemDetails).forEach(([key, val]) => {
-            newUpdatedItem[key] = val;
-        })  
-
-        newUpdatedItem = { ...currentUpdatedItem, ...newUpdatedItem };
+                
+        const newUpdatedItem = { ...currentUpdatedItem, ...updatedItemDetails };
 
         commit('ADD_UPDATED_ITEM', { id, ...newUpdatedItem });
         commit('TRACK_UPDATED_ITEMS');
