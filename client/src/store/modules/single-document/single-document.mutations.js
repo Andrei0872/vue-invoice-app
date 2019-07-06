@@ -9,16 +9,10 @@ export const mutations = {
 
     SET_LAST_DELETED_DOC_ID: (state, payload) => state.lastDeletedDocId = payload,
 
-    SET_PRISTINE_DATA: (state, {
-        id,
-        ...fields
-    }) => state.pristineData.set(id, fields),
-
-    RESET_ITEMS: state => state.items = [],
-
-    DELETE_ITEM: (state, payload) => state.deletedItems.push(payload),
-
-    RESET_DELETED_ITEMS: state => state.deletedItems.length = 0,
+    // SET_PRISTINE_DATA: (state, {
+    //     id,
+    //     ...fields
+    // }) => state.pristineData.set(id, fields),
 
     // Existing
     ADD_PRODUCT: (state, { id, ...productDetails }) => state.products.set(id, productDetails),
@@ -26,6 +20,8 @@ export const mutations = {
     TRACK_PRODUCTS: state => state.productsTracker++,
 
     DELETE_PRODUCT: (state, id) => state.products.delete(id),
+
+    RESET_PRODUCTS: state => state.products.clear(),
 
     // Updated
     ADD_UPDATED_PRODUCT: (state, { id, ...productDetails }) => state.updatedProducts.set(id, productDetails),
