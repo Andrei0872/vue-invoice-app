@@ -242,6 +242,7 @@ export default {
                 this.updateDocument({ ...changes, id: this.currentDocument.id })
             }
 
+            this.sendDeletedProducts(this.currentDocumentId);
 
             this.sendUpdatedProducts();
 

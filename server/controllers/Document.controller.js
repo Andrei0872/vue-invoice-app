@@ -21,8 +21,8 @@ class DocumentController extends mainController {
         return res.json(responseFromDB)
     }
 
-    async deleteFromDoc ({ body: { id, docId } }, res) {
-        const responseFromDB = await this.service.deleteFromDoc(id, docId);
+    async deleteFromDoc ({ body: { ids, docId, shouldDeleteDoc } }, res) {
+        const responseFromDB = await this.service.deleteFromDoc(ids, docId, shouldDeleteDoc);
 
         return res.json(responseFromDB);
     }

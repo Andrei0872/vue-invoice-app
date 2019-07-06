@@ -162,10 +162,31 @@ class DocumentService extends mainService {
         }
     }
 
-    async deleteFromDoc (id, docId) {
-        return (await this.table._promisify(
-            `call remove_document(${docId}, ${id})`
-        ))[0]
+    async deleteFromDoc (ids, docId, shouldDeleteDoc) {
+        const sql = `
+            delete from document_product dp
+            where 
+                dp.document_id = ${docId}
+                and dp.product_id in (${ids.join(', ')});
+        `;
+
+        try {
+            await this.table._promisify(sql);
+
+            return { message: 'Successfully deleted products!!' }
+        } catch (err) {
+            console.error(err);
+
+            return { message: 'Error deleting products!!' }
+        } finally {
+            if (shouldDeleteDoc) {
+                this.table._promisify(`
+                    delete from document d
+                    where d.id = ${docId};
+                `
+                );
+            }
+        }
     }
 
     async updateDocument ({ id, ...otherFields }) {

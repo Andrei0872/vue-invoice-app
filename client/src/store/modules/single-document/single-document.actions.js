@@ -129,28 +129,54 @@ export const actions = {
         commit('TRACK_DELETED_PRODUCTS');
     },
 
-    //     console.log('updating items!')
+    sendDeletedProducts: async ({ state, dispatch, rootState, rootGetters }, currentDocumentId) => {
+        const { deletedProducts, products, createdProducts } = state
         
-    //     const url = `${rootState.mainUrl}documents/update_products`
-    //     const config = {
-    //         ...rootGetters['api/config'], 
-    //         method: "PUT",
-    //         body: JSON.stringify(payload)
-    //     }
+        console.log(deletedProducts);
 
-    //     const response = await dispatch("api/makeRequest", { url, config }, { root: true });
-    //     if (rootGetters['dashboard/getUpdateState']) {
-    //         dispatch('dashboard/fetchMainOverview', 'dashboard/overview', { root: true });
-    //     }
+        const url = `${rootState.mainUrl}documents/delete_from_doc`;
+        const config = {
+            ...rootGetters['api/config'],
+            method: "DELETE",
+            body: JSON.stringify({
+                ids: [...deletedProducts.keys()].map(k => deletedProducts.get(k).product_id ),
+                docId: currentDocumentId,
+                shouldDeleteDoc: products.size + createdProducts.size === 0
+            })
+        };
         
-    //     await dispatch('api/FETCH_DATA', undefined, { root: true });
-        
-    //     return response;
-    // },
+        dispatch('resetDeletedProducts');
 
-    // deleteFromDoc: async ({ dispatch, commit, rootState, rootGetters, state }, id) => {
-    //     const url = `${rootState.mainUrl}documents/delete_from_doc`;
-    //     const config = { ...rootGetters['api/config'], method: "DELETE", body: JSON.stringify({ id, docId: state.currentId }) };
+        const response = await dispatch('api/makeRequest', { url, config }, { root: true });
+
+        /* 
+        this.$store.commit('SET_PROVIDER', null);
+        this.$store.commit('documentProduct/SET_LAST_DELETED_DOC_ID', -1);
+
+        let deletedItemsLen;
+        if ((deletedItemsLen = this.deletedItems.length)) {
+
+            const isDocumentDeleted = this.documentProducts.length === 0 && this.createdProducts.length === 0
+
+            const message = `Delete ${deletedItemsLen === 1 ? 'one product' : 'products'} from document`
+            this.$store.dispatch('dashboard/insertHistoryRow', {
+                entity: `${isDocumentDeleted ? 'document/empty' : 'documents/edit/' + this.id}`,
+                message,
+                action_type: 'delete',
+                additional_info: JSON.stringify(this.deletedItems.map(({
+                    product_id = null,
+                    document_id,
+                    product_name,
+                    ...rest
+                }) => ({
+                    product_name,
+                    ...rest
+                })))
+            });
+
+            this.resetDeletedItems();
+        }
+        */
         
     },
 
@@ -191,6 +217,4 @@ export const actions = {
     },
 
     // setAlreadyFetched: ({ commit }, payload) => commit('SET_ALREADY_FETCHED', payload),
-
-    // resetDeletedItems: ({ commit }) => commit('RESET_DELETED_ITEMS'),
 }
