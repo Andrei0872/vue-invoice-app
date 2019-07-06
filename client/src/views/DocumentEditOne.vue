@@ -246,7 +246,7 @@ export default {
 
             this.sendUpdatedProducts();
 
-            this.alreadyFetched && this.setAlreadyFetched(false);
+            this.sendCreatedProducts(this.currentDocumentId);
 
             // this.alreadyFetched && this.setAlreadyFetched(false);
 

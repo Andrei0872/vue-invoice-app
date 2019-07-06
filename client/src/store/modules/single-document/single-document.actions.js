@@ -115,6 +115,35 @@ export const actions = {
         commit('TRACK_CREATED_PRODUCTS');
     },
 
+    sendCreatedProducts: async ({ dispatch, rootGetters, state }, currentDocumentId) => {
+        const { createdProducts } = state;
+        
+        if (!createdProducts.size) 
+            return;
+
+        
+        const url = `${rootGetters['api/mainURL']}/documents/insert_products_only`;
+        const config = {
+            ...rootGetters['api/config'],
+            body: JSON.stringify({
+                items: [...createdProducts.values()],
+                docId: currentDocumentId
+            }),
+        };
+        
+        dispatch('resetCreatedProducts');
+
+        await dispatch('api/makeRequest', { url, config }, { root: true });
+
+        // const message = `Add new products in a document`;
+        // this.$store.dispatch('dashboard/insertHistoryRow', {
+        //     entity: `documents/edit/${this.id}`, 
+        //     message,
+        //     action_type: 'insert',
+        //     additional_info: JSON.stringify(this.createdProducts)
+        // });
+    },
+
     // Deleted
     addDeletedProduct: ({ commit }, { id = null, ...deletedProductDetails }) => {
         commit('ADD_DELETED_PRODUCT', { id, ...deletedProductDetails });
