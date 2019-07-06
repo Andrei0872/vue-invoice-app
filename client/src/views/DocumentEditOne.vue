@@ -259,6 +259,12 @@ export default {
         }
     },
 
+    beforeRouteLeave (to, from, next) {
+        this.resetProducts();
+
+        next();
+    },
+
     async created () {
         /** 
          * Avoid showing any errors when we're in this view

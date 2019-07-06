@@ -27,6 +27,11 @@ export const actions = {
         commit('TRACK_PRODUCTS');
     },
 
+    resetProducts: ({ commit }) => {
+        commit('RESET_PRODUCTS');
+        commit('TRACK_PRODUCTS');
+    },    
+
     // setId: ({ commit }, payload) => commit('SET_ID', payload),
 
     // Updated
