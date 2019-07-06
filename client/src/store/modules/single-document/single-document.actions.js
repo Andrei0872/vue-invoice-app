@@ -67,10 +67,10 @@ export const actions = {
         }
         
         const response = await dispatch("api/makeRequest", { url, config }, { root: true });
-        
-        console.log(response)
 
         dispatch('resetUpdatedProducts');
+
+        return response;
 
         // TODO: decide whether the dashboard info needs to be updated
         // if (rootGetters['dashboard/getUpdateState']) {
@@ -138,8 +138,9 @@ export const actions = {
         
         dispatch('resetCreatedProducts');
 
-        await dispatch('api/makeRequest', { url, config }, { root: true });
+        const response = await dispatch('api/makeRequest', { url, config }, { root: true });
 
+        return response;
         // const message = `Add new products in a document`;
         // this.$store.dispatch('dashboard/insertHistoryRow', {
         //     entity: `documents/edit/${this.id}`, 
@@ -182,6 +183,8 @@ export const actions = {
         dispatch('resetDeletedProducts');
 
         const response = await dispatch('api/makeRequest', { url, config }, { root: true });
+
+        return response;
 
         /* 
         this.$store.commit('SET_PROVIDER', null);
