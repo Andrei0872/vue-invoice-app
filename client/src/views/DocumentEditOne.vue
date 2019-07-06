@@ -112,11 +112,6 @@ export default {
             documentProducts: 'getProductsAsArr', 
             createdProducts: 'getCreatedProductsAsArr',
             updatedProducts: 'getUpdatedProducts',
-
-            // ? needs a deeper look
-            pristineData: 'getPristineData', 
-            deletedItems: 'getDeletedItems' 
-            // ? =======================
         }),
 
         ...mapGetters('provider', { providers: 'getItemsAsArr' }),
@@ -154,21 +149,31 @@ export default {
                 nr_products: this.documentProducts.length + this.createdProducts.length
             };
         },
-
-        // ? needs a deeper look
-        ...mapState(entity, ['currentId', 'alreadyFetched'])
     },
 
     methods: {
 
         ...mapActions(entity, [
-            'setId', 'setChange', 'updateItems', 
-            'deleteFromDoc', 'updateDocument', 
-            'setAlreadyFetched', 'resetDeletedItems',
-            'fetchProductsByDocumentId', 'resetUpdatedProducts',
-            'resetCreatedProducts', 'addUpdatedProduct', 'addCreatedProduct',
-            'deleteCreatedProduct', 'addFieldToCreatedProduct', 
-            'resetDeletedProducts', 'addDeletedProduct'
+            'setId', 
+            'setChange', 
+            'updateItems', 
+            'deleteFromDoc', 
+            'updateDocument', 
+            'setAlreadyFetched', 
+            'resetDeletedItems',
+            'fetchProductsByDocumentId', 
+            'resetUpdatedProducts',
+            'resetCreatedProducts', 
+            'addUpdatedProduct', 
+            'addCreatedProduct',
+            'deleteCreatedProduct', 
+            'addFieldToCreatedProduct', 
+            'resetDeletedProducts', 
+            'addDeletedProduct',
+            'sendUpdatedProducts',
+            'sendCreatedProducts',
+            'sendDeletedProducts',
+            'resetProducts',
         ]),
 
         ...mapActions('document', ['addNewItem', 'resetArr', 'deleteItem', 'addFieldValue']),
@@ -202,9 +207,7 @@ export default {
             return changeFound ? changes : changeFound;
         },
         
-        /**
-         * @param { Map } pristine
-         */
+        // ? closer look!
         verifyChanges (changed, pristine) {
             let prevState = ``,
                 currentState = ``,
@@ -313,12 +316,12 @@ export default {
 
             this.alreadyFetched && this.setAlreadyFetched(false);
 
+            // this.alreadyFetched && this.setAlreadyFetched(false);
 
             this.$router.push('/documents');
         },
 
         confirmDelete () {
-            // Send a different request in order to only delete this item from its document
             this.addDeletedProduct(this.selectedItem);
             this.closeModal();
         }
@@ -334,11 +337,6 @@ export default {
             
             return;
         }
-
-        // TODO: add in beforeRouterLeave
-        this.resetUpdatedProducts();
-        this.resetCreatedProducts();
-        this.resetDeletedProducts();
 
         this.currentDocument = { ...this.documents.find(document => document.id === this.currentDocumentId) };
 
@@ -358,35 +356,8 @@ export default {
 
         // if singleDocument.currentDoc id !== this.currentDocumentId... 
         // || this.documentProducts.length === 0
-        // this.setId(this.id);
-        // await this.fetchProductsByDocumentId(this.currentDocumentId);
-
-        // console.log(this.documentProducts)
         await this.fetchProductsByDocumentId(this.currentDocumentId);
     },
-
-    // beforeRouteLeave (to, from, next) {
-    //     this.$store.commit('SET_PROVIDER', null);
-    //     this.$store.commit('documentProduct/SET_LAST_DELETED_DOC_ID', -1);
-        
-    //     let deletedItemsLen;
-    //     if ((deletedItemsLen = this.deletedItems.length)) {
-            
-    //         const isDocumentDeleted = this.documentProducts.length === 0 && this.createdProducts.length === 0
-
-    //         const message = `Delete ${deletedItemsLen === 1 ? 'one product' : 'products'} from document`
-    //         this.$store.dispatch('dashboard/insertHistoryRow', {
-    //             entity: `${isDocumentDeleted ? 'document/empty' : 'documents/edit/' + this.id}`,
-    //             message, 
-    //             action_type: 'delete',
-    //             additional_info: JSON.stringify(this.deletedItems.map(({ product_id = null, document_id, product_name, ...rest }) => ({ product_name, ...rest })))
-    //         });
-
-    //         this.resetDeletedItems();
-    //     }
-
-    //     next();   
-    // },
 }
 </script>
 
