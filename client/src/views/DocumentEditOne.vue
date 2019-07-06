@@ -242,51 +242,8 @@ export default {
                 this.updateDocument({ ...changes, id: this.currentDocument.id })
             }
 
-            // If any product from this document has been updated
-            let productsChangedLen = Object.keys(this.changes).length;
-            if (productsChangedLen) {
-                const [prevState, currentState, additionalInfo] = this.verifyChanges(this.changes, this.pristineData)
-                
-                console.log(prevState, currentState, additionalInfo)
-                
-                if (prevState === ``)
-                    return;
-    
-                willChange = true;
-                this.updateItems(this.changes);
-                
-                const message = `Update product${productsChangedLen > 1 ? 's' : ''} in document`;
-                this.$store.dispatch('dashboard/insertHistoryRow', {
-                    entity: `documents/edit/${this.id}`, 
-                    message, 
-                    action_type: 'update',
-                    prev_state: prevState.slice(0, -1),
-                    current_state: currentState.slice(0, -1),
-                    additional_info: additionalInfo.slice(0, -1)
-                });
-            }
 
-            if (this.createdProducts.length && !hasEmptyValues(this.createdProducts)) {
-                willChange = true;
-                const url = `${this.$store.getters['api/mainURL']}/documents/insert_products_only`
-                const config = {
-                    ...this.$store.getters['api/config'],
-                    body: JSON.stringify({ documentProducts: this.createdProducts, docId: this.id })
-                }
-                
-                await this.$store.dispatch('api/makeRequest', { url, config })
-
-                const message = `Add new products in a document`;
-                this.$store.dispatch('dashboard/insertHistoryRow', {
-                    entity: `documents/edit/${this.id}`, 
-                    message,
-                    action_type: 'insert',
-                    additional_info: JSON.stringify(this.createdProducts)
-                });
-            }
-
-            if (!willChange)
-                return;
+            this.sendUpdatedProducts();
 
             this.alreadyFetched && this.setAlreadyFetched(false);
 

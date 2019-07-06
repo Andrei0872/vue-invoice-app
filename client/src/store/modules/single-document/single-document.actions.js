@@ -1,3 +1,5 @@
+import { convertMapToObject } from '@/utils/';
+
 export const actions = {
 
     // Document
@@ -29,6 +31,8 @@ export const actions = {
 
     // Updated
     addUpdatedProduct: ({ commit, state }, { id = null, ...productDetails }) => {
+        // TODO: if the updated prop would lead to its initial state, remove prop!
+        // if the object has no more props, delete the updated item
         const currentUpdatedProduct = state.updatedProducts.get(id) || {};
                 
         const newUpdatedProduct = { ...currentUpdatedProduct, ...productDetails };
@@ -40,6 +44,49 @@ export const actions = {
     resetUpdatedProducts: ({ commit }) => {
         commit('RESET_UPDATED_PRODUCTS');
         commit('TRACK_UPDATED_PRODUCTS');
+    },
+
+    sendUpdatedProducts: async ({ commit, dispatch, state, rootGetters, rootState }) => {
+        const { updatedProducts } = state;
+
+        if (!updatedProducts.size) 
+            return;
+        
+        // dispatch('setAlreadyFetched', true);
+
+        const url = `${rootState.mainUrl}documents/update_products`
+        const config = {
+            ...rootGetters['api/config'],
+            method: "PUT",
+            body: JSON.stringify(convertMapToObject(updatedProducts))
+        }
+        
+        const response = await dispatch("api/makeRequest", { url, config }, { root: true });
+        
+        console.log(response)
+
+        dispatch('resetUpdatedProducts');
+
+        // TODO: decide whether the dashboard info needs to be updated
+        // if (rootGetters['dashboard/getUpdateState']) {
+        //     dispatch('dashboard/fetchMainOverview', 'dashboard/overview', {
+        //         root: true
+        //     });
+        // }
+        // await dispatch('api/FETCH_DATA', undefined, {
+        //     root: true
+        // });
+        // return response;
+
+        // const message = `Update product${productsChangedLen > 1 ? 's' : ''} in document`;
+        // this.$store.dispatch('dashboard/insertHistoryRow', {
+        //     entity: `documents/edit/${this.id}`, 
+        //     message, 
+        //     action_type: 'update',
+        //     prev_state: prevState.slice(0, -1),
+        //     current_state: currentState.slice(0, -1),
+        //     additional_info: additionalInfo.slice(0, -1)
+        // });
     },
 
     // Created
@@ -81,10 +128,6 @@ export const actions = {
         commit('RESET_DELETED_PRODUCTS');
         commit('TRACK_DELETED_PRODUCTS');
     },
-    
-
-    // updateItems: async ({ dispatch, rootState, rootGetters }, payload) => {
-    //     dispatch('setAlreadyFetched', true);
 
     //     console.log('updating items!')
         
