@@ -94,6 +94,9 @@ export const compareObjects = (pristineObj, changedObj, cbWhenChangeFound = unde
 export const isObjectEmpty = obj => Object.keys(obj).length === 0
 
 export const convertMapToArr = (m, keyName) => {
+    if (!m.size)
+        return [];
+
     return [...m.entries()].map(([k, v]) => ({
         [keyName]: k,
         ...v
