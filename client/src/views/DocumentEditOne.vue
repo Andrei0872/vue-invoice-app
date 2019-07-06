@@ -236,36 +236,10 @@ export default {
             return [prevState, currentState, additionalInfo]
         },
 
-        async sendUpdates () {
-
-            return;
-
-            let willChange = false;
-
-            // If the document is updated
+        sendUpdates () {
             let changes = null;
             if ((changes = this.shouldUpdateDocument())) {
-                willChange = true
-                await this.updateDocument({ ...changes, id: this.currentDocument.id })
-
-                let prevState = ``,
-                    currentState = ``;
-
-                console.log(changes)
-                Object.entries(changes).forEach(([key, value]) => {
-                    if (key !== 'provider_id') {
-                        prevState += `${key}:${this.currentDocument[key]}|`
-                        currentState += `${value}|`
-                    }
-                })
-
-                const message = `Update document information`;
-                this.$store.dispatch('dashboard/insertHistoryRow', {
-                    entity: `documents/edit/${this.id}`, 
-                    message, action_type: 'update',
-                    prev_state: prevState.slice(0, -1),
-                    current_state: currentState.slice(0, -1),
-                });
+                this.updateDocument({ ...changes, id: this.currentDocument.id })
             }
 
             // If any product from this document has been updated

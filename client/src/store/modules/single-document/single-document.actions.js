@@ -1,4 +1,6 @@
 export const actions = {
+
+    // Document
     fetchProductsByDocumentId: async ({ commit, dispatch, rootGetters, rootState }, id) => {
         const url = `${rootGetters['api/mainURL']}/documents`;
         const config = { ...rootGetters['api/config'], body: JSON.stringify({ id }) };
@@ -107,35 +109,43 @@ export const actions = {
     //     const url = `${rootState.mainUrl}documents/delete_from_doc`;
     //     const config = { ...rootGetters['api/config'], method: "DELETE", body: JSON.stringify({ id, docId: state.currentId }) };
         
-    //     commit('DELETE_ITEM', state.items.find(item => +item.id === +id));
+    },
 
-    //     const dataAfterDeletion = await dispatch('api/makeRequest', { url, config }, { root: true });
+    updateDocument: async ({ dispatch, state, rootState, rootGetters }, payload) => {
+        const url = `${rootState.mainUrl}documents/update_document`;
+        const config = {
+            ...rootGetters['api/config'],
+            method: "PUT",
+            body: JSON.stringify(payload)
+        }
 
-    //     commit('SET_LAST_DELETED_DOC_ID', state.currentId);
-    //     const products = rootState.product.items
-    //         .reduce((memo, product) => (memo[product.id] = product.name, memo), {})
-
-    //     commit('SET_ITEMS', dataAfterDeletion.map(item => ({ ...item, product_name: products[item.product_id] })));
-    // },
-
-    // updateDocument: async ({ dispatch, state, rootState, rootGetters }, payload) => {
-    //     console.log('updating document!')
-
-    //     const url = `${rootState.mainUrl}documents/update_document`;
-    //     const config = {
-    //         ...rootGetters['api/config'],
-    //         method: "PUT",
-    //         body: JSON.stringify(payload)
-    //     }
-
-    //     await dispatch('api/makeRequest', { url, config }, { root: true })
+        await dispatch('api/makeRequest', { url, config }, { root: true })
         
-    //     if (!state.alreadyFetched) {
-    //         await dispatch('api/FETCH_DATA', undefined, { root: true });
-    //     } else {
-    //         dispatch('setAlreadyFetched', false);
-    //     }
-    // },
+        if (!state.alreadyFetched) {
+            await dispatch('api/FETCH_DATA', undefined, { root: true });
+        } else {
+            dispatch('setAlreadyFetched', false);
+        }
+
+        // let prevState = ``,
+        //     currentState = ``;
+
+        // Object.entries(changes).forEach(([key, value]) => {
+        //     if (key !== 'provider_id') {
+        //         prevState += `${key}:${this.currentDocument[key]}|`
+        //         currentState += `${value}|`
+        //     }
+        // })
+
+        // const message = `Update document information`;
+        // this.$store.dispatch('dashboard/insertHistoryRow', {
+        //     entity: `documents/edit/${this.id}`,
+        //     message,
+        //     action_type: 'update',
+        //     prev_state: prevState.slice(0, -1),
+        //     current_state: currentState.slice(0, -1),
+        // });
+    },
 
     // setAlreadyFetched: ({ commit }, payload) => commit('SET_ALREADY_FETCHED', payload),
 
