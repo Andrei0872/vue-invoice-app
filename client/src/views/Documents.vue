@@ -20,13 +20,16 @@
                     @showInfo="showInfo($event)"
                     @deleteRow="prepareRowForDeletion($event)"
                 />
+
                 <div class="no-items" v-else-if="vat['food_vat'] === null || vat['non_food_vat'] === null">
                     Please make sure you specify the VAT!
                 </div>
+
                 <div v-else class="no-items">
                     There are no {{ errorMessage }}
                 </div>
             </template>
+
             <template v-slot:createItems>
                 <div class="l-flex">
                     <div @click="addRow" class="icon icon--add-row">
@@ -36,6 +39,7 @@
                     <VInput @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" placeholder="Invoice Nr" class="c-input" />
                     <VVat />
                 </div>
+                
                 <VTableCreate 
                     @deleteRow="deleteRowInstantly($event)" 
                     :fields="createColumns" 
@@ -57,7 +61,7 @@
             <template v-slot:body>
                 <div
                     v-for="keyVal in Object.entries(selectedItem)"
-                    :key="keyVal[1].id"
+                    :key="keyVal[0]"
                     class="modal-body__row"
                 >
                     <div class="modal-body__prop"><span>{{ keyVal[0] }}</span></div>
@@ -122,7 +126,7 @@ export default {
         ]),
 
         showInfo ({ id }) {
-            this.$router.replace({ name: 'documentEditOne', params: { id } });
+            this.$router.push({ name: 'documentEditOne', params: { id } });
         }
     },
 
@@ -162,9 +166,12 @@ export default {
 
     // Apply changes after updating a document's content
     beforeRouteEnter (to, from, next) {
-        if (from.name === 'documentEditOne') {
+        
+        if (from.name === 'documentEditOne' && from.params.shouldUpdate) {
+            delete from.params.shouldUpdate;
+
             return next(vm => {
-                vm.$store.dispatch('documentProduct/fetchById', from.params.id);
+                vm.$store.dispatch('singleDocument/fetchProductsByDocumentId', from.params.id);
                 vm.$store.dispatch('api/FETCH_DATA');
             })
         }

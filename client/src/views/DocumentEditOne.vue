@@ -101,6 +101,10 @@ export default {
 
     data: () => ({
         currentDocument: null,
+        documentNeedsUpdate: false,
+
+        // Determine whether some products were deleted or not
+        initialProductsLen: 0,
     }),
 
     computed: {
@@ -241,6 +245,10 @@ export default {
             if ((changes = this.shouldUpdateDocument())) {
                 this.updateDocument({ ...changes, id: this.currentDocument.id })
             }
+            
+            this.documentNeedsUpdate = this.updatedProducts.size !== 0 
+                || this.createdProducts.length !== 0
+                || this.initialProductsLen !== this.documentProducts.length
 
             this.sendDeletedProducts(this.currentDocumentId);
 
@@ -262,6 +270,10 @@ export default {
     beforeRouteLeave (to, from, next) {
         this.resetProducts();
 
+        if (to.name === 'documents') {
+            from.params.shouldUpdate = this.documentNeedsUpdate;
+        }
+        
         next();
     },
 
@@ -295,6 +307,8 @@ export default {
         // if singleDocument.currentDoc id !== this.currentDocumentId... 
         // || this.documentProducts.length === 0
         await this.fetchProductsByDocumentId(this.currentDocumentId);
+
+        this.initialProductsLen = this.documentProducts.length;
     },
 }
 </script>
