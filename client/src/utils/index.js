@@ -102,3 +102,13 @@ export const convertMapToArr = (m, keyName) => {
         ...v
     }));
 };
+
+export const convertMapToObject = m => {
+    const obj = {};
+
+    for (const [id, itemDetails] of m) {
+        obj[id] = itemDetails;
+    }
+
+    return obj;
+};
