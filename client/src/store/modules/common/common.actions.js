@@ -79,6 +79,7 @@ export const actions = {
         commit('TRACK_UPDATED_ITEMS');
     },
 
+    // Deleted
     deleteItem: ({ state, commit }, id) => {
         const deletedItem = state.items.get(id);
 
@@ -88,7 +89,33 @@ export const actions = {
         commit('TRACK_DELETED_ITEMS');
     },
 
-    setItems: ({ commit, dispatch, rootGetters }, payload) => {
+    sendDeletedItems: async ({ dispatch, rootGetters, state, rootState }) => {
+        console.log('deleting items!');
+        const url = rootGetters['getEntityBackendEndpoint'];
+        const payload = { deletedItemsIds: [...state.deletedItems.keys()] };
+
+        const response = await dispatch('api/makeDELETERequest', {
+            url, payload
+        }, { root: true });
+
+        // TODO: check if you need to refresh the documents
+        console.log('response: DELETE', response)
+
+        // Only re-fetch documents if the document entity has been loaded
+        if (rootState['document'] && rootState['document'].items.size) {
+            console.log('should delete some documents')
+            const url = rootState['mainUrl'] + 'documents';
+            const entity = 'document';
+
+            dispatch('api/makeGETRequest', { url, entity }, { root: true });
+        }
+    },
+
+    resetDeletedItems: ({ commit }) => {
+        commit('RESET_DELETED_ITEMS');
+        commit('TRACK_DELETED_ITEMS');
+    },
+
         payload.forEach(({ id, ...item }) => commit('ADD_ITEM', { id, ...item }))
         commit('TRACK_ITEMS');
 

@@ -144,24 +144,36 @@ class Service {
         
     }
 
-    async deleteOne ({ id }) {
-        try {
-            let rowsInfo;
-            // If a provider is deleted, we must also delete all the documents that have that provider
-            // To do that, call the procedure
-            this.table.currentTable !== 'provider' && (await this.table.deleteOne(id))
-                || (rowsInfo = await this.table._promisify(`call remove_provider(${id})`))
+    async delete ({ deletedItemsIds }) {
+        let sql = ``;
+        const tableName = this.table.currentTable;
 
-            return {
-                message: 'Successfully deleted',
-                rowsInfo
-            }
+        if (tableName === 'provider') {
+            /**
+             * Using left join so a provider is still deleted
+             * even though it does not own any documents
+             */
+            sql = `
+                delete p, d
+                from provider p
+                left join document d
+                on p.id = d.provider_id
+                where p.id in (${deletedItemsIds.join(', ')})
+            `;
+        } else {
+            sql = `
+                delete
+                from ${tableName}
+                where id in (${deletedItemsIds.join(', ')})
+            `;
+        }
+
+        try {
+            await this.table._promisify(sql);
+
+            return { message: 'successfully deleted' };
         } catch (err) {
-            console.error(err)
-            
-            return {
-                message: 'Error deleting'
-            }
+            return { message: 'error deleting', err };
         }
     }
 }
