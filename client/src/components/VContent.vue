@@ -8,14 +8,28 @@
             </div>
             <div>
                 <VButton 
-                :disabled="disableCreateButton"
-                @createItems="isCreating = false; $emit('insertCreatedItems')"
-                :showBtn="isCreating"
-                btnClass="success"
-            >
-                Create
-            </VButton>
+                    :disabled="disableCreateButton"
+                    @createItems="isCreating = false; $emit('insertCreatedItems')"
+                    :showBtn="isCreating"
+                    btnClass="success"
+                >
+                    Create
+                </VButton>
             </div>
+            
+            <template v-if="shouldDisplayConfirmCancelButtons">
+                <div>
+                    <VButton @cancelChanges="$emit('cancelChanges')">
+                        Cancel Changes
+                    </VButton>
+                </div>
+    
+                <div style="margin-left: 1rem;">
+                    <VButton @confirmChanges="$emit('confirmChanges')">
+                        Confirm Changes
+                    </VButton>
+                </div>
+            </template>
         </div>
 
         <transition name="fade" mode="out-in">
@@ -47,6 +61,10 @@ export default {
         disableCreateButton: {
             type: Boolean,
             default: false,
+        },
+        shouldDisplayConfirmCancelButtons: {
+            type: Boolean,
+            default: false
         }
     },
     // TODO: test created btn disabled states

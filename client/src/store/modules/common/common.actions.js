@@ -92,10 +92,20 @@ export const actions = {
         payload.forEach(({ id, ...item }) => commit('ADD_ITEM', { id, ...item }))
         commit('TRACK_ITEMS');
 
-        if (rootGetters['dashboard/getUpdateState']) {
-            dispatch('dashboard/fetchMainOverview', 'dashboard/overview', {
-                root: true
-            });
+        // if (rootGetters['dashboard/getUpdateState']) {
+        //     dispatch('dashboard/fetchMainOverview', 'dashboard/overview', {
+        //         root: true
+        //     });
+        // }
+    },
+
+    sendModifications: ({ dispatch, state }) => {
+        if (state.updatedItems.size) {
+            dispatch('sendUpdatedItems');
+        }
+
+        if (state.deletedItems.size) {
+            dispatch('sendDeletedItems');
         }
     },
 }

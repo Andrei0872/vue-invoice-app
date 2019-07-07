@@ -4,6 +4,9 @@
             :disableCreateButton="disableCreateButton" 
             entityName="provider"
             @insertCreatedItems="insertCreatedItems"
+            :shouldDisplayConfirmCancelButtons="shouldDisplayConfirmCancelButtons"
+            @confirmChanges="onConfirmChanges"
+            @cancelChanges="onCancelChanges"
         >
             <template v-slot:existingItems>
                 <VTableRead 
@@ -99,15 +102,29 @@ export default {
         ...mapActions([
             'deleteCreatedItem', 'addFieldValue', 
             'updateItem', 'addCreatedItem', 'resetCreatedItems',
-            'insertCreatedItems', 'deleteItem'
+            'insertCreatedItems', 'deleteItem',
+            'sendModifications',
         ]),
+
+        onConfirmChanges () {
+            console.log('confirm')
+
+            // Might need to also update a document
+            this.sendModifications();
+
+        },
+
+        onCancelChanges () {
+            console.log('cancel')
+        },
     },
 
     computed: {
         ...mapGetters({
             items: 'getItemsAsArr',
             createdItems: 'getCreatedItemsAsArr',
-            updatedItems: 'getUpdatedItemsAsArr'
+            updatedItems: 'getUpdatedItemsAsArr',
+            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
         })
     },
 
