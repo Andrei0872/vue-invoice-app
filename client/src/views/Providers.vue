@@ -2,7 +2,7 @@
     <div v-if="isEverythingLoaded">
         <VContent 
             :disableCreateButton="disableCreateButton" 
-            entityName="provider"
+            :entityName="entity"
             @insertCreatedItems="onInsertCreatedItems"
             :shouldDisplayConfirmCancelButtons="shouldDisplayConfirmCancelButtons"
             @confirmChanges="onConfirmChanges"
@@ -34,9 +34,6 @@
                 />
             </template>
         </VContent>
-        <!-- <div v-else-if="everythingReady !== 'pending'">
-            Some other error happened
-        </div> -->
 
         <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
@@ -113,7 +110,9 @@ export default {
         async onConfirmChanges () {
             console.log('confirm')
 
-            await this.sendModifications();
+            const results =  await this.sendModifications();
+            
+            results.length && this.fetchItems();
 
             this.deleteDocumentsOfDeletedProviders();
 
@@ -158,10 +157,6 @@ export default {
             updatedItems: 'getUpdatedItemsAsArr',
             shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
         }),
-
-        backendUrl () {
-            return this.$store.getters['getEntityBackendEndpoint'];
-        }
     },
 
     async created () {
