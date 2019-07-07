@@ -26,24 +26,24 @@ export const actions = {
      * after items are inserted, **another** request is made to fetch again 
      * all the existing items;
      */
-    insertCreatedItems: ({ dispatch, getters, rootGetters }) => {
+    insertCreatedItems: async ({ dispatch, getters, rootGetters }) => {
         const createdItemsAsArr = getters.getCreatedItemsAsArr;
         const createItemsWithoutId = createdItemsAsArr.map(({ id, ...rest }) => rest);
-        const entityNameSingularForm = rootGetters['getEntityNameSingularForm'];
-        const entityNamePluralForm = rootGetters['getEntityNamePluralForm'];
+        // const entityNameSingularForm = rootGetters['getEntityNameSingularForm'];
+        // const entityNamePluralForm = rootGetters['getEntityNamePluralForm'];
 
-        return dispatch('api/insertItem', createdItemsAsArr, { root: true })
-            .then(() => {
-                
-                const message = `Add new ${createdItemsAsArr.length === 1 ? entityNameSingularForm : entityNamePluralForm}`;
-                
-                // dispatch('dashboard/insertHistoryRow', {
-                //     entity: entityNamePluralForm, 
-                //     message, 
-                //     action_type: 'insert',
-                //     current_state: JSON.stringify(createItemsWithoutId),
-                // }, { root: true });
-            })
+        const url = rootGetters['getEntityBackendEndpoint'];
+
+        return await dispatch('api/makePOSTRequest', { payload: createdItemsAsArr, url }, { root: true });
+        
+        // const message = `Add new ${createdItemsAsArr.length === 1 ? entityNameSingularForm : entityNamePluralForm}`;
+
+        // dispatch('dashboard/insertHistoryRow', {
+        //     entity: entityNamePluralForm, 
+        //     message, 
+        //     action_type: 'insert',
+        //     current_state: JSON.stringify(createItemsWithoutId),
+        // }, { root: true });
     },
 
     // TODO: add test
