@@ -1,3 +1,5 @@
+import { convertMapToObjForAPI } from '@/utils/';
+
 export const actions = {
 
     addCreatedItem: ({ commit }, payload) => {
@@ -59,6 +61,21 @@ export const actions = {
         const newUpdatedItem = { ...currentUpdatedItem, ...updatedItemDetails };
 
         commit('ADD_UPDATED_ITEM', { id, ...newUpdatedItem });
+        commit('TRACK_UPDATED_ITEMS');
+    },
+
+    sendUpdatedItems: async ({ commit, dispatch, state, rootGetters }) => {
+        console.log('updating items');
+        const url = rootGetters['getEntityBackendEndpoint'];
+        const payload = convertMapToObjForAPI(state.updatedItems);
+        
+        return await dispatch('api/makePUTRequest', {
+            url, payload
+        }, { root: true });
+    },
+
+    resetUpdatedItems: ({ commit }) => {
+        commit('RESET_UPDATED_ITEMS');
         commit('TRACK_UPDATED_ITEMS');
     },
 
