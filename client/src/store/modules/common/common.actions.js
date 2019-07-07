@@ -121,14 +121,18 @@ export const actions = {
         // }
     },
 
-    sendModifications: ({ dispatch, state }) => {
+    sendModifications: async ({ dispatch, state }) => {
+        const actionsSend = [];
+        
         if (state.updatedItems.size) {
-            dispatch('sendUpdatedItems');
+            actionsSend.push(dispatch('sendUpdatedItems'));
         }
 
         if (state.deletedItems.size) {
-            dispatch('sendDeletedItems');
+            actionsSend.push(dispatch('sendDeletedItems'));
         }
+
+        return await Promise.all(actionsSend);
     },
 
     // Created Updated Deleted 
