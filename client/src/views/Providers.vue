@@ -106,6 +106,7 @@ export default {
             'updateItem', 'addCreatedItem', 'resetCreatedItems',
             'insertCreatedItems', 'deleteItem',
             'sendModifications',
+            'resetCUDItems',
         ]),
 
         async onConfirmChanges () {
@@ -114,10 +115,14 @@ export default {
             await this.sendModifications();
 
             this.deleteDocumentsOfDeletedProviders();
+
+            this.resetCUDItems();
         },
 
         onCancelChanges () {
-            console.log('cancel')
+            console.log('cancel');
+
+            this.resetCUDItems();
         },
 
         deleteDocumentsOfDeletedProviders () {
