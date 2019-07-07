@@ -3,7 +3,7 @@
         <VContent 
             :disableCreateButton="disableCreateButton" 
             entityName="provider"
-            @insertCreatedItems="insertCreatedItems"
+            @insertCreatedItems="onInsertCreatedItems"
             :shouldDisplayConfirmCancelButtons="shouldDisplayConfirmCancelButtons"
             @confirmChanges="onConfirmChanges"
             @cancelChanges="onCancelChanges"
@@ -141,6 +141,15 @@ export default {
                 this.$store.dispatch('api/makeGETRequest', { url, entity });
             }
         },
+
+        // TODO: add to common
+        async onInsertCreatedItems () {
+            await this.insertCreatedItems();
+            
+            const entity = entityName;
+
+            await this.$store.dispatch('api/makeGETRequest', { url: this.backendUrl, entity });
+        }
     },
 
     computed: {
@@ -149,7 +158,11 @@ export default {
             createdItems: 'getCreatedItemsAsArr',
             updatedItems: 'getUpdatedItemsAsArr',
             shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
-        })
+        }),
+
+        backendUrl () {
+            return this.$store.getters['getEntityBackendEndpoint'];
+        }
     },
 
     async created () {
