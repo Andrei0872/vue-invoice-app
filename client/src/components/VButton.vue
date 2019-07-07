@@ -19,16 +19,14 @@ export default {
         },
     },
 
-    render (h, { listeners, children, props }) {
+    render (h, { listeners, children, props }) {        
         const content = children[0].text;
-        const fn = !!listeners.toggleState 
-            ? listeners.toggleState 
-            : !!listeners.createItems
-                ? listeners.createItems
-                : listeners.click
+
+        const functionNames = Object.keys(listeners);
+        const combinedFunctions = ctx => functionNames.forEach(fn => listeners[fn](ctx));
 
         const button = h('button', {
-            ...{ ok: !props.disabled && fn !== undefined ? true : false}.ok && { on: { click: fn } },
+            ...functionNames.length && { on: { click: combinedFunctions } },
             class: {[`button--${props.btnClass}`]: true, 'h-disabled': props.disabled},
         }, content);
 
