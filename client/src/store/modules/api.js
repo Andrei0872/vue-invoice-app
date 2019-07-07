@@ -53,17 +53,18 @@ export const actions = {
         }
     },
 
-    insertItem: async ({ getters, rootState, dispatch },  payload ) => {
+    makePOSTRequest: async ({ getters, rootState, dispatch },  { url, payload } ) => {
 
-        const url = `${getters.mainURL}/${rootState.currentEntity}/insert`
         !!(rootState.selectedProvider) 
-            && (payload = { items: payload, provider: rootState.selectedProvider })
-        const config = { ...getters.config, body: JSON.stringify(payload) };
+            && (payload = { items: payload, provider: rootState.selectedProvider });
+            
+        const config = { 
+            ...getters.config, 
+            body: JSON.stringify(payload) 
+        };
 
         try {
-            await dispatch('makeRequest', { url, config });
-
-            dispatch("FETCH_DATA", { avoidChangingState: true });
+            return await dispatch('makeRequest', { url, config });
         } catch (err) {
             console.error(err)
         }
