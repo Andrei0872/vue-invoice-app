@@ -81,7 +81,7 @@ import uuidv1 from 'uuid/v1';
 
 import { createNamespacedHelpers, mapMutations } from 'vuex';
 import * as common from '@/store/modules/common';
-const { /* mapState */ mapActions, mapGetters } = createNamespacedHelpers(entityName)
+const { mapActions, mapGetters } = createNamespacedHelpers(entityName)
 
 import { canJoinMapsBasedOnProp } from '@/utils/';
 
@@ -97,7 +97,8 @@ export default {
     data: () => ({
         readColumns: ['name', 'URC', 'inserted_date'],
         createColumns: ['name', 'URC'],
-        isEverythingLoaded: false
+        isEverythingLoaded: false,
+        entity: entityName
     }),
 
     methods: {
@@ -145,10 +146,8 @@ export default {
         // TODO: add to common
         async onInsertCreatedItems () {
             await this.insertCreatedItems();
-            
-            const entity = entityName;
 
-            await this.$store.dispatch('api/makeGETRequest', { url: this.backendUrl, entity });
+            await this.$store.dispatch('api/makeGETRequest', { url: this.backendUrl, entity: this.entity });
         }
     },
 
@@ -169,7 +168,7 @@ export default {
         if (this.$store && !this.$store.state[entityName]) {
             this.$store.registerModule(entityName, common);
 
-            await this.$store.dispatch('api/FETCH_DATA');
+            await this.$store.dispatch('api/makeGETRequest', { url: this.backendUrl, entity: this.entity });
         }
 
         this.isEverythingLoaded = true;
