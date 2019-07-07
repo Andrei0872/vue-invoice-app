@@ -83,6 +83,8 @@ import { createNamespacedHelpers, mapMutations } from 'vuex';
 import * as common from '@/store/modules/common';
 const { /* mapState */ mapActions, mapGetters } = createNamespacedHelpers(entityName)
 
+import { canJoinMapsBasedOnProp } from '@/utils/';
+
 export default {
     name: 'providers',
 
@@ -106,16 +108,33 @@ export default {
             'sendModifications',
         ]),
 
-        onConfirmChanges () {
+        async onConfirmChanges () {
             console.log('confirm')
 
-            // Might need to also update a document
-            this.sendModifications();
+            await this.sendModifications();
 
+            this.deleteDocumentsOfDeletedProviders();
         },
 
         onCancelChanges () {
             console.log('cancel')
+        },
+
+        deleteDocumentsOfDeletedProviders () {
+            const documents = this.$store.state['document'] && this.$store.state['document'].items;
+            const deletedProviders = this.$store.state['provider'].deletedItems
+
+            if (
+                documents
+                && documents.size
+                && canJoinMapsBasedOnProp(documents, deletedProviders, 'provider_id')
+            ) {
+                const endpoint = 'documents';
+                const entity = 'document';
+                const url = this.$store.getters['mainUrl'] + endpoint;
+
+                this.$store.dispatch('api/makeGETRequest', { url, entity });
+            }
         },
     },
 
