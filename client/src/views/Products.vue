@@ -152,7 +152,8 @@ export default {
     async created () {
         if (this.$store && !this.$store.state[entityName]) {
             this.$store.registerModule(entityName, common);
-            await this.$store.dispatch('api/FETCH_DATA');
+
+            this.fetchItems();
         }
 
         this.isEverythingLoaded = true;

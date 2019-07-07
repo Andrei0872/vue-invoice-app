@@ -163,7 +163,7 @@ export default {
         if (this.$store && !this.$store.state[entityName]) {
             this.$store.registerModule(entityName, common);
 
-            await this.$store.dispatch('api/makeGETRequest', { url: this.backendUrl, entity: this.entity });
+            this.fetchItems();
         }
 
         this.isEverythingLoaded = true;
