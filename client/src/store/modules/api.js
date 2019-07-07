@@ -69,9 +69,15 @@ export const actions = {
         }
     },
 
-    updateItem: async ({ getters, dispatch }, { url, payload }) => {
-        url += getters.updateEndpoint;
-        const config = { body: JSON.stringify(payload), ...getters.config, method: "PUT" };
+    makePUTRequest: async ({ getters, dispatch }, { url, payload }) => {
+        const config = { 
+            body: JSON.stringify(payload), 
+            ...getters.config, 
+            method: "PUT",
+        };
+
+        return await dispatch('makeRequest', { url, config });
+    },
 
         try {
             const response = await dispatch('makeRequest', { url, config });
