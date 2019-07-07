@@ -25,6 +25,8 @@ const store = new Vuex.Store({
 
         getEntityNamePluralForm: state => state.currentEntity,
 
+        getEntityBackendEndpoint: state => state.mainUrl + state.currentEntity,
+
         getEntityNewItems: state => {
             const entityName = state.currentEntity.slice(0, -1)
             
