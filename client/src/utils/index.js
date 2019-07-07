@@ -112,3 +112,56 @@ export const convertMapToObject = m => {
 
     return obj;
 };
+
+
+/**
+ * @returns
+ * // - the arrays id of updated items
+ *  - the column names (the union of column names)
+ *  - an object which can be represented like this
+ *  ```javascript
+ *  const exampleObject = {
+ *      'columnName': {
+ *         '3': 'value of `column name` for the item with the index 3'
+ *    }
+ *  };
+ *  ```
+ */
+export const convertMapToObjForAPI = m => {
+    const result = {};  
+    const columnNames = new Set();
+
+    for (const [id, itemDetails] of m) {
+        result[id] = {};
+
+       for (const columnName in itemDetails) {  
+            columnNames.add(columnName);
+
+            result[id][columnName] = itemDetails[columnName];
+       } 
+    }
+
+    return [result, columnNames];
+};
+
+/**
+ * Check if any value from m1 has a prop that is the same as one key of m2,
+ * based on a given prop
+ * 
+ * ```javascript
+ * m1 = [[1, { name: 'andrei', product_id: 7 }], [][2, { name: 'john', product_id: 8 }]]
+ * m2 = [[2, { productInfo2 }], [7, { productInfo7 }], [8, productInfo8]]
+ * prop = 'product_info'
+ * 
+ * canJoinMapsBasedOnProp(m1, m2, prop)
+ * ```
+ * @returns true
+ */
+export const canJoinMapsBasedOnProp = (m1, m2, prop) => {
+    for (const [k, v] of m1) {
+        if (m2.has(v[prop]))
+            return true;
+    }
+
+    return false;
+};
