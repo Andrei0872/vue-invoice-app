@@ -26,10 +26,10 @@ class Controller {
         res.json(responseFromDB)
     }
 
-    async deleteOne (req, res) {
+    async delete (req, res) {
         const { body } = req;
         
-        const responseFromDB = await this.service.deleteOne(body);
+        const responseFromDB = await this.service.delete(body);
 
         res.json(responseFromDB)
     }
