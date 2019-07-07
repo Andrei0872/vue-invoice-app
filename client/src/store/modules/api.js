@@ -32,6 +32,27 @@ export const actions = {
         }
     },
 
+    makeGETRequest: async ({ dispatch }, { url, entity = null }) => {
+        try {
+            // !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
+
+            const config = {
+                ...getters.config, 
+                method: "GET",
+            };
+
+            const { data } = await dispatch('makeRequest', { url, config });
+
+            dispatch(`${entity}/setItems`, data, { root: true });
+
+            console.log('data fetched', data);
+
+        } catch (err) {
+            console.error(err);
+            // commit('CHANGE_STATE', null, { root: true });
+        }
+    },
+
     insertItem: async ({ getters, rootState, dispatch },  payload ) => {
 
         const url = `${getters.mainURL}/${rootState.currentEntity}/insert`
