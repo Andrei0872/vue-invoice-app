@@ -1,10 +1,12 @@
 <template>
     <div v-if="isEverythingLoaded">
         <VContent 
-            v-if="everythingReady === true" 
-            entityName="product"
-            @insertCreatedItems="insertCreatedItems"
+            entityName="entity"
+            @insertCreatedItems="onInsertCreatedItems"
             :disableCreateButton="disableCreateButton" 
+            :shouldDisplayConfirmCancelButtons="shouldDisplayConfirmCancelButtons"
+            @confirmChanges="onConfirmChanges"
+            @cancelChanges="onCancelChanges"
         >
             <template v-slot:existingItems>
                 <VTableRead 
@@ -32,9 +34,6 @@
                 />
             </template>
         </VContent>
-        <div v-else-if="everythingReady !== 'pending'">
-            Some other error happened
-        </div>
 
         <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
@@ -105,22 +104,48 @@ export default {
             "expiration_date",
             "inserted_date"
         ],
-        isEverythingLoaded: false
+        isEverythingLoaded: false,
+        entity: entityName,
     }),
 
     methods: {
         ...mapActions([
             'deleteCreatedItem', 'addFieldValue', 
             'updateItem', 'addCreatedItem', 'resetCreatedItems',
-            'insertCreatedItems', 'deleteItem'
+            'insertCreatedItems', 'deleteItem',
+            'resetCUDItems',
+            'sendModifications',
         ]),
+
+        async onInsertCreatedItems () {
+            await this.insertCreatedItems();
+
+            await this.fetchItems();
+        },
+
+        async onConfirmChanges () {
+            console.log('confirm')
+
+            const results =  await this.sendModifications();
+            
+            results.length && this.fetchItems();
+
+            this.resetCUDItems();
+        },
+
+        onCancelChanges () {
+            console.log('cancel');
+
+            this.resetCUDItems();
+        },
     },
 
     computed: {
         ...mapGetters({
             items: 'getItemsAsArr',
             createdItems: 'getCreatedItemsAsArr',
-            updatedItems: 'getUpdatedItemsAsArr'
+            updatedItems: 'getUpdatedItemsAsArr',
+            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
         })
     },
 
