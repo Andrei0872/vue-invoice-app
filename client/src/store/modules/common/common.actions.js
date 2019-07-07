@@ -37,12 +37,12 @@ export const actions = {
                 
                 const message = `Add new ${createdItemsAsArr.length === 1 ? entityNameSingularForm : entityNamePluralForm}`;
                 
-                dispatch('dashboard/insertHistoryRow', {
-                    entity: entityNamePluralForm, 
-                    message, 
-                    action_type: 'insert',
-                    current_state: JSON.stringify(createItemsWithoutId),
-                }, { root: true });
+                // dispatch('dashboard/insertHistoryRow', {
+                //     entity: entityNamePluralForm, 
+                //     message, 
+                //     action_type: 'insert',
+                //     current_state: JSON.stringify(createItemsWithoutId),
+                // }, { root: true });
             })
     },
 
@@ -98,17 +98,9 @@ export const actions = {
             url, payload
         }, { root: true });
 
-        // TODO: check if you need to refresh the documents
         console.log('response: DELETE', response)
 
-        // Only re-fetch documents if the document entity has been loaded
-        if (rootState['document'] && rootState['document'].items.size) {
-            console.log('should delete some documents')
-            const url = rootState['mainUrl'] + 'documents';
-            const entity = 'document';
-
-            dispatch('api/makeGETRequest', { url, entity }, { root: true });
-        }
+        return response;
     },
 
     resetDeletedItems: ({ commit }) => {
@@ -116,6 +108,9 @@ export const actions = {
         commit('TRACK_DELETED_ITEMS');
     },
 
+    setItems: ({ commit, dispatch }, payload) => {
+        dispatch('resetItems');
+        
         payload.forEach(({ id, ...item }) => commit('ADD_ITEM', { id, ...item }))
         commit('TRACK_ITEMS');
 
@@ -134,5 +129,17 @@ export const actions = {
         if (state.deletedItems.size) {
             dispatch('sendDeletedItems');
         }
+    },
+
+    // Created Updated Deleted 
+    resetCUDItems: ({ dispatch }) => {
+        dispatch('resetDeletedItems');
+        dispatch('resetUpdatedItems');
+        dispatch('resetCreatedItems');
+    },
+
+    resetItems: ({ commit }) => {
+        commit('RESET_ITEMS');
+        commit('TRACK_ITEMS');
     },
 }

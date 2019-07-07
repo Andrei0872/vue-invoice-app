@@ -28,11 +28,17 @@ export const mutations = {
 
     DELETE_CREATED_ITEM: (state, rowId) => state.createdItems.delete(rowId),
 
+    RESET_DELETED_ITEMS: state => state.deletedItems.clear(),
+
     TRACK_CREATED_ITEMS: state => state.createdItemsTracker++,
 
     TRACK_ITEMS: state => state.itemsTracker++,
 
+    RESET_ITEMS: state => state.items.clear(),
+
     TRACK_UPDATED_ITEMS: state => state.updatedItemsTracker++,
+
+    RESET_UPDATED_ITEMS: state => state.updatedItems.clear(),
 
     TRACK_DELETED_ITEMS: state => state.deletedItemsTracker++,
 }
