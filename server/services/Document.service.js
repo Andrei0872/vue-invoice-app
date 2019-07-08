@@ -49,7 +49,6 @@ class DocumentService extends mainService {
     }
 
     async insertProductsOnly (docId, items) {
-        console.log(items)
         const sanitizedItems = items.map(({ id, product_name: { id: product_id }, ...rest }) => ({ product_id, ...rest }));
 
         this.table.currentTable = 'document_product';
@@ -59,8 +58,13 @@ class DocumentService extends mainService {
                 this.documentProductTableColumns.join(', '),
                 sanitizedItems.map(row => [docId, ...Object.values(row)])
             );
+
+            return { message: 'successfully inserted products in a document' };
+
         } catch (err) {
-            throw err
+            console.error(err);
+
+            return { message: 'error inserting products in document', erer };
         } finally {
             this.table.currentTable = 'document';
         }
