@@ -240,25 +240,41 @@ export default {
             return [prevState, currentState, additionalInfo]
         },
 
-        sendUpdates () {
+        async sendUpdates () {            
             let changes = null;
             if ((changes = this.shouldUpdateDocument())) {
                 this.updateDocument({ ...changes, id: this.currentDocument.id })
             }
-            
-            this.documentNeedsUpdate = this.updatedProducts.size !== 0 
-                || this.createdProducts.length !== 0
-                || this.initialProductsLen !== this.documentProducts.length
 
-            this.sendDeletedProducts(this.currentDocumentId);
+            if (this.initialProductsLen !== this.documentProducts.length) {
+                this.documentNeedsUpdate = true;
+                
+                const deleteResponse = await this.sendDeletedProducts(this.currentDocumentId);
+                console.log('deleteResponse', deleteResponse)
+            }
 
-            this.sendUpdatedProducts();
+            if (this.updatedProducts.size) {
+                this.documentNeedsUpdate = true;
 
-            this.sendCreatedProducts(this.currentDocumentId);
+                const updateResponse = await this.sendUpdatedProducts();
+                console.log('updateResponse', updateResponse)
+            }
 
-            // this.alreadyFetched && this.setAlreadyFetched(false);
+            if (this.createdProducts.length) {
+                this.documentNeedsUpdate = true;
 
-            this.$router.push('/documents');
+                const createResponse = await this.sendCreatedProducts(this.currentDocumentId);
+                console.log('createResponse', createResponse);
+            }
+
+            if (this.documentNeedsUpdate) {
+                const documentsUrl = this.mainUrl + 'documents';
+                const documentEntity = 'document';
+
+                await this.fetchItems(documentsUrl, documentEntity);
+            }
+
+            this.$router.push('/documents'); 
         },
 
         confirmDelete () {

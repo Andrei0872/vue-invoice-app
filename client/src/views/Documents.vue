@@ -190,22 +190,7 @@ export default {
         this.$store.commit('SET_PROVIDER', null);
         next();   
     },
-
-    // Apply changes after updating a document's content
-    // beforeRouteEnter (to, from, next) {
-        
-    //     if (from.name === 'documentEditOne' && from.params.shouldUpdate) {
-    //         delete from.params.shouldUpdate;
-
-    //         return next(vm => {
-    //             // vm.$store.dispatch('singleDocument/fetchProductsByDocumentId', from.params.id);
-    //             vm.$store.dispatch('api/FETCH_DATA');
-    //         })
-    //     }
-        
-    //     next();
-    // },
-
+    
     async created () {
         const promises = [];
         
