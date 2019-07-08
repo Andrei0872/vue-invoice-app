@@ -3,9 +3,10 @@ const router = require('express').Router()
 const Controller = require('../controllers');
 const controller = new Controller('product');
 
-router.get('/', controller.getAll.bind(controller))
-router.post('/insert', controller.insertOne.bind(controller))
-router.put('/update', controller.updateOne.bind(controller))
-router.delete('/delete', controller.deleteOne.bind(controller))
+router.route('/')
+    .get(controller.getAll.bind(controller))
+    .put(controller.updateOne.bind(controller))
+    .delete(controller.delete.bind(controller))
+    .post(controller.insertOne.bind(controller))
 
 module.exports = router;
