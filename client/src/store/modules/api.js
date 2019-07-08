@@ -43,10 +43,10 @@ export const actions = {
 
             const { data } = await dispatch('makeRequest', { url, config });
 
-            dispatch(`${entity}/setItems`, data, { root: true });
+            if (entity) 
+                return dispatch(`${entity}/setItems`, data, { root: true });
 
-            console.log('data fetched', data);
-
+            return data;
         } catch (err) {
             console.error(err);
             // commit('CHANGE_STATE', null, { root: true });
