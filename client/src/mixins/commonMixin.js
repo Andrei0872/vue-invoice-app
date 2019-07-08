@@ -82,8 +82,11 @@ export default {
             this.updateItem(data);
         },
 
-        async fetchItems () {
-            await this.$store.dispatch('api/makeGETRequest', { url: this.backendUrl, entity: this.entity });
+        async fetchItems (url = null, anotherEntity = null) {
+            await this.$store.dispatch('api/makeGETRequest', { 
+                url: (url || this.backendUrl),
+                entity: (anotherEntity || this.entity )
+            });
         }
     },
 
@@ -106,6 +109,10 @@ export default {
 
         backendUrl () {
             return this.$store.getters['getEntityBackendEndpoint'];
-        }
+        },
+
+        mainUrl () {
+            return this.$store.state['mainUrl'];
+        },
     },
 }
