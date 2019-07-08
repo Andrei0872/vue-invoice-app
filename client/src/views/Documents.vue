@@ -1,7 +1,7 @@
 <template>
     <div v-if="isEverythingLoaded">
         <VContent 
-            v-if="everythingReady === true" entityName="document" 
+            :entityName="entity"
             :disableButton="
                 errorMessage !== 'Documents' 
                     && errorMessage !== null 
@@ -9,7 +9,10 @@
                     || vat['non_food_vat'] === null
                 "
             :disableCreateButton="disableCreateButton" 
-            @insertCreatedItems="insertCreatedItems"
+            @insertCreatedItems="onInsertCreatedItems"
+            :shouldDisplayConfirmCancelButtons="shouldDisplayConfirmCancelButtons"
+            @confirmChanges="onConfirmChanges"
+            @cancelChanges="onCancelChanges"
             >
             <template v-slot:existingItems>
                 <VTableRead 
@@ -50,9 +53,6 @@
                 />
             </template>
         </VContent>
-        <div v-else-if="everythingReady !== 'pending'">
-            Some other error happened
-        </div>
 
         <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
@@ -115,19 +115,45 @@ export default {
 
     data: () => ({
         errorMessage: null,
-        isEverythingLoaded: false
+        isEverythingLoaded: false,
+        entity: entityName,
     }),
 
     methods: {
         ...mapActions([
             'deleteCreatedItem', 'addFieldValue', 
             'updateItem', 'addCreatedItem', 'resetCreatedItems',
-            'insertCreatedItems', 'deleteItem'
+            'insertCreatedItems', 'deleteItem',
+            'sendModifications',
+            'resetCUDItems'
         ]),
 
         showInfo ({ id }) {
             this.$router.push({ name: 'documentEditOne', params: { id } });
-        }
+        },
+
+        async onInsertCreatedItems () {
+            await this.insertCreatedItems();
+
+            await this.fetchItems();
+        },
+
+        async onConfirmChanges () {
+            console.log('confirm')
+
+            const results =  await this.sendModifications();
+
+            results.length && this.fetchItems();
+
+            this.resetCUDItems();
+        },
+
+        onCancelChanges () {
+            console.log('cancel');
+
+            this.resetCUDItems();
+        },
+
     },
 
     computed: {
@@ -135,7 +161,8 @@ export default {
         ...mapGetters({
             items: 'getItemsAsArr',
             createdItems: 'getCreatedItemsAsArr',
-            updatedItems: 'getUpdatedItemsAsArr' 
+            // updatedItems: 'getUpdatedItemsAsArr',
+            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
         }),
 
         ...mapGettersProvider({ providers: 'getItemsAsArr' }),
@@ -165,19 +192,19 @@ export default {
     },
 
     // Apply changes after updating a document's content
-    beforeRouteEnter (to, from, next) {
+    // beforeRouteEnter (to, from, next) {
         
-        if (from.name === 'documentEditOne' && from.params.shouldUpdate) {
-            delete from.params.shouldUpdate;
+    //     if (from.name === 'documentEditOne' && from.params.shouldUpdate) {
+    //         delete from.params.shouldUpdate;
 
-            return next(vm => {
-                vm.$store.dispatch('singleDocument/fetchProductsByDocumentId', from.params.id);
-                vm.$store.dispatch('api/FETCH_DATA');
-            })
-        }
+    //         return next(vm => {
+    //             // vm.$store.dispatch('singleDocument/fetchProductsByDocumentId', from.params.id);
+    //             vm.$store.dispatch('api/FETCH_DATA');
+    //         })
+    //     }
         
-        next();
-    },
+    //     next();
+    // },
 
     async created () {
         const promises = [];
