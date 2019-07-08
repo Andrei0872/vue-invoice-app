@@ -105,15 +105,23 @@ class DocumentService extends mainService {
     }
 
     async getAllByDocument(id) {
-        const data = await (this.table || this.db)._promisify(
-            `
+        const sql = `
             select * from document_product
-            where document_id = ?
-            `,
-            id
-        );
+            where document_id = ${id}
+        `;
 
-        return data;
+        try {
+            const data = await (this.table || this.db)._promisify(sql);
+
+            return {
+                message: 'successfully retrieved items!',
+                data
+            }
+        } catch (err) {
+            console.error(err);
+
+            return { message: 'error fetching data' };
+        }
     }
 
     async updateProducts (data) {

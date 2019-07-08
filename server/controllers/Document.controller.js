@@ -6,11 +6,11 @@ class DocumentController extends mainController {
     }
 
     async getAllByDocument (req, res) {
-        const { id } = req.body;
-        
+        const { id } = req.params;
+
         const responseFromDB = await this.service.getAllByDocument(id);
 
-        return res.json(responseFromDB)
+        return res.status(200).json(responseFromDB);
     }
 
     async updateProducts(req, res) {
