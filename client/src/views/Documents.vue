@@ -185,19 +185,17 @@ export default {
         if (this.$store && !this.$store.state[entityName]) {
             this.$store.registerModule(entityName, common);
 
-            promises.push(this.$store.dispatch('api/FETCH_DATA'));
+            promises.push(this.fetchItems());
         }
-        
-        // this.items.length === 0 && ;
 
         if (this.$store && !this.$store.state['product']) {
             this.$store.registerModule('product', common);
 
             promises.push(
-                this.$store.dispatch('api/FETCH_DATA', { 
-                    avoidChangingState: true, 
-                    anotherEntity: 'products' 
-                })
+                this.fetchItems(
+                    this.mainUrl + 'products',
+                    'product'
+                )
             );
         }
 
@@ -205,10 +203,10 @@ export default {
             this.$store.registerModule('provider', common);
             
             promises.push(
-                this.$store.dispatch('api/FETCH_DATA', { 
-                    avoidChangingState: true, 
-                    anotherEntity: 'providers' 
-                })
+                this.fetchItems(
+                    this.mainUrl + 'providers',
+                    'provider'
+                )
             );
         }
 
