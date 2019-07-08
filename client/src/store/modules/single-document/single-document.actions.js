@@ -4,11 +4,10 @@ export const actions = {
 
     // Document
     fetchProductsByDocumentId: async ({ commit, dispatch, rootGetters, rootState }, id) => {
-        const url = `${rootGetters['api/mainURL']}/documents`;
-        const config = { ...rootGetters['api/config'], body: JSON.stringify({ id }) };
+        const url = `${rootGetters['api/mainURL']}/documents/${id}`;
         const products = rootState.product.items;
 
-        const documentProductsRaw = await dispatch('api/makeRequest', { url, config }, { root: true });
+        const documentProductsRaw = await dispatch('api/makeGETRequest', { url }, { root: true });
 
         const documentProducts = documentProductsRaw.map(
             (product) => ({
@@ -30,7 +29,7 @@ export const actions = {
     resetProducts: ({ commit }) => {
         commit('RESET_PRODUCTS');
         commit('TRACK_PRODUCTS');
-    },    
+    },
 
     // setId: ({ commit }, payload) => commit('SET_ID', payload),
 
@@ -53,20 +52,11 @@ export const actions = {
 
     sendUpdatedProducts: async ({ commit, dispatch, state, rootGetters, rootState }) => {
         const { updatedProducts } = state;
-
-        if (!updatedProducts.size) 
-            return;
         
-        // dispatch('setAlreadyFetched', true);
-
-        const url = `${rootState.mainUrl}documents/update_products`
-        const config = {
-            ...rootGetters['api/config'],
-            method: "PUT",
-            body: JSON.stringify(convertMapToObject(updatedProducts))
-        }
+        const url = `${rootState.mainUrl}documents/products`;
+        const payload = convertMapToObject(updatedProducts);
         
-        const response = await dispatch("api/makeRequest", { url, config }, { root: true });
+        const response = await dispatch("api/makePUTRequest", { url, payload }, { root: true });
 
         dispatch('resetUpdatedProducts');
 
@@ -123,22 +113,15 @@ export const actions = {
     sendCreatedProducts: async ({ dispatch, rootGetters, state }, currentDocumentId) => {
         const { createdProducts } = state;
         
-        if (!createdProducts.size) 
-            return;
-
-        
-        const url = `${rootGetters['api/mainURL']}/documents/insert_products_only`;
-        const config = {
-            ...rootGetters['api/config'],
-            body: JSON.stringify({
-                items: [...createdProducts.values()],
-                docId: currentDocumentId
-            }),
+        const url = `${rootGetters['api/mainURL']}/documents/products`;
+        const payload = {
+            createdProducts: [...createdProducts.values()],
+            docId: currentDocumentId
         };
         
-        dispatch('resetCreatedProducts');
+        const response = await dispatch('api/makePOSTRequest', { url, payload }, { root: true });
 
-        const response = await dispatch('api/makeRequest', { url, config }, { root: true });
+        dispatch('resetCreatedProducts');
 
         return response;
         // const message = `Add new products in a document`;
@@ -169,20 +152,16 @@ export const actions = {
         
         console.log(deletedProducts);
 
-        const url = `${rootState.mainUrl}documents/delete_from_doc`;
-        const config = {
-            ...rootGetters['api/config'],
-            method: "DELETE",
-            body: JSON.stringify({
-                ids: [...deletedProducts.keys()].map(k => deletedProducts.get(k).product_id ),
-                docId: currentDocumentId,
-                shouldDeleteDoc: products.size + createdProducts.size === 0
-            })
+        const url = `${rootState.mainUrl}documents/products`;
+        const payload = {
+            ids: [...deletedProducts.keys()].map(k => deletedProducts.get(k).product_id),
+            docId: currentDocumentId,
+            shouldDeleteDoc: products.size + createdProducts.size === 0
         };
-        
+
         dispatch('resetDeletedProducts');
 
-        const response = await dispatch('api/makeRequest', { url, config }, { root: true });
+        const response = await dispatch('api/makeDELETERequest', { url, payload }, { root: true });
 
         return response;
 
@@ -226,12 +205,6 @@ export const actions = {
         }
 
         await dispatch('api/makeRequest', { url, config }, { root: true })
-        
-        if (!state.alreadyFetched) {
-            await dispatch('api/FETCH_DATA', undefined, { root: true });
-        } else {
-            dispatch('setAlreadyFetched', false);
-        }
 
         // let prevState = ``,
         //     currentState = ``;
