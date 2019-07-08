@@ -150,8 +150,6 @@ export default {
         
         capitalize (field) { return capitalize(field) },
 
-        ...mapActions('documentProduct', ['setId', 'fetchById']),
-
         generateFile (type, id, rowIndex = null) {
             const url = `${this.$store.getters['api/mainURL']}/file`;
 
@@ -279,7 +277,7 @@ export default {
             row[fieldName] = val;
 
             if (fieldName === 'buy_price' || fieldName === 'markup') {
-                // this.selectedRow['sell_price'] = row['sell_price'] = this.computeSellPrice(row, fieldName, val)
+                this.selectedRow['sell_price'] = row['sell_price'] = this.computeSellPrice(row, fieldName, val);
 
                 const sellPriceValue = parseFloat(this.computeSellPrice(row, fieldName, val)).toFixed(2);
                 this.selectedRow['sell_price'] = row['sell_price'] = sellPriceValue;
@@ -288,14 +286,12 @@ export default {
 
                 const { isComestible } = row;
 
-                if (isComestible !== undefined) {
-                    const vatValue = this.getVatValue(isComestible, sellPriceValue, vat).toFixed(2);
+                const vatValue = this.getVatValue(isComestible, sellPriceValue, vat).toFixed(2);
 
-                    this.lastUsedVatId = vatValue;
-                    this.selectedRow['product_vat'] = row['product_vat'] = vatValue;
-                    const sellPriceVat = +vatValue + +sellPriceValue;
-                    this.selectedRow['sell_price_vat'] = row['sell_price_vat'] = sellPriceVat.toFixed(2);
-                }
+                this.lastUsedVatId = vatValue;
+                this.selectedRow['product_vat'] = row['product_vat'] = vatValue;
+                const sellPriceVat = +vatValue + +sellPriceValue;
+                this.selectedRow['sell_price_vat'] = row['sell_price_vat'] = sellPriceVat.toFixed(2);
 
                 this.lastUsedSellPrice = sellPriceValue;
             }
