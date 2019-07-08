@@ -39,9 +39,11 @@ class DocumentController extends mainController {
         );
     }
 
-    async insertProductsOnly ({ body: { items, docId} }, res) {
-        await this.service.insertProductsOnly(docId, items)
-        return res.json({ message: 'Successfully inserted' })
+    async insertProductsOnly (req, res) {
+        const { docId, createdProducts } = req.body;
+        
+        const response = await this.service.insertProductsOnly(docId, createdProducts);
+        return res.json(response);
     }
 
     async updateProvider ({ body }, res) {
