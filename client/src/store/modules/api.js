@@ -55,9 +55,13 @@ export const actions = {
 
     makePOSTRequest: async ({ getters, rootState, dispatch },  { url, payload } ) => {
 
-        !!(rootState.selectedProvider) 
-            && (payload = { items: payload, provider: rootState.selectedProvider });
-            
+        if (rootState.selectedProvider) {
+            payload = {
+                items: payload,
+                provider: rootState.selectedProvider
+            };
+        }
+
         const config = { 
             ...getters.config, 
             body: JSON.stringify(payload) 
