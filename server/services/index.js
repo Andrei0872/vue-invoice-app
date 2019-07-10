@@ -24,10 +24,12 @@ class Service {
             const keys = Object.keys((paramsIsArr ? params[0] : params)).join(', ');
             const values = paramsIsArr ? params.map(Object.values) : [Object.values(params)];
             
-            await this.table.insertOne(keys, values);
+            const resp = await this.table.insertOne(keys, values);
             response = {
                 message: `Inserted into ${this.tableName} successfully`,
-                status: 200
+                status: 200,
+                data: resp,
+                reqType: 'insert'
             }
         } catch (err) {
             console.log(err)
@@ -135,7 +137,10 @@ class Service {
         try {
             await this.table._promisify(sql);
 
-            return { message: 'Successfully updated items!' };
+            return { 
+                message: 'Successfully updated items!',
+                reqType: 'update'
+            };
         } catch (err) {
             console.error(err);
 
@@ -171,7 +176,10 @@ class Service {
         try {
             await this.table._promisify(sql);
 
-            return { message: 'successfully deleted' };
+            return { 
+                message: 'successfully deleted',
+                reqType: 'delete'
+            };
         } catch (err) {
             return { message: 'error deleting', err };
         }
