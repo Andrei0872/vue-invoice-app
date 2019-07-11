@@ -146,4 +146,8 @@ export const actions = {
         commit('RESET_ITEMS');
         commit('TRACK_ITEMS');
     },
+
+    sendHistoryData: async ({ dispatch }, historyData) => {
+        dispatch('dashboard/insertHistoryRow', historyData, { root: true });
+    },
 }
