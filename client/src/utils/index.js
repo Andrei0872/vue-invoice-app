@@ -166,6 +166,12 @@ export const canJoinMapsBasedOnProp = (m1, m2, prop) => {
     return false;
 };
 
+export const getPropertiesOfNestedObj = obj => {
+    for (const p in obj) {
+        return Object.keys(obj[p]);
+    }
+};
+
 /**
  * ```typescript
  *  return { [id: number]: { from: { ... }, to: { ... } } }
