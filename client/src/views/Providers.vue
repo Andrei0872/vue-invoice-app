@@ -105,6 +105,7 @@ export default {
             'insertCreatedItems', 'deleteItem',
             'sendModifications',
             'resetCUDItems',
+            'sendHistoryData'
         ]),
 
         async onConfirmChanges () {
@@ -115,6 +116,11 @@ export default {
             results.length && this.fetchItems();
 
             this.deleteDocumentsOfDeletedProviders();
+
+            if (this.deletedItems.size) {
+                this.sendDeletedHistoryData();
+            }
+
 
             this.resetCUDItems();
         },
@@ -155,6 +161,7 @@ export default {
             items: 'getItemsAsArr',
             createdItems: 'getCreatedItemsAsArr',
             updatedItems: 'getUpdatedItemsAsArr',
+            deletedItems: 'getDeletedItems',
             shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
         }),
     },
