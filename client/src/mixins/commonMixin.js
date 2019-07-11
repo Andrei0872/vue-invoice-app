@@ -87,7 +87,32 @@ export default {
                 url: (url || this.backendUrl),
                 entity: (anotherEntity || this.entity )
             });
-        }
+        },
+
+        sendDeletedHistoryData () {
+            let itemsLen = this.items.length;
+
+            const message = `Delete ${this.entity}`;
+            const entity = `${ itemsLen === 0 ? this.entity + '/empty' : this.entity}`;
+            const action_type = 'delete';
+            const prev_state = JSON.stringify({
+                data: [
+                    { 
+                        title: this.entity + 's',
+                        items: convertMapToObject(this.deletedItems),
+                    },
+                ]
+            });
+
+            this.sendHistoryData({
+                message,
+                entity,
+                action_type,
+                prev_state
+            });
+        },
+        
+
     },
 
     computed: {
