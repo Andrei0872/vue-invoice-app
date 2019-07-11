@@ -78,7 +78,6 @@ import { createNamespacedHelpers } from 'vuex';
 import * as common from '@/store/modules/common';
 const { mapState, mapActions, mapGetters } = createNamespacedHelpers(entityName)
 
-
 export default {
     name: 'products',
 
@@ -115,6 +114,7 @@ export default {
             'insertCreatedItems', 'deleteItem',
             'resetCUDItems',
             'sendModifications',
+            'sendHistoryData'
         ]),
 
         async onInsertCreatedItems () {
@@ -129,6 +129,8 @@ export default {
             const results =  await this.sendModifications();
             
             results.length && this.fetchItems();
+
+            this.deletedItems.size && this.sendDeletedHistoryData();
 
             this.resetCUDItems();
         },
@@ -145,6 +147,7 @@ export default {
             items: 'getItemsAsArr',
             createdItems: 'getCreatedItemsAsArr',
             updatedItems: 'getUpdatedItemsAsArr',
+            deletedItems: 'getDeletedItems',
             shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
         })
     },
