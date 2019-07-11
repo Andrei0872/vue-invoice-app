@@ -6,7 +6,7 @@
       
     <template v-slot:body v-if="selectedHistoryRow">
       
-      <template v-if="selectedHistoryRow.entity.includes('documents/edit')">
+      <!-- <template v-if="selectedHistoryRow.entity.includes('documents/edit')">
         <router-link  
           class="redirect-link" 
           :to="selectedHistoryRow.entity"
@@ -15,16 +15,40 @@
           Read more about this document
         </router-link>
         <p v-else>This document no longer exists</p>
-      </template>
+      </template> -->
       
-      <div v-if="selectedHistoryRow.entity.includes('empty')">
-        <p v-if="getEmptyEntityName === 'document'">
-          This document does not exist anymore. <br>
-        </p>
-        <p>
-          There are no more {{ getEmptyEntityName }}s
-        </p>
-      </div>
+      <template v-if="actionType === 'delete'">
+        <div v-if="selectedHistoryRow.entity.includes('empty')">
+          <!-- TODO: add this msg to `additional_info` -->
+          <p v-if="getEmptyEntityName === 'document'">
+            This document does not exist anymore. <br>
+          </p>
+          <p>
+            There are no more {{ getEmptyEntityName }}s
+          </p>
+        </div>
+
+        <template v-for="(entity, ind) in modalData">
+          <p :key="ind + 'title'">{{ entity.title }}</p>  
+
+          <div :key="ind + 'table'" class="c-table">
+            <VTableSimple 
+              :columns="getPropertiesOfNestedObj(entity.items)"
+            >
+              <template v-slot:tbody>
+                
+                <tr v-for="(values, id) in entity.items" :key="id">
+                  <td v-for="columnName in $options.currentEntityColumns" :key="id + columnName">
+                    {{ values[columnName] }}
+                  </td>
+                </tr>
+
+              </template>
+            </VTableSimple>
+          </div>
+        </template>
+      </template>
+
 
       <!-- Show when a document has been deleted because its provider has been removed -->
       <template v-if="selectedHistoryRow.entity.includes('indirectProvider')">
@@ -136,7 +160,7 @@ import uuidv1 from 'uuid/v1'
 
 import modalMixin from '../../mixins/modalMixin';
 
-import { separateValues, formatDate, getRidOfObjProp } from '../../utils/index';
+import { separateValues, formatDate, getRidOfObjProp, getPropertiesOfNestedObj } from '../../utils/index';
 
 import historySharedData from '../../observables/history';
 
@@ -145,11 +169,21 @@ export default {
 
     components: { VModal, VTableSimple },
 
+    /**
+     * We don't want this variable to be reactive, as we might get into infinite loops
+     * when mutating this variable
+     */
+    currentEntityColumns: null,
+
     data: () => ({
       multipleRowsUpdated: null,
       displayDeletedOrAdded: null,
       // Couldn't think of a better name...
       displayDeletedOrAddedProductsInDoc: null,
+
+      actionType: null,
+      modalData: null,
+
     }),
 
     mixins: [modalMixin],
@@ -163,27 +197,16 @@ export default {
         },
 
         selectedHistoryRow (row) {
-          if (row !== null) {
-            if (row.current_state !== null) {
-              // Products / Providers have been added
-              const hasLineBreaks = (row.current_state).includes('\n');
-              const isArray = /^\[(.*)\]$/.test(row.current_state)
+          if (!row)
+            return;
 
-              console.log(hasLineBreaks)
-              console.log(isArray)
-              this.multipleRowsUpdated = hasLineBreaks && !isArray ? true : !hasLineBreaks && !isArray ? false : null;
-              
-              if (isArray) {
-                this.displayDeletedOrAdded = JSON.parse(row.current_state)
-              }
-            } else if (row.prev_state !== null) {
-              // Products / Providers have been deleted
-              this.multipleRowsUpdated = null;
-              this.displayDeletedOrAdded = [JSON.parse(row.prev_state)]
-              this.displayDeletedOrAdded[0]['id'] = uuidv1();
-            } else if (row.additional_info !== null) {
-              // Products have been added / deleted from a DOCUMENT
-              this.displayDeletedOrAddedProductsInDoc = JSON.parse(row.additional_info);
+          console.log(row)
+          this.actionType = row.action_type;
+
+          switch (this.actionType) {
+            case 'delete': {
+              this.modalData = (JSON.parse(row.prev_state)).data;              
+              break;
             }
           }
         }
@@ -255,6 +278,12 @@ export default {
     },
 
     methods: {
+        getPropertiesOfNestedObj (obj) {
+
+          this.$options.currentEntityColumns = getPropertiesOfNestedObj(obj);
+
+          return this.$options.currentEntityColumns;
+        },
 
         formatDate (date) { return formatDate(date) },
 
