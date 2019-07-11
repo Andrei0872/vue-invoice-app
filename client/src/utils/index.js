@@ -165,3 +165,25 @@ export const canJoinMapsBasedOnProp = (m1, m2, prop) => {
 
     return false;
 };
+
+/**
+ * ```typescript
+ *  return { [id: number]: { from: { ... }, to: { ... } } }
+ * ```
+ */
+export const getDiffBetweenMapsElements = (from, to) => {
+    const result = {};
+    
+    for (const [k, v] of to) {
+        result[k] = {};
+        result[k]['from'] = {};
+        result[k]['to'] = {};
+
+        for (const objProp in v) {
+            result[k]['from'][objProp] = from.get(k)[objProp];
+            result[k]['to'][objProp] = v[objProp];
+        }
+    }
+
+    return result;
+};
