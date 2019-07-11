@@ -18,27 +18,35 @@
       <div class="main-cards__container">
         <div class="c-card c-card--small-half c-vat">
           <div class="c-card__title">VAT</div>
+
           <div class="c-card__content">
             <div class="c-vat__item">
               <div class="c-vat__item--title">non-food VAT</div>
+              
               <div class="c-vat__item--content">
                 <input class="c-vat__input" type="text" placeholder="non-food VAT">
                 <button class="c-vat__button" @click="addNewVat('non_food_vat', $event)">OK</button>
               </div>
+
               <div class="c-vat__current">Current: {{ vatData['non_food_vat'] || 'Not specified' }}</div>
             </div>
+
             <div class="c-vat__item">
               <div class="c-vat__item--title">food VAT</div>
+                
                 <div class="c-vat__item--content">
                   <input class="c-vat__input" type="text" placeholder="food VAT">
                   <button class="c-vat__button" @click="addNewVat('food_vat', $event)">OK</button>
                 </div>
+                
               <div class="c-vat__current">Current: {{ vatData['food_vat'] || 'Not specified' }}</div>
             </div>
           </div>
         </div>
+
         <div class="c-card c-card--big-half c-document">
           <div class="c-card__title">Recent Documents</div>
+          
           <div class="c-card__content">
             <template v-if="shownDocuments.length">
               <div 
@@ -53,6 +61,7 @@
                 <div class="c-document__date">{{ document.inserted_date }}</div>
               </div>
             </template>
+            
             <template v-else-if="!shownDocuments.length && componentLoaded">
               <div class="h-centered">
                 <p>No Documents</p>
@@ -79,7 +88,7 @@ const documentEntity = 'document';
 const currentEntity = 'dashboard';
 
 import * as common from '@/store/modules/common';
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState, mapGetters } from 'vuex';
 
 import titleMixin from '../mixins/titleMixin';
 
@@ -100,7 +109,7 @@ export default {
   }),
 
   computed: {
-    ...mapState(documentEntity, { documents: 'items' }),
+    ...mapGetters(documentEntity, { documents: 'getItemsAsArr' }),
 
     ...mapState(currentEntity, {
       overviewData: 'dashboard/overview',
