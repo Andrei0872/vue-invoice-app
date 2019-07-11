@@ -293,16 +293,19 @@ export default {
         next();
     },
 
-    async created () {
+    beforeRouteEnter (to, from, next) {
         /** 
          * Avoid showing any errors when we're in this view
          * and we refresh the page
          */
-        if (!this.$store.state.currentEntity) {
-            this.$router.push({ name: 'documents' });
-            
-            return;
+        if (from.name === null) {
+            return next({ name: 'documents' });
         }
+
+        next();
+    },
+
+    async created () {
 
         this.currentDocument = { ...this.documents.find(document => document.id === this.currentDocumentId) };
 
