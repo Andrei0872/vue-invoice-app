@@ -125,7 +125,8 @@ export default {
             'updateItem', 'addCreatedItem', 'resetCreatedItems',
             'insertCreatedItems', 'deleteItem',
             'sendModifications',
-            'resetCUDItems'
+            'resetCUDItems',
+            'sendHistoryData',
         ]),
 
         showInfo ({ id }) {
@@ -145,6 +146,8 @@ export default {
 
             results.length && this.fetchItems();
 
+            this.deletedItems.size && this.sendDeletedHistoryData();
+
             this.resetCUDItems();
         },
 
@@ -161,7 +164,7 @@ export default {
         ...mapGetters({
             items: 'getItemsAsArr',
             createdItems: 'getCreatedItemsAsArr',
-            // updatedItems: 'getUpdatedItemsAsArr',
+            deletedItems: 'getDeletedItems',
             shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
         }),
 
