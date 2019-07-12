@@ -19,5 +19,11 @@ export const getters = {
 
     getCreatedProductsAsArr: state => state.createdProductsTracker && convertMapToArr(state.createdProducts, 'id'),
 
-    getUpdatedProducts: state => state.updatedProductsTracker && state.updatedProducts
+    getUpdatedProducts: state => state.updatedProductsTracker && state.updatedProducts,
+
+    getDeletedProducts: state => state.deletedProductsTracker && state.deletedProducts,
+
+    getCreatedProducts: state => state.createdProductsTracker && state.createdProducts,
+
+    getProducts: state => state.productsTracker && state.products,
 }

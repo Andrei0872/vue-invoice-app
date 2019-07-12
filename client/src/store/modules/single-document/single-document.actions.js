@@ -1,4 +1,7 @@
-import { convertMapToObject } from '@/utils/';
+import {
+    convertMapToObject,
+    convertMapToArrExcludingProps,
+} from '@/utils/';
 
 export const actions = {
 
@@ -147,53 +150,32 @@ export const actions = {
         commit('TRACK_DELETED_PRODUCTS');
     },
 
-    sendDeletedProducts: async ({ state, dispatch, rootState, rootGetters }, currentDocumentId) => {
-        const { deletedProducts, products, createdProducts } = state
+    sendDeletedProducts: async ({ dispatch, rootState, getters }, currentDocumentId) => {
         
-        console.log(deletedProducts);
+        const deletedProducts = getters.getDeletedProducts;
+        const shouldDeletedDoc = getters.getCreatedProducts.size + getters.getProducts.size === 0 
 
         const url = `${rootState.mainUrl}documents/products`;
         const payload = {
             ids: [...deletedProducts.keys()].map(k => deletedProducts.get(k).product_id),
             docId: currentDocumentId,
-            shouldDeleteDoc: products.size + createdProducts.size === 0
+            shouldDeleteDoc: shouldDeletedDoc
         };
+
+        const response = await dispatch('api/makeDELETERequest', { url, payload }, { root: true });
+        
+        const deletedProductsForHistory = convertMapToArrExcludingProps(getters.getDeletedProducts, ['document_id', 'product_id']);
+
+        dispatch('sendHistoryData', {
+            entity: 'documents',
+            message: 'Delete products from document',
+            action_type: 'delete',
+            prev_state: JSON.stringify(deletedProductsForHistory)
+        });
 
         dispatch('resetDeletedProducts');
 
-        const response = await dispatch('api/makeDELETERequest', { url, payload }, { root: true });
-
         return response;
-
-        /* 
-        this.$store.commit('SET_PROVIDER', null);
-        this.$store.commit('documentProduct/SET_LAST_DELETED_DOC_ID', -1);
-
-        let deletedItemsLen;
-        if ((deletedItemsLen = this.deletedItems.length)) {
-
-            const isDocumentDeleted = this.documentProducts.length === 0 && this.createdProducts.length === 0
-
-            const message = `Delete ${deletedItemsLen === 1 ? 'one product' : 'products'} from document`
-            this.$store.dispatch('dashboard/insertHistoryRow', {
-                entity: `${isDocumentDeleted ? 'document/empty' : 'documents/edit/' + this.id}`,
-                message,
-                action_type: 'delete',
-                additional_info: JSON.stringify(this.deletedItems.map(({
-                    product_id = null,
-                    document_id,
-                    product_name,
-                    ...rest
-                }) => ({
-                    product_name,
-                    ...rest
-                })))
-            });
-
-            this.resetDeletedItems();
-        }
-        */
-        
     },
 
     updateDocument: async ({ dispatch, rootState, rootGetters }, payload) => {
