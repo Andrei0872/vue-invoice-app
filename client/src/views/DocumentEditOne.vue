@@ -182,33 +182,34 @@ export default {
 
         ...mapActions('document', ['addNewItem', 'resetArr', 'deleteItem', 'addFieldValue']),
 
-        shouldUpdateDocument () {
+        getDocumentChanges () {
             console.log(this.selectedProvider)
 
             const changes = {};
+            const previousData = {};
             let changeFound = false;
 
             for (const key of Object.keys(this.selectedProvider)) {
                 if (key === 'inserted_date' || key === 'URC')
                     continue;
 
-                const currentItemKey = key === 'id' 
-                    ? 'provider_id' 
-                    : key === 'invoiceNr' 
-                        ? 'invoice_number'
-                        : key === 'id'
-                            ? 'provider_id'
-                            : key === 'name'
-                                ? 'provider_name'
-                                : key
+                const currentItemKey =
+                    key === 'id'
+                        ? 'provider_id'
+                        : key === 'invoiceNr' 
+                            ? 'invoice_number'
+                                : key === 'name'
+                                    ? 'provider_name'
+                                    : key
 
                 if (`${this.selectedProvider[key]}` !== `${this.currentDocument[currentItemKey]}`) {
                     changes[currentItemKey] = this.selectedProvider[key];
+                    previousData[currentItemKey] = this.currentDocument[currentItemKey];
                     changeFound = true;
                 }
             }
 
-            return changeFound ? changes : changeFound;
+            return changeFound ? { changes, previousData } : changeFound;
         },
         
         // ? closer look!
@@ -241,9 +242,11 @@ export default {
         },
 
         async sendUpdates () {            
-            let changes = null;
-            if ((changes = this.shouldUpdateDocument())) {
-                this.updateDocument({ ...changes, id: this.currentDocument.id })
+            const documentChanges = this.getDocumentChanges();
+            if (documentChanges) {
+                this.documentNeedsUpdate = true;
+                
+                await this.updateDocument({ ...documentChanges, id: this.currentDocument.id })
             }
 
             if (this.initialProductsLen !== this.documentProducts.length) {
@@ -286,10 +289,6 @@ export default {
     beforeRouteLeave (to, from, next) {
         this.resetProducts();
 
-        if (to.name === 'documents') {
-            from.params.shouldUpdate = this.documentNeedsUpdate;
-        }
-        
         next();
     },
 

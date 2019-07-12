@@ -196,35 +196,44 @@ export const actions = {
         
     },
 
-    updateDocument: async ({ dispatch, state, rootState, rootGetters }, payload) => {
+    updateDocument: async ({ dispatch, rootState, rootGetters }, payload) => {
         const url = `${rootState.mainUrl}documents/update_document`;
         const config = {
             ...rootGetters['api/config'],
             method: "PUT",
-            body: JSON.stringify(payload)
+            body: JSON.stringify({
+                ...payload.changes,
+                id: payload.id,
+            })
         }
 
-        await dispatch('api/makeRequest', { url, config }, { root: true })
+        const response = await dispatch('api/makeRequest', { url, config }, { root: true })
 
-        // let prevState = ``,
-        //     currentState = ``;
+        console.log(response)
 
-        // Object.entries(changes).forEach(([key, value]) => {
-        //     if (key !== 'provider_id') {
-        //         prevState += `${key}:${this.currentDocument[key]}|`
-        //         currentState += `${value}|`
-        //     }
-        // })
+        const { id: documentId, ...documentChanges } = payload;
+        const { provider_id: provider_id_prev, ...previousData } = documentChanges.previousData;
+        const { provider_id: provider_id_crt, ...changes } = documentChanges.changes;
 
-        // const message = `Update document information`;
-        // this.$store.dispatch('dashboard/insertHistoryRow', {
-        //     entity: `documents/edit/${this.id}`,
-        //     message,
-        //     action_type: 'update',
-        //     prev_state: prevState.slice(0, -1),
-        //     current_state: currentState.slice(0, -1),
-        // });
+        const currentState = JSON.stringify({
+            [documentId]: {
+                from: previousData,
+                to: changes,
+            },
+        });
+
+        const message = `Update document information`;
+        dispatch('dashboard/insertHistoryRow', {
+            entity: `document`,
+            message,
+            action_type: 'update',
+            current_state: currentState
+        }, { root: true });
     },
 
     // setAlreadyFetched: ({ commit }, payload) => commit('SET_ALREADY_FETCHED', payload),
+
+    sendHistoryData: async ({ dispatch }, historyData) => {
+        dispatch('dashboard/insertHistoryRow', historyData, { root: true });
+    },
 }
