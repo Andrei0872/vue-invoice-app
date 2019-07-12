@@ -88,6 +88,26 @@
             </template>
           </VTableSimple>
         </div>
+
+        <template v-if="additionalInfo">
+          <template v-for="(additionalItemObj, title, index) in additionalInfo">
+            <p :key="index + 'title'">{{ title }}</p>
+
+            <div :key="index + title" class="c-table">
+                <VTableSimple
+                  :columns="getPropertiesOfPropArr(additionalInfo[title])"
+                >
+                <template v-slot:tbody>
+                  <tr v-for="(additionalItem, index) in additionalItemObj" :key="index">
+                    <td v-for="column in $options.currentEntityColumns" :key="column + index + title">
+                      {{ additionalItem[column] }}
+                    </td>
+                  </tr> 
+                </template>
+              </VTableSimple>
+            </div>
+          </template>
+        </template>
       </template>
 
       <div align="right">
@@ -130,7 +150,11 @@ export default {
 
       actionType: null,
       modalData: null,
-
+      /**
+       * For example, when creating a product, we need to keep tract of
+       * the `created provider` and the `created products`
+       */
+      additionalInfo: null
     }),
 
     mixins: [modalMixin],
@@ -163,6 +187,7 @@ export default {
 
             case 'insert': {
               this.modalData = JSON.parse(row.current_state);
+              row.additional_info && (this.additionalInfo = JSON.parse(row.additional_info))
               this.$options.currentEntityColumns = Object.keys(this.modalData[0]);
               
               break;
@@ -240,6 +265,12 @@ export default {
         getPropertiesOfNestedObj (obj) {
 
           this.$options.currentEntityColumns = getPropertiesOfNestedObj(obj);
+
+          return this.$options.currentEntityColumns;
+        },
+
+        getPropertiesOfPropArr (arr) {
+          this.$options.currentEntityColumns = Object.keys(arr[0]);
 
           return this.$options.currentEntityColumns;
         },
