@@ -122,6 +122,10 @@ export default {
             }
 
 
+            if (this.updatedItemsMap.size) {
+                this.sendUpdatedHistoryData();
+            }
+
             this.resetCUDItems();
         },
 
@@ -162,6 +166,8 @@ export default {
             createdItems: 'getCreatedItemsAsArr',
             updatedItems: 'getUpdatedItemsAsArr',
             deletedItems: 'getDeletedItems',
+            updatedItemsMap: 'getUpdatedItems',
+            itemsMap: 'getItems',
             shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
         }),
     },
