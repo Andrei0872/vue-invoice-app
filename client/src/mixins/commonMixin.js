@@ -139,6 +139,17 @@ export default {
                 current_state,
             });
         },
+
+        sendCreatedHistoryData () {
+            const message = `Add new ${this.entity}s`;
+
+            this.$store.dispatch('dashboard/insertHistoryRow', {
+                entity: this.entity,
+                message,
+                action_type: 'insert',
+                current_state: JSON.stringify(this.createdItemsAsArrWithoutIds),
+            });
+        },
     },
 
     computed: {
