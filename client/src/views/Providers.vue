@@ -115,6 +115,7 @@ export default {
             
             results.length && this.fetchItems();
 
+            // TODO: send to history the deleted documents
             this.deleteDocumentsOfDeletedProviders();
 
             if (this.deletedItems.size) {
@@ -156,7 +157,9 @@ export default {
         async onInsertCreatedItems () {
             await this.insertCreatedItems();
 
-            await this.$store.dispatch('api/makeGETRequest', { url: this.backendUrl, entity: this.entity });
+            this.$store.dispatch('api/makeGETRequest', { url: this.backendUrl, entity: this.entity });
+
+            this.sendCreatedHistoryData();
         }
     },
 
@@ -164,6 +167,7 @@ export default {
         ...mapGetters({
             items: 'getItemsAsArr',
             createdItems: 'getCreatedItemsAsArr',
+            createdItemsAsArrWithoutIds: 'getCreatedItemsAsArrWithoutIds',
             updatedItems: 'getUpdatedItemsAsArr',
             deletedItems: 'getDeletedItems',
             updatedItemsMap: 'getUpdatedItems',
