@@ -16,25 +16,21 @@
           </p>
         </div>
 
-        <template v-for="(entity, ind) in modalData">
-          <p :key="ind + 'title'">{{ entity.title }}</p>  
-
-          <div :key="ind + 'table'" class="c-table">
+        <div class="c-table">
             <VTableSimple 
-              :columns="getPropertiesOfNestedObj(entity.items)"
+              :columns="getPropertiesOfPropArr(modalData)"
             >
               <template v-slot:tbody>
                 
-                <tr v-for="(values, id) in entity.items" :key="id">
-                  <td v-for="columnName in $options.currentEntityColumns" :key="id + columnName">
-                    {{ values[columnName] }}
+                <tr v-for="(item, index) in modalData" :key="index">
+                  <td v-for="columnName in $options.currentEntityColumns" :key="index + columnName">
+                    {{ item[columnName] }}
                   </td>
                 </tr>
 
               </template>
             </VTableSimple>
           </div>
-        </template>
       </template>
 
       <template v-else-if="actionType === 'update'">
@@ -176,7 +172,7 @@ export default {
 
           switch (this.actionType) {
             case 'delete': {
-              this.modalData = (JSON.parse(row.prev_state)).data;              
+              this.modalData = (JSON.parse(row.prev_state));
               break;
             }
             
