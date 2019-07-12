@@ -73,6 +73,23 @@
         </template>
       </template>
 
+      <template v-else-if="actionType === 'insert'">
+        <div class="c-table">
+          <VTableSimple
+            :columns="$options.currentEntityColumns"
+          >
+            <template v-slot:tbody>
+              <!-- Using `index` as a key because this modal is readonly -->
+              <tr v-for="(createdItem, index) in modalData" :key="index">
+                <td v-for="column in $options.currentEntityColumns" :key="column + index">
+                  {{ createdItem[column] }}
+                </td>
+              </tr> 
+            </template>
+          </VTableSimple>
+        </div>
+      </template>
+
       <div align="right">
         {{ formatDate(selectedHistoryRow.inserted_date) }}
       </div>
@@ -138,8 +155,16 @@ export default {
               this.modalData = (JSON.parse(row.prev_state)).data;              
               break;
             }
+            
             case 'update': {
               this.modalData = JSON.parse(row.current_state);
+              break;
+            }
+
+            case 'insert': {
+              this.modalData = JSON.parse(row.current_state);
+              this.$options.currentEntityColumns = Object.keys(this.modalData[0]);
+              
               break;
             }
           }
