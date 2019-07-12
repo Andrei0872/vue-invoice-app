@@ -196,13 +196,14 @@ export const getDiffBetweenMapsElements = (from, to) => {
 
 export const convertMapToArrExcludingProps = (m, propsToExclude) => {
     const result = [];
-    let newObj = {};
-
+    
     for (const [k, item] of m) {
+        let newObj = {};
+
         for (const prop in item) {
-            if (propsToExclude.includes(prop))
-                continue; 
-            
+            if (propsToExclude.includes(prop)) 
+                continue;
+
             newObj[prop] = item[prop];
         }
 
