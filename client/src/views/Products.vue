@@ -131,6 +131,8 @@ export default {
             results.length && this.fetchItems();
 
             this.deletedItems.size && this.sendDeletedHistoryData();
+            
+            this.updatedItemsMap.size && this.sendUpdatedHistoryData();
 
             this.resetCUDItems();
         },
@@ -148,6 +150,8 @@ export default {
             createdItems: 'getCreatedItemsAsArr',
             updatedItems: 'getUpdatedItemsAsArr',
             deletedItems: 'getDeletedItems',
+            updatedItemsMap: 'getUpdatedItems',
+            itemsMap: 'getItems',
             shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
         })
     },
