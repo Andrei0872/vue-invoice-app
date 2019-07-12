@@ -9,5 +9,11 @@ export const getters = {
 
     getWhetherItShouldCancelOrConfirmChanges: state => 
         state.updatedItemsTracker && state.updatedItems.size !== 0
-            || state.deletedItemsTracker && state.deletedItems.size !== 0
+            || state.deletedItemsTracker && state.deletedItems.size !== 0,
+
+    getDeletedItems: state => state.deletedItemsTracker && state.deletedItems,
+
+    getUpdatedItems: state => state.updatedItemsTracker && state.updatedItems,
+
+    getItems: state => state.itemsTracker && state.items,
 };
