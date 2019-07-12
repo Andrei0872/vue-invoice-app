@@ -37,6 +37,42 @@
         </template>
       </template>
 
+      <template v-else-if="actionType === 'update'">
+        <template v-for="(fromTo, id) in modalData">
+          <p :key="id"><b>{{ id }}</b></p>
+
+          <p :key="id + 'from'">From</p>
+          <div :key="id + 'table'" class="c-table">
+            <VTableSimple 
+              :columns="getPropertiesOfNestedObj(fromTo)"
+            >
+              <template v-slot:tbody>
+                <tr>
+                  <td v-for="column in $options.currentEntityColumns" :key="id + column">
+                    {{ fromTo.from[column] }}
+                  </td>
+                </tr> 
+              </template>
+            </VTableSimple>
+          </div>
+
+          <p :key="id + 'to'">To</p>
+          <div :key="id + 'table' + 'to'" class="c-table">
+            <VTableSimple 
+              :columns="$options.currentEntityColumns"
+            >
+              <template v-slot:tbody>
+                <tr>
+                  <td v-for="column in $options.currentEntityColumns" :key="column + id">
+                    {{ fromTo.to[column] }}
+                  </td>
+                </tr>
+              </template>
+            </VTableSimple>
+          </div>
+        </template>
+      </template>
+
       <div align="right">
         {{ formatDate(selectedHistoryRow.inserted_date) }}
       </div>
@@ -100,6 +136,10 @@ export default {
           switch (this.actionType) {
             case 'delete': {
               this.modalData = (JSON.parse(row.prev_state)).data;              
+              break;
+            }
+            case 'update': {
+              this.modalData = JSON.parse(row.current_state);
               break;
             }
           }
