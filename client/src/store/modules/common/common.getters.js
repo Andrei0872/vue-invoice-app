@@ -16,4 +16,6 @@ export const getters = {
     getUpdatedItems: state => state.updatedItemsTracker && state.updatedItems,
 
     getItems: state => state.itemsTracker && state.items,
+
+    getCreatedItemsAsArrWithoutIds: state => state.createdItemsTracker && convertMapToArr(state.createdItems),
 };
