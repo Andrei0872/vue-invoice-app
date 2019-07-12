@@ -133,8 +133,35 @@ export default {
             this.$router.push({ name: 'documentEditOne', params: { id } });
         },
 
+        prepareCreatedItemsForHistory () {
+            console.log(this.createdItems)
+            const documentProducts = {};
+            const { id: providerId, invoiceNr, name, URC } = this.$store.state.selectedProvider;
+
+            const createdProductsForHistory = this.createdItems.map(createdItem => {
+                const { product_name: productObj, itemWithoutProductObj } = createdItem;
+                const { id, ...productObjWithoutId } = productObj;
+
+                return {
+                    ...itemWithoutProductObj,
+                    ...productObjWithoutId
+                };
+            });
+
+            return {
+                current_state: JSON.stringify([{ 
+                    id: providerId, 
+                    provider_name: name, 
+                    provider_URC: URC, 
+                }]),
+                additional_info: JSON.stringify({products: createdProductsForHistory})
+            };
+        },
+
         async onInsertCreatedItems () {
             await this.insertCreatedItems();
+
+            this.sendCreatedHistoryData(this.prepareCreatedItemsForHistory());
 
             await this.fetchItems();
         },
@@ -170,7 +197,7 @@ export default {
 
         ...mapGettersProvider({ providers: 'getItemsAsArr' }),
 
-        ...mapGettersProduct({ products: 'getItemsAsArr' }),
+        ...mapGettersProduct({ products: 'getItemsAsArr', productsMap: 'getItems' }),
 
         containsErrors () {
             this.errorMessage = this.providers && !this.providers.length 
