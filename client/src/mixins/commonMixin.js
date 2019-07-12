@@ -1,8 +1,8 @@
 import uuidv1 from 'uuid/v1';
 
 import {
-    convertMapToObject,
     getDiffBetweenMapsElements,
+    convertMapToArr,
 } from '@/utils/'
 
 export default {
@@ -100,14 +100,7 @@ export default {
             const message = `Delete ${this.entity}`;
             const entity = `${ itemsLen === 0 ? this.entity + '/empty' : this.entity}`;
             const action_type = 'delete';
-            const prev_state = JSON.stringify({
-                data: [
-                    { 
-                        title: this.entity + 's',
-                        items: convertMapToObject(this.deletedItems),
-                    },
-                ]
-            });
+            const prev_state = JSON.stringify(convertMapToArr(this.deletedItems));
 
             this.sendHistoryData({
                 message,
