@@ -120,7 +120,9 @@ export default {
         async onInsertCreatedItems () {
             await this.insertCreatedItems();
 
-            await this.fetchItems();
+            this.fetchItems();
+
+            this.sendCreatedHistoryData();
         },
 
         async onConfirmChanges () {
@@ -148,6 +150,7 @@ export default {
         ...mapGetters({
             items: 'getItemsAsArr',
             createdItems: 'getCreatedItemsAsArr',
+            createdItemsAsArrWithoutIds: 'getCreatedItemsAsArrWithoutIds',
             updatedItems: 'getUpdatedItemsAsArr',
             deletedItems: 'getDeletedItems',
             updatedItemsMap: 'getUpdatedItems',
