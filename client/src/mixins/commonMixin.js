@@ -140,14 +140,16 @@ export default {
             });
         },
 
-        sendCreatedHistoryData () {
+        sendCreatedHistoryData (createdItemsInCustomFormat = null) {
             const message = `Add new ${this.entity}s`;
 
             this.$store.dispatch('dashboard/insertHistoryRow', {
                 entity: this.entity,
                 message,
                 action_type: 'insert',
-                current_state: JSON.stringify(this.createdItemsAsArrWithoutIds),
+                ...createdItemsInCustomFormat 
+                    && createdItemsInCustomFormat
+                    || { current_state: JSON.stringify(this.createdItemsAsArrWithoutIds) },
             });
         },
     },
