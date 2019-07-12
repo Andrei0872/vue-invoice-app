@@ -1,6 +1,7 @@
 import {
     convertMapToObject,
     convertMapToArrExcludingProps,
+    getDiffBetweenMapsElements,
 } from '@/utils/';
 
 export const actions = {
@@ -53,38 +54,30 @@ export const actions = {
         commit('TRACK_UPDATED_PRODUCTS');
     },
 
-    sendUpdatedProducts: async ({ commit, dispatch, state, rootGetters, rootState }) => {
-        const { updatedProducts } = state;
-        
+    sendUpdatedProducts: async ({ dispatch, getters, rootState }) => {
+        const updatedProducts = getters.getUpdatedProducts;
+        const products = getters.getProducts;
+
         const url = `${rootState.mainUrl}documents/products`;
         const payload = convertMapToObject(updatedProducts);
         
         const response = await dispatch("api/makePUTRequest", { url, payload }, { root: true });
 
-        dispatch('resetUpdatedProducts');
-
-        return response;
-
         // TODO: decide whether the dashboard info needs to be updated
-        // if (rootGetters['dashboard/getUpdateState']) {
-        //     dispatch('dashboard/fetchMainOverview', 'dashboard/overview', {
-        //         root: true
-        //     });
-        // }
-        // await dispatch('api/FETCH_DATA', undefined, {
-        //     root: true
-        // });
-        // return response;
 
-        // const message = `Update product${productsChangedLen > 1 ? 's' : ''} in document`;
-        // this.$store.dispatch('dashboard/insertHistoryRow', {
-        //     entity: `documents/edit/${this.id}`, 
-        //     message, 
-        //     action_type: 'update',
-        //     prev_state: prevState.slice(0, -1),
-        //     current_state: currentState.slice(0, -1),
-        //     additional_info: additionalInfo.slice(0, -1)
-        // });
+        const differences = getDiffBetweenMapsElements(products, updatedProducts);
+
+        const message = `Update products in document`;
+        dispatch('sendHistoryData', {
+            entity: `document`, 
+            message, 
+            action_type: 'update',
+            current_state: JSON.stringify(differences),
+        });
+
+        dispatch('resetUpdatedProducts');
+        
+        return response;
     },
 
     // Created
@@ -167,7 +160,7 @@ export const actions = {
         const deletedProductsForHistory = convertMapToArrExcludingProps(getters.getDeletedProducts, ['document_id', 'product_id']);
 
         dispatch('sendHistoryData', {
-            entity: 'documents',
+            entity: 'document',
             message: 'Delete products from document',
             action_type: 'delete',
             prev_state: JSON.stringify(deletedProductsForHistory)
