@@ -5,18 +5,6 @@
     </template>
       
     <template v-slot:body v-if="selectedHistoryRow">
-      
-      <!-- <template v-if="selectedHistoryRow.entity.includes('documents/edit')">
-        <router-link  
-          class="redirect-link" 
-          :to="selectedHistoryRow.entity"
-          v-if="documentIds !== null && documentIds.get(+selectedHistoryRow.entity.slice(selectedHistoryRow.entity.lastIndexOf('/') + 1)) === true"
-        >
-          Read more about this document
-        </router-link>
-        <p v-else>This document no longer exists</p>
-      </template> -->
-      
       <template v-if="actionType === 'delete'">
         <div v-if="selectedHistoryRow.entity.includes('empty')">
           <!-- TODO: add this msg to `additional_info` -->
@@ -47,100 +35,6 @@
             </VTableSimple>
           </div>
         </template>
-      </template>
-
-
-      <!-- Show when a document has been deleted because its provider has been removed -->
-      <template v-if="selectedHistoryRow.entity.includes('indirectProvider')">
-        <p>Removed because the provider <b>{{ selectedHistoryRow.additional_info }}</b> has been deleted</p>
-      </template>
-      
-      <!-- If a product / provider / document has been updated -->
-      <template v-else-if="multipleRowsUpdated === false">
-        <div v-if="selectedHistoryRow.additional_info">{{ getHistoryProductNames[0] }}</div>
-
-        <div class="c-table">
-          <VTableSimple :columns="['Field', 'From', 'To']">
-            <template v-slot:tbody>
-              <tr
-                  v-for="(values, field) in getHistoryStateInformation"
-                  :key="field"
-                >
-                  <td>{{ field }}</td>
-                  <td>{{ values[0] }}</td>
-                  <td>{{ values[1] }}</td>
-              </tr>
-            </template>
-          </VTableSimple>
-        </div>
-      </template>
-
-      <!-- If products in a document have been updated-->
-      <template v-else-if="multipleRowsUpdated === true">
-        <template v-for="(product, productIndex) in computeProductRows">
-          <div :key="product.id">{{ getHistoryProductNames[productIndex] }}</div>
-          
-          <div :key="product.id + productIndex" class="c-table">
-            <VTableSimple  :columns="['Field', 'From', 'To']">
-              <template v-slot:tbody>
-                <tr
-                  v-for="(field) in Object.keys(getRidOfObjProp(product, 'id'))"
-                  :key="product.id + field"
-                >
-                  <td>{{ field }}</td>
-                  <td>{{ product[field][0] }}</td>
-                  <td>{{ product[field][1] }}</td>
-                </tr>
-              </template>
-            </VTableSimple>
-        </div>
-        </template>
-      </template>
-
-      <!-- If products have been added / removed from a document -->
-      <template v-else-if="displayDeletedOrAddedProductsInDoc">
-        <div>
-          {{ selectedHistoryRow.action_type === 'insert' ? 'Added' : 'Removed' }} {{ displayDeletedOrAddedProductsInDoc.length === 1 ? 'product' : 'products' }}
-        </div>
-
-        <div class="c-table">
-          <VTableSimple :columns="Object.keys(getRidOfObjProp(displayDeletedOrAddedProductsInDoc[0], 'id'))">
-            <template v-slot:tbody>
-              <tr
-                  v-for="item in displayDeletedOrAddedProductsInDoc"
-                  :key="item.id"
-                >
-                  <template v-for="(k, kIndex) in Object.keys(item)">
-                    <td
-                      :key="item.id + item[k] + kIndex"
-                      v-if="k !== 'id'"
-                    >
-                      {{ typeof item[k] === 'object' && k === 'product_name' ? item[k]['name'] : item[k] }}
-                    </td>
-                  </template>
-              </tr>
-            </template>
-          </VTableSimple>
-        </div>
-      </template>
-
-      <!-- If multiple products (not in a document) / providers have been inserted -->
-      <!-- or (at least for now) if a product / document / provider has been deleted / added-->
-      <template v-else>
-        <div class="c-table" v-if="displayDeletedOrAdded">
-          <VTableSimple :columns="Object.keys(getRidOfObjProp((displayDeletedOrAdded[0] || displayDeletedOrAdded), 'id'))">
-            <template v-slot:tbody>
-              <!-- Decided to use the index for key's computation in order to reduce -->
-              <!-- the possibility of key duplication -->
-              <tr v-for="(item, rowIndex) in displayDeletedOrAdded" :key="item.id + rowIndex">
-                <template v-for="(k, kIndex) in Object.keys(item)">
-                  <!-- 'Not Specified' - in case a product doesn't have an expiration date -->
-                  <td v-if="k !== 'id'" :key="item.id + item[k] + kIndex + rowIndex">{{ item[k] ? k === 'product_name' ? item[k]['name'] : item[k] : item[k] === 0 ? item[k] : 'Not specified' }}</td>
-                </template>
-              </tr>
-            </template>
-          </VTableSimple>
-        </div>
       </template>
 
       <div align="right">
