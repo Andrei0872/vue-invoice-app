@@ -15,7 +15,7 @@ export const fetchExcelFile = async function (url, rowIndex, id) {
     let link;
     
     if (!this.allItems.length) {
-        await this.fetchById(id);
+        await this.fetchProductsByDocumentId(id);
     }
 
     const config = {
@@ -93,12 +93,12 @@ export const compareObjects = (pristineObj, changedObj, cbWhenChangeFound = unde
 
 export const isObjectEmpty = obj => Object.keys(obj).length === 0
 
-export const convertMapToArr = (m, keyName) => {
+export const convertMapToArr = (m, keyName = null) => {
     if (!m.size)
         return [];
 
     return [...m.entries()].map(([k, v]) => ({
-        [keyName]: k,
+        ...keyName && { [keyName]: k },
         ...v
     }));
 };
