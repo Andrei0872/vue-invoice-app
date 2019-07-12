@@ -1,5 +1,10 @@
 import uuidv1 from 'uuid/v1';
 
+import {
+    convertMapToObject,
+    getDiffBetweenMapsElements,
+} from '@/utils/'
+
 export default {
     data: () => ({
         selectedItem: {},
@@ -112,7 +117,28 @@ export default {
             });
         },
         
+        
+        sendUpdatedHistoryData () {
+            const entity = this.entity;
+            const action_type = 'update';
+            const message = `Update ${this.entity}`;
 
+            const differences = getDiffBetweenMapsElements(
+                this.itemsMap, 
+                this.updatedItemsMap
+            );
+
+            const current_state = JSON.stringify(differences);
+
+            console.log('differences', differences)
+
+            this.sendHistoryData({
+                message,
+                entity,
+                action_type,
+                current_state,
+            });
+        },
     },
 
     computed: {
