@@ -184,6 +184,26 @@ class Service {
             return { message: 'error deleting', err };
         }
     }
+
+    async simpleUpdate ([key, val]) {
+
+        const tableName = this.table.currentTable;
+
+        const sql = `
+            update ${tableName}
+            set ${key} = ${val}
+        `;
+
+        try {
+            await this.table._promisify(sql);
+
+            return { message: `successfully updated ${tableName}` }
+        } catch (err) {
+            console.error(err);
+            
+            return { message: `error updating ${vat}`, err }
+        }
+    }
 }
 
 module.exports = Service;
