@@ -26,16 +26,22 @@ export default {
             <div style={{  display: 'inline-block' }}>
                 {
                     shouldDisplayUndo 
-                    ? <VButton onClick={historyStore.dispatch.bind(null,'undo')} btnClass={'FABtn'} >
-                        <font-awesome-icon icon={'undo'}/>
-                      </VButton>
-                    : null
+                        ? <VButton 
+                                onClick={historyStore.dispatch.bind(null,'undo')}
+                                btnClass={'FABtn'} 
+                            >
+                                <font-awesome-icon icon={'undo'}/>
+                            </VButton>
+                        : null
                 }
                 {
                     shouldDisplayRedo
-                    ? <VButton onClick={historyStore.dispatch.bind(null,'redo')} btnClass={'FABtn'}>
-                        <font-awesome-icon icon={'redo'}/>
-                      </VButton>
+                    ? <VButton 
+                            onClick={historyStore.dispatch.bind(null,'redo')} 
+                            btnClass={'FABtn'}
+                        >
+                            <font-awesome-icon icon={'redo'}/>
+                        </VButton>
                     : null
                 }
             </div>
