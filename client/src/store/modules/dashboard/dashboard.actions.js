@@ -52,5 +52,11 @@ export const actions = {
         await dispatch('api/makeRequest', { url, config }, { root: true })
 
         await dispatch('dashboard/fetchMainOverview', 'history', { root: true });
-    }
+    },
+
+    updateVat: async ({ dispatch, rootGetters }, payload) => {
+        const url = `${rootGetters['api/mainURL']}/vat/`;
+
+        await dispatch('api/makePUTRequest', { url, payload }, { root: true });
+    },
 }

@@ -106,6 +106,8 @@ export default {
     shownDocumentsLen: 8,
     initialVat: {},
     componentLoaded: false,
+    shouldUpdateDocument: false,
+    vatHistoryMessage: null
   }),
 
   computed: {
@@ -134,7 +136,7 @@ export default {
 
     ...mapActions(['changeEntity']),
     
-    ...mapActions(currentEntity, ['fetchMainOverview', 'setNewVat', 'updateDocVat', 'insertHistoryRow']),
+    ...mapActions(currentEntity, ['fetchMainOverview', 'setNewVat', 'updateDocVat', 'insertHistoryRow', 'updateVat']),
 
     async addNewVat (type, ev) {
       const input = ev.target.previousElementSibling;
@@ -145,10 +147,13 @@ export default {
       input.value = '';
       this.setNewVat({ type, value });
 
-      const message = `Update ${type} from ${this.initialVat[type] === null ? "'Not Specified'" : this.initialVat[type]} to ${this.vatData[type]}`
-      this.insertHistoryRow({ entity: currentEntity, message, action_type: 'update' });
+      await this.updateVat([type, value]);
 
-      this.$store.commit('documentProduct/RESET_ITEMS');
+      await this.updateDocVat([type, value]);
+
+      this.vatHistoryMessage = `Update ${type} from ${this.initialVat[type] === null ? "'Not Specified'" : this.initialVat[type]} to ${this.vatData[type]}`
+
+      this.shouldUpdateDocument = true;
     },
 
     sendToRoute (newRoute) {
@@ -171,19 +176,14 @@ export default {
   },
 
   async beforeRouteLeave (to, from, next) {
-    // If the VAT values are null, it means there can't be any documents
-    // So we'll perform an update only if there are existing values that are not null
-    if (this.initialVat['food_vat'] !== null || this.initialVat['non_food_vat'] !== null) {
-      // If after any of the req below this is not null, is means we have the updated docs
-      // which means we can replace the actual docs with the updated ones
-      let shouldRefetchDocs = false;
-      
-      this.initialVat['food_vat'] !== this.vatData['food_vat'] && (await this.updateDocVat(['food_vat', this.vatData['food_vat']]), shouldRefetchDocs = true)
+    
+    if (this.shouldUpdateDocument) {
+      this.insertHistoryRow({ entity: currentEntity, message: this.vatHistoryMessage, action_type: 'update' });
 
-      this.initialVat['non_food_vat'] !== this.vatData['non_food_vat'] && (await this.updateDocVat(['non_food_vat', this.vatData['non_food_vat']]), shouldRefetchDocs = true)
-
-      console.log(shouldRefetchDocs)
-      shouldRefetchDocs && this.$store.dispatch('api/FETCH_DATA');
+      this.$store.dispatch('api/makeGETRequest', {
+        url: this.$store.state['mainUrl'] + 'documents',
+        entity: 'document'
+      });
     }
     
     this.$children[1].closeModal();
