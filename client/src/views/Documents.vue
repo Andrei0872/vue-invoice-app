@@ -139,7 +139,7 @@ export default {
             const { id: providerId, invoiceNr, name, URC } = this.$store.state.selectedProvider;
 
             const createdProductsForHistory = this.createdItems.map(createdItem => {
-                const { product_name: productObj, itemWithoutProductObj } = createdItem;
+                const { id: randomProductId, product_name: productObj, ...itemWithoutProductObj } = createdItem;
                 const { id, ...productObjWithoutId } = productObj;
 
                 return {
