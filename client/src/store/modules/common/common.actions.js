@@ -76,6 +76,11 @@ export const actions = {
         commit('TRACK_DELETED_ITEMS');
     },
 
+    deleteDeletedItem: ({ commit }, id) => {
+        commit('DELETE_DELETED_ITEM', id);
+        commit('TRACK_DELETED_ITEMS');
+    },
+
     sendDeletedItems: async ({ dispatch, rootGetters, state, rootState }) => {
         console.log('deleting items!');
         const url = rootGetters['getEntityBackendEndpoint'];

@@ -15,14 +15,7 @@ export const mutations = {
 
     UPDATE_NEW_DATA: (state, payload) => state.newItems = payload,
 
-    // DELETE_ITEM: (state, {
-    //     prop,
-    //     id
-    // }) => state[prop] = state[prop].filter(item => item.id !== id),
-
-    RESET_ARR: (state, {
-        prop
-    }) => state[prop] = [],
+    DELETE_DELETED_ITEM: (state, id) => state.deletedItems.delete(id),
 
     RESET_CREATED_ITEMS: state => state.createdItems.clear(),
 
