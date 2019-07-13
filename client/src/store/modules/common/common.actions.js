@@ -113,6 +113,11 @@ export const actions = {
         // }
     },
 
+    addItem: ({ commit }, payload) => {
+        commit('ADD_ITEM', payload)
+        commit('TRACK_ITEMS');
+    },
+
     sendModifications: async ({ dispatch, state }) => {
         const actionsSend = [];
         
