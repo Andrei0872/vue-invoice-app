@@ -19,8 +19,8 @@ export default {
         },
     },
 
-    render (h, { listeners, children, props }) {        
-        const content = children[0].text;
+    render (h, { listeners, children, props, slots }) {        
+        const content = children[0].tag !== undefined ? slots().default : children[0].text;
 
         const functionNames = Object.keys(listeners);
         const combinedFunctions = ctx => functionNames.forEach(fn => listeners[fn](ctx));
