@@ -265,3 +265,31 @@ export const convertMapToObj = m => {
 
     return result
 }
+
+export const insertItemAtIndex = (arr, index, item) => {
+    const result = [...arr];
+
+    result.splice(index, 0, item);
+
+    return result;
+}
+
+/**
+ * 
+ * @param {Object} obj 
+ * @param {Array} props
+ * @param {Object} fallbackObj - if the prop does not exist, the user might provide a fallback obj
+ * 
+ * @example
+ * return { p1: 'prop1', p2: 'prop2' }
+ * obj = { p1: 'prop1', anotherProp: 'anotherProp', p2: 'prop2' }
+ * props: ['p1', 'p2']
+ *  
+ */
+export const getObjectSpecificProps = (obj, props, fallbackObj = null) => {
+    return props.reduce((memo, crtProp) => {
+        memo[crtProp] = obj.hasOwnProperty(crtProp) ? obj[crtProp] : fallbackObj[crtProp]
+
+        return memo;
+    }, {});
+}
