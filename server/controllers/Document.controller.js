@@ -40,8 +40,12 @@ class DocumentController extends mainController {
     }
 
     async insertProductsOnly (req, res) {
-        const { docId, createdProducts } = req.body;
-        
+        /**
+         * For the moment, the provider is also sent
+         * and we only need the created products and the document id
+         */
+        const { items: { docId, createdProducts } } = req.body;
+
         const response = await this.service.insertProductsOnly(docId, createdProducts);
         return res.json(response);
     }
