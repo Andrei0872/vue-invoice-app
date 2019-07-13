@@ -106,27 +106,39 @@ export const actions = {
         commit('TRACK_CREATED_PRODUCTS');
     },
 
-    sendCreatedProducts: async ({ dispatch, rootGetters, state }, currentDocumentId) => {
-        const { createdProducts } = state;
-        
+    sendCreatedProducts: async ({ dispatch, rootGetters, getters }, currentDocumentId) => {
+        const createdProducts = getters.getCreatedProducts;
+        const createdProductsWithoutIds = [...createdProducts.values()];
+
         const url = `${rootGetters['api/mainURL']}/documents/products`;
         const payload = {
-            createdProducts: [...createdProducts.values()],
+            createdProducts: createdProductsWithoutIds,
             docId: currentDocumentId
         };
-        
+
         const response = await dispatch('api/makePOSTRequest', { url, payload }, { root: true });
+
+        const createdProductsForHistory = createdProductsWithoutIds.map(createdItem => {
+                const { id: randomProductId, product_name: productObj, ...itemWithoutProductObj } = createdItem;
+                const { id, ...productObjWithoutId } = productObj;
+
+                return {
+                    ...itemWithoutProductObj,
+                    ...productObjWithoutId
+                };
+            });
+        
+        const message = `Add new products in a document`;
+        dispatch('sendHistoryData', {
+            entity: `document`, 
+            message,
+            action_type: 'insert',
+            current_state: JSON.stringify(createdProductsForHistory)
+        });
 
         dispatch('resetCreatedProducts');
 
         return response;
-        // const message = `Add new products in a document`;
-        // this.$store.dispatch('dashboard/insertHistoryRow', {
-        //     entity: `documents/edit/${this.id}`, 
-        //     message,
-        //     action_type: 'insert',
-        //     additional_info: JSON.stringify(this.createdProducts)
-        // });
     },
 
     // Deleted
