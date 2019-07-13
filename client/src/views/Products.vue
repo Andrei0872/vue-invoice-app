@@ -1,14 +1,21 @@
 <template>
-    <div>
-        <VContent v-if="everythingReady === true" entityName="product">
+    <div v-if="isEverythingLoaded">
+        <VContent 
+            entityName="entity"
+            @insertCreatedItems="onInsertCreatedItems"
+            :disableCreateButton="disableCreateButton" 
+            :shouldDisplayConfirmCancelButtons="shouldDisplayConfirmCancelButtons"
+            @confirmChanges="onConfirmChanges"
+            @cancelChanges="onCancelChanges"
+        >
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="items.length"
                     :fields="readColumns" 
                     :items="items" 
-                    @update="update($event)"
+                    @update="updateRow($event)"
                     @showInfo="showInfo($event)"
-                    @deleteRow="deleteRow($event)"
+                    @deleteRow="prepareRowForDeletion($event)"
                 />
                 <div v-else class="no-items">
                     There are no products!
@@ -21,15 +28,12 @@
                 <VTableCreate 
                     @deleteRow="deleteRowInstantly($event)" 
                     :fields="createColumns" 
-                    :items="newItems"
+                    :items="createdItems"
                     @addField="addField($event)"
-                    @init="init"
+                    @tableCreateReady="onTableCreateReady"
                 />
             </template>
         </VContent>
-        <div v-else-if="everythingReady !== 'pending'">
-            Some other error happened
-        </div>
 
         <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
@@ -72,8 +76,7 @@ const entityName = 'product';
 
 import { createNamespacedHelpers } from 'vuex';
 import * as common from '@/store/modules/common';
-const { mapState, mapActions } = createNamespacedHelpers(entityName)
-
+const { mapState, mapActions, mapGetters } = createNamespacedHelpers(entityName)
 
 export default {
     name: 'products',
@@ -99,17 +102,71 @@ export default {
             "comestible",
             "expiration_date",
             "inserted_date"
-        ]
+        ],
+        isEverythingLoaded: false,
+        entity: entityName,
     }),
 
-    methods: mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
+    methods: {
+        ...mapActions([
+            'deleteCreatedItem', 'addFieldValue', 
+            'updateItem', 'addCreatedItem', 'resetCreatedItems',
+            'insertCreatedItems', 'deleteItem',
+            'resetCUDItems',
+            'sendModifications',
+            'sendHistoryData'
+        ]),
 
-    computed: mapState(['items', 'newItems']),
+        async onInsertCreatedItems () {
+            await this.insertCreatedItems();
 
-    created () {
-        !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
+            this.fetchItems();
 
-        !(this.items.length) && this.$store.dispatch('api/FETCH_DATA');
+            this.sendCreatedHistoryData();
+        },
+
+        async onConfirmChanges () {
+            console.log('confirm')
+
+            const results =  await this.sendModifications();
+            
+            results.length && this.fetchItems();
+
+            this.deletedItems.size && this.sendDeletedHistoryData();
+            
+            this.updatedItemsMap.size && this.sendUpdatedHistoryData();
+
+            this.resetCUDItems();
+        },
+
+        onCancelChanges () {
+            console.log('cancel');
+
+            this.resetCUDItems();
+        },
+    },
+
+    computed: {
+        ...mapGetters({
+            items: 'getItemsAsArr',
+            createdItems: 'getCreatedItemsAsArr',
+            createdItemsAsArrWithoutIds: 'getCreatedItemsAsArrWithoutIds',
+            updatedItems: 'getUpdatedItemsAsArr',
+            deletedItems: 'getDeletedItems',
+            updatedItemsMap: 'getUpdatedItems',
+            itemsMap: 'getItems',
+            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
+        })
+    },
+
+    async created () {
+        if (this.$store && !this.$store.state[entityName]) {
+            this.$store.registerModule(entityName, common);
+
+            this.fetchItems();
+        }
+
+        this.isEverythingLoaded = true;
     }
 }
 </script>

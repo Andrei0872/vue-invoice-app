@@ -1,5 +1,5 @@
 <template>
-    <div class="table-responsive">
+    <div class="table-responsive" v-if="componentLoaded && items.length && fields.length">
         <table class="table">
             <thead>
                 <tr>
@@ -83,13 +83,21 @@
 <script>
 import VInput from '../components/VInput';
 
-import { fetchExcelFile, formatColumnName, capitalize } from '../utils/'; 
+import { 
+    fetchExcelFile, 
+    formatColumnName, 
+    capitalize, 
+    compareObjects, 
+    isObjectEmpty,
+} from '../utils/'; 
 
 import computeDoc from '../mixins/computeDoc';
 
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
+    name: 'table-read',
+
     props: {
         fields: Array,
         items: Array,
@@ -119,7 +127,8 @@ export default {
             untouchedRow: null,
             // Fields from `History` table
             prevState: ``,
-            crtState: ``
+            crtState: ``,
+            componentLoaded: false,
         }
     },
 
@@ -134,18 +143,12 @@ export default {
         shouldDisplayButtons () {
             return !this.readonly
         },
-
-        ...mapState('document_product', { allItems : 'items' }),
-        
-        ...mapGetters('document_product', { documentProducts: 'getItemsById' }),
     },
 
     methods: {
         formatColumnName (field) { return formatColumnName(field) },
         
         capitalize (field) { return capitalize(field) },
-
-        ...mapActions('document_product', ['setId', 'fetchById']),
 
         generateFile (type, id, rowIndex = null) {
             const url = `${this.$store.getters['api/mainURL']}/file`;
@@ -158,6 +161,7 @@ export default {
             fetchExcelFile.call(this, url, rowIndex, id);
         },
 
+        // TODO: add props to be avoided
         handleFocus (rowId, field, ev) {
             if (!this.isUpdating || this.isUpdating && this.selectedRowId !== rowId || ['sell_price', 'product_name', 'product_vat', 'sell_price_vat'].includes(field)) {
                 ev.target.blur();
@@ -176,24 +180,26 @@ export default {
             ev.target.children[0].focus();
         },
 
-        selectItem (itemInfo) {
-            this.selectedItemFromList = { ...itemInfo };
+        // selectItem (itemInfo) {
+        //     console.log('item selected')
 
-            if (this.needsAdditionalUpdate()) {
-                console.log('new update')
-                this.$emit('update', [this.selectedRowId, { [this.selectedField]: this.inputValue }])
-            }
+        //     this.selectedItemFromList = { ...itemInfo };
 
-            this.$emit('update', [this.selectedRowId, { [this.selectedField]: itemInfo.name }]);
-            this.inputValue = null;
-        },
+        //     if (this.needsAdditionalUpdate()) {
+        //         console.log('new update')
+        //         this.$emit('update', [this.selectedRowId, { [this.selectedField]: this.inputValue }])
+        //     }
 
-        needsAdditionalUpdate () {
-            return this.items.some(
-                item => item.id === this.selectedRowId 
-                    && item[this.selectedField] === this.selectedItemFromList.name
-            )
-        },
+        //     this.$emit('update', [this.selectedRowId, { [this.selectedField]: itemInfo.name }]);
+        //     this.inputValue = null;
+        // },
+
+        // needsAdditionalUpdate () {
+        //     return this.items.some(
+        //         item => item.id === this.selectedRowId 
+        //             && item[this.selectedField] === this.selectedItemFromList.name
+        //     )
+        // },
 
         updateRow (row) {
             if (this.$store.state['currentEntity'] === 'documents' && this.$route.name !== 'documentEditOne') {
@@ -214,51 +220,24 @@ export default {
         resetData (rowId) {
             this.isUpdating = false;
             this.selectedRowId = this.selectedRow = this.untouchedRow = null;
+            this.prevState = this.crtState = ``;
         },
 
         compareChanges (rowBeforeChanges, rowAfterChange) {
-            return Object.entries(rowAfterChange)
-                .reduce((changes, [key, value]) => {
-                    if (key === 'id') return changes;
-                    
-                    if (`${rowBeforeChanges[key]}` !== `${value}`) {
-                        changes[key] = value
+            const cbWhenChangeFound = (beforeCh, afterCh, k) => {
+                this.prevState += `${k}:${beforeCh[k]}|`
+                this.crtState += `${afterCh[k]}|`
+            };
 
-                        // We need these 2 in order to display what actually changed in history card
-                        this.prevState += `${key}:${rowBeforeChanges[key]}|`
-                        this.crtState += `${value}|`
-                    }
-
-                    return changes;
-                }, {})
+            return compareObjects(rowBeforeChanges, rowAfterChange, cbWhenChangeFound);
         },
-
-        isObjectEmpty (obj) {
-            return Object.keys(obj).length === 0
-        },        
 
         confirmChanges (row) {
 
             const changes = this.compareChanges(this.untouchedRow, this.selectedRow);
 
-            if (!this.isObjectEmpty(changes)) {
+            if (!isObjectEmpty(changes)) {
                 this.$emit('update', { ...changes, id: row.id });
-
-                if (this.$route.name === 'documentEditOne') {
-                    this.resetData();
-
-                    return;
-                }
-                
-                const currentEntity = this.$store.getters['getEntityName'];
-                const message = `Update one ${currentEntity}`
-                this.$store.dispatch('dashboard/insertHistoryRow', {
-                    entity: currentEntity, message, 
-                    action_type: 'update',
-                    prev_state: this.prevState.slice(0, -1),
-                    current_state: this.crtState.slice(0, -1),
-                    additional_info: this.selectedRow.name
-                });
             }
 
             this.resetData();
@@ -282,7 +261,7 @@ export default {
             row[fieldName] = val;
 
             if (fieldName === 'buy_price' || fieldName === 'markup') {
-                // this.selectedRow['sell_price'] = row['sell_price'] = this.computeSellPrice(row, fieldName, val)
+                this.selectedRow['sell_price'] = row['sell_price'] = this.computeSellPrice(row, fieldName, val);
 
                 const sellPriceValue = parseFloat(this.computeSellPrice(row, fieldName, val)).toFixed(2);
                 this.selectedRow['sell_price'] = row['sell_price'] = sellPriceValue;
@@ -291,14 +270,12 @@ export default {
 
                 const { isComestible } = row;
 
-                if (isComestible !== undefined) {
-                    const vatValue = this.getVatValue(isComestible, sellPriceValue, vat).toFixed(2);
+                const vatValue = this.getVatValue(isComestible, sellPriceValue, vat).toFixed(2);
 
-                    this.lastUsedVatId = vatValue;
-                    this.selectedRow['product_vat'] = row['product_vat'] = vatValue;
-                    const sellPriceVat = +vatValue + +sellPriceValue;
-                    this.selectedRow['sell_price_vat'] = row['sell_price_vat'] = sellPriceVat.toFixed(2);
-                }
+                this.lastUsedVatId = vatValue;
+                this.selectedRow['product_vat'] = row['product_vat'] = vatValue;
+                const sellPriceVat = +vatValue + +sellPriceValue;
+                this.selectedRow['sell_price_vat'] = row['sell_price_vat'] = sellPriceVat.toFixed(2);
 
                 this.lastUsedSellPrice = sellPriceValue;
             }
@@ -311,6 +288,8 @@ export default {
 
     mounted () {
         this.itemsFromProps = JSON.parse(JSON.stringify(this.items));
+
+        this.componentLoaded = true;
     }
 }
 </script>

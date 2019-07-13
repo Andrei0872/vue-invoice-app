@@ -18,27 +18,35 @@
       <div class="main-cards__container">
         <div class="c-card c-card--small-half c-vat">
           <div class="c-card__title">VAT</div>
+
           <div class="c-card__content">
             <div class="c-vat__item">
               <div class="c-vat__item--title">non-food VAT</div>
+              
               <div class="c-vat__item--content">
                 <input class="c-vat__input" type="text" placeholder="non-food VAT">
                 <button class="c-vat__button" @click="addNewVat('non_food_vat', $event)">OK</button>
               </div>
+
               <div class="c-vat__current">Current: {{ vatData['non_food_vat'] || 'Not specified' }}</div>
             </div>
+
             <div class="c-vat__item">
               <div class="c-vat__item--title">food VAT</div>
+                
                 <div class="c-vat__item--content">
                   <input class="c-vat__input" type="text" placeholder="food VAT">
                   <button class="c-vat__button" @click="addNewVat('food_vat', $event)">OK</button>
                 </div>
+                
               <div class="c-vat__current">Current: {{ vatData['food_vat'] || 'Not specified' }}</div>
             </div>
           </div>
         </div>
+
         <div class="c-card c-card--big-half c-document">
           <div class="c-card__title">Recent Documents</div>
+          
           <div class="c-card__content">
             <template v-if="shownDocuments.length">
               <div 
@@ -53,6 +61,7 @@
                 <div class="c-document__date">{{ document.inserted_date }}</div>
               </div>
             </template>
+            
             <template v-else-if="!shownDocuments.length && componentLoaded">
               <div class="h-centered">
                 <p>No Documents</p>
@@ -79,7 +88,7 @@ const documentEntity = 'document';
 const currentEntity = 'dashboard';
 
 import * as common from '@/store/modules/common';
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState, mapGetters } from 'vuex';
 
 import titleMixin from '../mixins/titleMixin';
 
@@ -97,10 +106,12 @@ export default {
     shownDocumentsLen: 8,
     initialVat: {},
     componentLoaded: false,
+    shouldUpdateDocument: false,
+    vatHistoryMessage: null
   }),
 
   computed: {
-    ...mapState(documentEntity, { documents: 'items' }),
+    ...mapGetters(documentEntity, { documents: 'getItemsAsArr' }),
 
     ...mapState(currentEntity, {
       overviewData: 'dashboard/overview',
@@ -125,7 +136,7 @@ export default {
 
     ...mapActions(['changeEntity']),
     
-    ...mapActions(currentEntity, ['fetchMainOverview', 'setNewVat', 'updateDocVat', 'insertHistoryRow']),
+    ...mapActions(currentEntity, ['fetchMainOverview', 'setNewVat', 'updateDocVat', 'insertHistoryRow', 'updateVat']),
 
     async addNewVat (type, ev) {
       const input = ev.target.previousElementSibling;
@@ -136,10 +147,13 @@ export default {
       input.value = '';
       this.setNewVat({ type, value });
 
-      const message = `Update ${type} from ${this.initialVat[type] === null ? "'Not Specified'" : this.initialVat[type]} to ${this.vatData[type]}`
-      this.insertHistoryRow({ entity: currentEntity, message, action_type: 'update' });
+      await this.updateVat([type, value]);
 
-      this.$store.commit('document_product/RESET_ITEMS');
+      await this.updateDocVat([type, value]);
+
+      this.vatHistoryMessage = `Update ${type} from ${this.initialVat[type] === null ? "'Not Specified'" : this.initialVat[type]} to ${this.vatData[type]}`
+
+      this.shouldUpdateDocument = true;
     },
 
     sendToRoute (newRoute) {
@@ -162,19 +176,14 @@ export default {
   },
 
   async beforeRouteLeave (to, from, next) {
-    // If the VAT values are null, it means there can't be any documents
-    // So we'll perform an update only if there are existing values that are not null
-    if (this.initialVat['food_vat'] !== null || this.initialVat['non_food_vat'] !== null) {
-      // If after any of the req below this is not null, is means we have the updated docs
-      // which means we can replace the actual docs with the updated ones
-      let shouldRefetchDocs = false;
-      
-      this.initialVat['food_vat'] !== this.vatData['food_vat'] && (await this.updateDocVat(['food_vat', this.vatData['food_vat']]), shouldRefetchDocs = true)
+    
+    if (this.shouldUpdateDocument) {
+      this.insertHistoryRow({ entity: currentEntity, message: this.vatHistoryMessage, action_type: 'update' });
 
-      this.initialVat['non_food_vat'] !== this.vatData['non_food_vat'] && (await this.updateDocVat(['non_food_vat', this.vatData['non_food_vat']]), shouldRefetchDocs = true)
-
-      console.log(shouldRefetchDocs)
-      shouldRefetchDocs && this.$store.dispatch('api/FETCH_DATA');
+      this.$store.dispatch('api/makeGETRequest', {
+        url: this.$store.state['mainUrl'] + 'documents',
+        entity: 'document'
+      });
     }
     
     this.$children[1].closeModal();

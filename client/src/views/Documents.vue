@@ -1,6 +1,19 @@
 <template>
-    <div>
-        <VContent v-if="everythingReady === true" entityName="document" :disableButton="errorMessage !== 'Documents' && errorMessage !== null || vat['food_vat'] === null || vat['non_food_vat'] === null">
+    <div v-if="isEverythingLoaded">
+        <VContent 
+            :entityName="entity"
+            :disableButton="
+                errorMessage !== 'Documents' 
+                    && errorMessage !== null 
+                    || vat['food_vat'] === null 
+                    || vat['non_food_vat'] === null
+                "
+            :disableCreateButton="disableCreateButton" 
+            @insertCreatedItems="onInsertCreatedItems"
+            :shouldDisplayConfirmCancelButtons="shouldDisplayConfirmCancelButtons"
+            @confirmChanges="onConfirmChanges"
+            @cancelChanges="onCancelChanges"
+            >
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="!containsErrors && !!items"
@@ -8,36 +21,38 @@
                     :items="items"
                     showDelete
                     @showInfo="showInfo($event)"
-                    @deleteRow="deleteRow($event)"
+                    @deleteRow="prepareRowForDeletion($event)"
                 />
+
                 <div class="no-items" v-else-if="vat['food_vat'] === null || vat['non_food_vat'] === null">
                     Please make sure you specify the VAT!
                 </div>
+
                 <div v-else class="no-items">
                     There are no {{ errorMessage }}
                 </div>
             </template>
+
             <template v-slot:createItems>
                 <div class="l-flex">
                     <div @click="addRow" class="icon icon--add-row">
                         <font-awesome-icon icon="plus-circle" />
                     </div>
                     <VSelect @addProvider="$store.commit('SET_PROVIDER', $event)" class="c-select" :items="providers" />
-                    <VInput @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" placeholder="Invoice Nr." class="c-input" />
+                    <VInput @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" placeholder="Invoice Nr" class="c-input" />
                     <VVat />
                 </div>
+                
                 <VTableCreate 
                     @deleteRow="deleteRowInstantly($event)" 
                     :fields="createColumns" 
-                    :items="newItems"
+                    :items="createdItems"
                     @addField="addField($event)"
-                    @init="init"
+                    @tableCreateReady="onTableCreateReady"
+                    :listItems="products"
                 />
             </template>
         </VContent>
-        <div v-else-if="everythingReady !== 'pending'">
-            Some other error happened
-        </div>
 
         <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
@@ -46,7 +61,7 @@
             <template v-slot:body>
                 <div
                     v-for="keyVal in Object.entries(selectedItem)"
-                    :key="keyVal[1].id"
+                    :key="keyVal[0]"
                     class="modal-body__row"
                 >
                     <div class="modal-body__prop"><span>{{ keyVal[0] }}</span></div>
@@ -62,6 +77,7 @@
                 </div>
             </template>
         </VModal>
+
     </div>
 </template>
 
@@ -85,9 +101,9 @@ const productEntity = 'product';
 import { createNamespacedHelpers } from 'vuex';
 import * as common from '@/store/modules/common';
 
-const { mapState, mapActions } = createNamespacedHelpers(entityName);
-const { mapState: mapStateProvider } = createNamespacedHelpers(providerEntity);
-const { mapState: mapStateProduct } = createNamespacedHelpers(productEntity);
+const { mapState, mapActions, mapGetters } = createNamespacedHelpers(entityName);
+const { mapGetters: mapGettersProvider } = createNamespacedHelpers(providerEntity);
+const { mapGetters: mapGettersProduct } = createNamespacedHelpers(productEntity);
 
 
 export default {
@@ -98,23 +114,90 @@ export default {
     mixins: [modalMixin, commonMixin, documentMixin],
 
     data: () => ({
-        errorMessage: null
+        errorMessage: null,
+        isEverythingLoaded: false,
+        entity: entityName,
     }),
 
     methods: {
-        ...mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
+        ...mapActions([
+            'deleteCreatedItem', 'addFieldValue', 
+            'updateItem', 'addCreatedItem', 'resetCreatedItems',
+            'insertCreatedItems', 'deleteItem',
+            'sendModifications',
+            'resetCUDItems',
+            'sendHistoryData',
+        ]),
 
         showInfo ({ id }) {
-            this.$router.replace({ name: 'documentEditOne', params: { id } });
-        }
+            this.$router.push({ name: 'documentEditOne', params: { id } });
+        },
+
+        prepareCreatedItemsForHistory () {
+            console.log(this.createdItems)
+            const documentProducts = {};
+            const { id: providerId, invoiceNr, name, URC } = this.$store.state.selectedProvider;
+
+            const createdProductsForHistory = this.createdItems.map(createdItem => {
+                const { id: randomProductId, product_name: productObj, ...itemWithoutProductObj } = createdItem;
+                const { id, ...productObjWithoutId } = productObj;
+
+                return {
+                    ...itemWithoutProductObj,
+                    ...productObjWithoutId
+                };
+            });
+
+            return {
+                current_state: JSON.stringify([{ 
+                    id: providerId, 
+                    provider_name: name, 
+                    provider_URC: URC, 
+                }]),
+                additional_info: JSON.stringify({products: createdProductsForHistory})
+            };
+        },
+
+        async onInsertCreatedItems () {
+            await this.insertCreatedItems();
+
+            this.sendCreatedHistoryData(this.prepareCreatedItemsForHistory());
+
+            await this.fetchItems();
+        },
+
+        async onConfirmChanges () {
+            console.log('confirm')
+
+            const results =  await this.sendModifications();
+
+            results.length && this.fetchItems();
+
+            this.deletedItems.size && this.sendDeletedHistoryData();
+
+            this.resetCUDItems();
+        },
+
+        onCancelChanges () {
+            console.log('cancel');
+
+            this.resetCUDItems();
+        },
+
     },
 
     computed: {
-        ...mapState(['items', 'newItems']),
 
-        ...mapStateProvider({ providers: 'items' }),
+        ...mapGetters({
+            items: 'getItemsAsArr',
+            createdItems: 'getCreatedItemsAsArr',
+            deletedItems: 'getDeletedItems',
+            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
+        }),
 
-        ...mapStateProduct({ products: 'items' }),
+        ...mapGettersProvider({ providers: 'getItemsAsArr' }),
+
+        ...mapGettersProduct({ products: 'getItemsAsArr', productsMap: 'getItems' }),
 
         containsErrors () {
             this.errorMessage = this.providers && !this.providers.length 
@@ -137,31 +220,43 @@ export default {
         this.$store.commit('SET_PROVIDER', null);
         next();   
     },
+    
+    async created () {
+        const promises = [];
+        
+        if (this.$store && !this.$store.state[entityName]) {
+            this.$store.registerModule(entityName, common);
 
-    // Apply changes after updating a document's content
-    beforeRouteEnter (to, from, next) {
-        if (from.name === 'documentEditOne') {
-            return next(vm => {
-                vm.$store.dispatch('document_product/fetchById', from.params.id);
-                vm.$store.dispatch('api/FETCH_DATA');
-            })
+            promises.push(this.fetchItems());
         }
-        
-        next();
-    },
 
-    mounted () {
-        !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
-        
-        !(this.items.length) && this.$store.dispatch('api/FETCH_DATA');
+        if (this.$store && !this.$store.state['product']) {
+            this.$store.registerModule('product', common);
 
-        !(this.$store && this.$store.state['product']) 
-            && ((this.$store.registerModule('product', common)), console.log('ok'), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
+            promises.push(
+                this.fetchItems(
+                    this.mainUrl + 'products',
+                    'product'
+                )
+            );
+        }
 
-        !(this.$store && this.$store.state['provider']) 
-            && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
+        if (this.$store && !this.$store.state['provider']) {
+            this.$store.registerModule('provider', common);
+            
+            promises.push(
+                this.fetchItems(
+                    this.mainUrl + 'providers',
+                    'provider'
+                )
+            );
+        }
 
         this.$store.getters['dashboard/needsInit'] && this.$store.dispatch('dashboard/fetchMainOverview');
+
+        await Promise.all(promises);
+
+        this.isEverythingLoaded = true;
     },
 }
 </script>

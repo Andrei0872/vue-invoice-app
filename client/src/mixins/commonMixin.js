@@ -1,17 +1,27 @@
 import uuidv1 from 'uuid/v1';
 
+import {
+    getDiffBetweenMapsElements,
+    convertMapToArr,
+} from '@/utils/'
+
 export default {
     data: () => ({
         selectedItem: {},
         isCreating: false,
         isAboutToDelete: false,
         showDetails: false,
+        disableCreateButton: false,
     }),
 
     methods: {
 
-        createRandomObj () {
-            return Object.assign({}, ... (this.createColumns.map(field => ({ [field]: '' }))), { id: uuidv1() });
+        createNewItem () {
+            const newItemDetails = Object.assign({}, ... (this.createColumns.map(field => ({ [field]: '' }))));
+
+            const id = uuidv1();
+
+            return { id, ...newItemDetails };
         },
 
         showInfo (row) {
@@ -20,34 +30,39 @@ export default {
         },
 
         addRow () {
-            this.addNewItem(this.createRandomObj());
+            this.addCreatedItem(this.createNewItem());
+
+            if (this.disableCreateButton) {
+                this.disableCreateButton = false;
+            }
         },
 
-        deleteRow (row) {
+        prepareRowForDeletion (row) {
             this.isAboutToDelete = true;
             this.selectedItem = { ...row };
             this.showDetails = true;
         },
 
         deleteRowInstantly (rowId) {
-            this.deleteItem({
-                prop: 'newItems',
-                id: rowId
-            });
+            this.deleteCreatedItem(rowId);
+
+            if (this.createdItems.length === 0) {
+                this.disableCreateButton = true;
+            }
         },
 
         confirmDelete () {
-            this.deleteItem({ prop: 'items', id: this.selectedItem.id });
+            this.deleteItem(this.selectedItem.id);
             this.resetModalContent();
             
-            const currentEntity = this.$store.getters['getEntityName'];
-            const message = `Delete ${currentEntity}`
-            this.$store.dispatch('dashboard/insertHistoryRow', {
-                entity: `${this.$store.getters['getEntityItems'].length === 0 ? currentEntity + '/empty' : currentEntity}`,
-                message, 
-                action_type: 'delete',
-                prev_state: JSON.stringify(this.selectedItem)
-            });
+            // const currentEntity = this.$store.getters['getEntityName'];
+            // const message = `Delete ${currentEntity}`
+            // this.$store.dispatch('dashboard/insertHistoryRow', {
+            //     entity: `${this.$store.getters['getEntityItems'].length === 0 ? currentEntity + '/empty' : currentEntity}`,
+            //     message, 
+            //     action_type: 'delete',
+            //     prev_state: JSON.stringify(this.selectedItem)
+            // });
         },
 
         cancelDelete () {
@@ -63,14 +78,72 @@ export default {
             this.addFieldValue({ rowId, fieldName, value });
         },
 
-        init () {
-            this.resetArr({ prop: 'newItems' });
-            this.addNewItem(this.createRandomObj());
+        onTableCreateReady() {
+            this.resetCreatedItems();
+            this.addCreatedItem(this.createNewItem());
         },
 
-        update (data) {
-            console.log('changes obj:', data)
-            this.updateItems(data);
+        updateRow (data) {
+            this.updateItem(data);
+        },
+
+        async fetchItems (url = null, anotherEntity = null) {
+            await this.$store.dispatch('api/makeGETRequest', { 
+                url: (url || this.backendUrl),
+                entity: (anotherEntity || this.entity )
+            });
+        },
+
+        sendDeletedHistoryData () {
+            let itemsLen = this.items.length;
+
+            const message = `Delete ${this.entity}`;
+            const entity = `${ itemsLen === 0 ? this.entity + '/empty' : this.entity}`;
+            const action_type = 'delete';
+            const prev_state = JSON.stringify(convertMapToArr(this.deletedItems));
+
+            this.sendHistoryData({
+                message,
+                entity,
+                action_type,
+                prev_state
+            });
+        },
+        
+        
+        sendUpdatedHistoryData () {
+            const entity = this.entity;
+            const action_type = 'update';
+            const message = `Update ${this.entity}`;
+
+            const differences = getDiffBetweenMapsElements(
+                this.itemsMap, 
+                this.updatedItemsMap
+            );
+
+            const current_state = JSON.stringify(differences);
+
+            console.log('differences', differences)
+
+            this.sendHistoryData({
+                message,
+                entity,
+                action_type,
+                current_state,
+            });
+        },
+
+        sendCreatedHistoryData (createdItemsInCustomFormat = null) {
+            const message = `Add new ${this.entity}s`;
+
+            this.$store.dispatch('dashboard/insertHistoryRow', {
+                entity: this.entity,
+                message,
+                action_type: 'insert',
+                ...createdItemsInCustomFormat 
+                    && createdItemsInCustomFormat
+                    || { current_state: JSON.stringify(this.createdItemsAsArrWithoutIds) },
+            });
         },
     },
 
@@ -89,6 +162,14 @@ export default {
 
         everythingReady() {
             return this.$store.state['everythingReady']
+        },
+
+        backendUrl () {
+            return this.$store.getters['getEntityBackendEndpoint'];
+        },
+
+        mainUrl () {
+            return this.$store.state['mainUrl'];
         },
     },
 }

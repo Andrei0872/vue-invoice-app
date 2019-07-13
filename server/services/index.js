@@ -1,4 +1,5 @@
 const debug = require('debug')('service')
+const mysql = require('mysql');
 
 class Service {
     constructor (name) {
@@ -23,10 +24,12 @@ class Service {
             const keys = Object.keys((paramsIsArr ? params[0] : params)).join(', ');
             const values = paramsIsArr ? params.map(Object.values) : [Object.values(params)];
             
-            await this.table.insertOne(keys, values);
+            const resp = await this.table.insertOne(keys, values);
             response = {
                 message: `Inserted into ${this.tableName} successfully`,
-                status: 200
+                status: 200,
+                data: resp,
+                reqType: 'insert'
             }
         } catch (err) {
             console.log(err)
@@ -61,50 +64,144 @@ class Service {
         return response;
     }
 
-    async updateOne (params) {
-        let response = {};
+    
+    /**
+     * 
+     *  
+     *  ```javascript
+     *  const idsAndKVPairs = {
+     *   '51': { name: 'provider123', URC: '2222' },
+     *   '54': { name: 'provider222' } 
+     *  };
+     *  const columnNames = [ 'name', 'URC' ];
+     *  ```
+     */
+    /* 
+    Computed query:
+    update provider t
+        join (
+            select null as new_name, null as new_URC, null as id 
+            union all  
+            select  'provider123',  '2222', 51  
+            union all  
+            select  'provider222',  null, 54 
+        ) vals on vals.id = t.id
+    set 
+        t.name = case when vals.new_name is not null then vals.new_name else t.name end, 
+        t.URC = case when vals.new_URC is not null then vals.new_URC else t.URC end 
 
-        try {
-            // id = 1 in case we are operation on VAT table
-            const { id = 1, ...changes } = params
-            const punctuation = [', ', ' '];
+    */
+    async updateOne ([idsAndKVPairs, columnNames]) {
+        console.log(idsAndKVPairs, columnNames)
+        const punctuation = [', ', ' '];
+        const columnNamesLen = columnNames.length;
+        
+        let setValues = ``;
+        let columnValues = ``;
+        
+        columnValues += `select `;
+        
+        columnNames.forEach((columnName, columnNameIndex) => {
+            columnValues += `null as new_${columnName}, `;
+            setValues += `t.${columnName} = case when vals.new_${columnName} is not null then vals.new_${columnName} else t.${columnName} end`;
 
-            const keys = Object.keys(changes).map(
-                (change, index, arr) => `${change} = ?${punctuation[~~(index === arr.length - 1)]}`
-            ).join('')
-            const values = [...Object.values(changes), id]
-            await this.table.updateOne(keys, values);
+            setValues += punctuation[+(columnNameIndex === columnNamesLen - 1)]
+        });
 
-            response = {
-                message: 'Successfully updated!',
-            }
-        } catch {
-            response = {
-                message: 'There has been an error updating!',
-            }
+        columnValues += `null as id`;
+        
+        for (const id in idsAndKVPairs) {
+            const KVPair = idsAndKVPairs[id];
+
+            columnValues += ` union all `;
+            columnValues += ` select `
+
+            columnNames.forEach(columnName => {
+                columnValues += ` ${KVPair[columnName] ? mysql.escape(KVPair[columnName]) : null}, `;
+            })
+
+            columnValues += `${id} `
         }
 
-        return response;
+        const tableName = this.table.currentTable;
+        const sql = `
+            update ${tableName} t
+            join (
+                ${columnValues}
+            ) vals on vals.id = t.id
+            set ${setValues}
+        `;
+
+        console.log(sql)
+        
+        try {
+            await this.table._promisify(sql);
+
+            return { 
+                message: 'Successfully updated items!',
+                reqType: 'update'
+            };
+        } catch (err) {
+            console.error(err);
+
+            return { message: 'err updating items!', err }
+        }
+        
     }
 
-    async deleteOne ({ id }) {
-        try {
-            let rowsInfo;
-            // If a provider is deleted, we must also delete all the documents that have that provider
-            // To do that, call the procedure
-            this.table.currentTable !== 'provider' && (await this.table.deleteOne(id))
-                || (rowsInfo = await this.table._promisify(`call remove_provider(${id})`))
+    async delete ({ deletedItemsIds }) {
+        let sql = ``;
+        const tableName = this.table.currentTable;
 
-            return {
-                message: 'Successfully deleted',
-                rowsInfo
-            }
+        if (tableName === 'provider') {
+            /**
+             * Using left join so a provider is still deleted
+             * even though it does not own any documents
+             */
+            sql = `
+                delete p, d
+                from provider p
+                left join document d
+                on p.id = d.provider_id
+                where p.id in (${deletedItemsIds.join(', ')})
+            `;
+        } else {
+            sql = `
+                delete
+                from ${tableName}
+                where id in (${deletedItemsIds.join(', ')})
+            `;
+        }
+
+        try {
+            await this.table._promisify(sql);
+
+            return { 
+                message: 'successfully deleted',
+                reqType: 'delete'
+            };
         } catch (err) {
-            console.error(err)
+            return { message: 'error deleting', err };
+        }
+    }
+
+    async simpleUpdate ([key, val]) {
+
+        const tableName = this.table.currentTable;
+
+        const sql = `
+            update ${tableName}
+            set ${key} = ${val}
+        `;
+
+        try {
+            await this.table._promisify(sql);
+
+            return { message: `successfully updated ${tableName}` }
+        } catch (err) {
+            console.error(err);
             
-            return {
-                message: 'Error deleting'
-            }
+            return { message: `error updating ${vat}`, err }
         }
     }
 }

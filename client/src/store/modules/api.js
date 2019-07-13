@@ -32,49 +32,80 @@ export const actions = {
         }
     },
 
-    insertItem: async ({ getters, rootState, dispatch },  payload ) => {
+    makeGETRequest: async ({ dispatch }, { url, entity = null }) => {
+        try {
+            // !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
 
-        const url = `${getters.mainURL}/${rootState.currentEntity}/insert`
-        !!(rootState.selectedProvider) 
-            && (payload = { items: payload, provider: rootState.selectedProvider })
-        const config = { ...getters.config, body: JSON.stringify(payload) };
+            const config = {
+                ...getters.config, 
+                method: "GET",
+            };
+
+            const { data } = await dispatch('makeRequest', { url, config });
+
+            if (entity) 
+                return dispatch(`${entity}/setItems`, data, { root: true });
+
+            return data;
+        } catch (err) {
+            console.error(err);
+            // commit('CHANGE_STATE', null, { root: true });
+        }
+    },
+
+    makePOSTRequest: async ({ getters, rootState, dispatch },  { url, payload } ) => {
+
+        if (rootState.selectedProvider) {
+            payload = {
+                items: payload,
+                provider: rootState.selectedProvider
+            };
+        }
+
+        const config = { 
+            ...getters.config, 
+            body: JSON.stringify(payload) 
+        };
 
         try {
-            await dispatch('makeRequest', { url, config });
-
-            dispatch("FETCH_DATA", { avoidChangingState: true });
+            return await dispatch('makeRequest', { url, config });
         } catch (err) {
             console.error(err)
         }
     },
 
-    updateItem: async ({ getters, dispatch }, { url, payload }) => {
-        url += getters.updateEndpoint;
-        const config = { body: JSON.stringify(payload), ...getters.config, method: "PUT" };
+    makePUTRequest: async ({ getters, dispatch }, { url, payload }) => {
+        const config = { 
+            body: JSON.stringify(payload), 
+            ...getters.config, 
+            method: "PUT",
+        };
 
-        try {
-            const response = await dispatch('makeRequest', { url, config });
-
-            console.log(response)
-        } catch (err) {
-            console.error(err)
-        }
+        return await dispatch('makeRequest', { url, config });
     },
 
-    deleteItem: async ({ getters, dispatch, commit }, { url, payload: id }) => {
-        url += getters.deleteEndpoint;
-        const config = { body: JSON.stringify({ id }), ...getters.config, method: "DELETE" };
+    makeDELETERequest: async ({ getters, dispatch, commit }, { url, payload }) => {
 
-        try {
-            const response = await dispatch('makeRequest', { url, config })
-            // Update data from Dashboard
-            dispatch('dashboard/fetchMainOverview', 'dashboard/overview', { root: true });
-            commit('dashboard/SET_UPDATE_STATE', false, { root: true });
+        const config = { 
+            body: JSON.stringify(payload), 
+            ...getters.config, 
+            method: "DELETE" 
+        };
+
+
+        return await dispatch('makeRequest', { url, config });
+
+        // try {
+        //     const response = await dispatch('makeRequest', { url, config })
+
+        //     // Update data from Dashboard
+        //     dispatch('dashboard/fetchMainOverview', 'dashboard/overview', { root: true });
+        //     commit('dashboard/SET_UPDATE_STATE', false, { root: true });
             
-            return response
-        } catch (err) {
-            console.error(err)
-        }
+        //     return response
+        // } catch (err) {
+        //     console.error(err)
+        // }
     },
 
     makeRequest: (_, { url, config }) => {

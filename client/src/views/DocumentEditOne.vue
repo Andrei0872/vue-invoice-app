@@ -1,38 +1,40 @@
 <template>
-    <div class="container" v-if="currentId !== null">
+    <div class="container">
         <VTableRead
-            v-if="this.items.length"
+            v-if="this.documentProducts.length"
             :fields="createColumns"
-            :items="items"
-            @deleteRow="deleteRow($event)"
-            @update="setChange($event)"
+            :items="documentProducts"
+            @deleteRow="prepareRowForDeletion($event)"
+            @update="addUpdatedProduct($event)"
         />
 
         <div class="c-new">
-            <div @click="addRow" class="icon icon--add-row">
+            <div @click="addCreatedProduct(createNewItem())" class="icon icon--add-row">
                 <font-awesome-icon icon="plus-circle" />
             </div>
 
             <VTableCreate 
-                @deleteRow="deleteRowInstantly($event)" 
+                v-if="createdProducts.length"
+                @deleteRow="deleteCreatedProduct($event)" 
                 :fields="createColumns" 
-                :items="newItems"
-                @addField="addField($event)"
+                :items="createdProducts"
+                @addField="addFieldToCreatedProduct($event)"
+                :listItems="products"
             />
         </div>
 
-        <div class="c-provider-info">
+        <div class="c-provider-info" :style="{ 'margin-top':  createdProducts.length ? 0 : '2rem' }">
             <VSelect
                 v-if="providers.length"
                 @change.native="$refs.invoiceNr.$el.value = ''"
                 @addProvider="$store.commit('SET_PROVIDER', $event)" 
                 class="c-select c-select--no-margin" 
                 :items="providers"
-                :selectedFieldId="currentItem.provider_id"
+                :selectedFieldId="currentDocument.provider_id"
             />
             <VInput
                 ref="invoiceNr"
-                :key="currentItem.provider_id"
+                :key="currentDocument.provider_id"
                 @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" 
                 placeholder="Invoice Nr."
                 class="c-input" 
@@ -41,18 +43,24 @@
         </div>
 
         <VTableRead
-            v-if="selectedProvider"
+            v-if="selectedProvider && documentProducts.length + createdProducts.length > 0"
             :fields="readColumns" 
             :readonly="true" 
             :items="[results]"
         />
+
+        <div v-if="documentProducts.length + createdProducts.length === 0" style="margin-top: 2rem;"></div>
         
         <span class="h-mleft"></span>
         <VButton @click="$router.push('/documents')">Back</VButton>
         <span class="h-mleft"></span>
         <VButton @click="sendUpdates">Confirm</VButton>
 
-        <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
+        <VModal 
+            :showModal="showDetails" 
+            :isAboutToDelete="isAboutToDelete" 
+            @closeModal="closeModal"
+        >
             <template v-slot:header>
                 <span>{{ modalTitle }}</span>
             </template>
@@ -84,7 +92,7 @@ import { mapGetters, mapActions, mapState } from 'vuex'
 
 import { hasEmptyValues } from '../utils/';
 
-const entity = 'document_product'
+const entity = 'singleDocument';
 
 export default {
     components: { VTableRead, VModal, VSelect, VInput, VVat, VTableCreate, VButton },
@@ -92,88 +100,119 @@ export default {
     mixins: [documentMixin, commonMixin, modalMixin],
 
     data: () => ({
-        currentItem: null,
+        currentDocument: null,
+        documentNeedsUpdate: false,
+
+        // Determine whether some products were deleted or not
+        initialProductsLen: 0,
     }),
 
     computed: {
-        id () {
+        currentDocumentId () {
             return parseInt(this.$route.params.id)
         },
 
-        ...mapGetters(entity, { items: 'getItemsById', changes: 'getChanges', pristineData: 'getPristineData', deletedItems: 'getDeletedItems' }),
+        ...mapGetters(entity, { 
+            documentProducts: 'getProductsAsArr', 
+            createdProducts: 'getCreatedProductsAsArr',
+            updatedProducts: 'getUpdatedProducts',
+        }),
 
-        ...mapState('provider', { providers: 'items' }),
+        ...mapGetters('provider', { providers: 'getItemsAsArr' }),
 
-        ...mapState('document', ['newItems']),
+        ...mapGetters('product', { products: 'getItemsAsArr' }),
+
+        ...mapGetters('document', { documents: 'getItemsAsArr', }),
         
         selectedProvider () {
             return this.$store.state.selectedProvider
         },
 
         results () {
-            const { total_buy, total_sell, total_vat, total_sell_vat } = [...this.items, ...this.newItems].reduce((memo, item) => {
-                memo['total_buy'] += +(this.changes[item.id] && this.changes[item.id]['buy_price'] || item['buy_price'])
-                memo['total_sell'] += +(this.changes[item.id] && this.changes[item.id]['sell_price'] || item['sell_price'])
-                memo['total_vat'] += +(this.changes[item.id] && this.changes[item.id]['product_vat'] || item['product_vat'])
-                memo['total_sell_vat'] += +(this.changes[item.id] && this.changes[item.id]['sell_price_vat'] || item['sell_price_vat'])
+            const { total_buy, total_sell, total_vat, total_sell_vat } = [...this.documentProducts, ...this.createdProducts].reduce((memo, product) => {
+
+                const currentUpdatedItem = this.updatedProducts.get(product.id);
+                
+                memo['total_buy'] += +(currentUpdatedItem && currentUpdatedItem['buy_price'] || product['buy_price'])
+                memo['total_sell'] += +(currentUpdatedItem && currentUpdatedItem['sell_price'] || product['sell_price'])
+                memo['total_vat'] += +(currentUpdatedItem && currentUpdatedItem['product_vat'] || product['product_vat'])
+                memo['total_sell_vat'] += +(currentUpdatedItem && currentUpdatedItem['sell_price_vat'] || product['sell_price_vat'])
 
                 return memo;
             }, { total_buy: 0, total_sell: 0, total_vat: 0, total_sell_vat: 0 })
 
             return { 
-                ...this.currentItem, 
+                ...this.currentDocument, 
                 total_buy: total_buy.toFixed(2), 
                 total_sell: total_sell.toFixed(2), 
                 total_vat: total_vat.toFixed(2), 
                 total_sell_vat: total_sell_vat.toFixed(2), 
                 provider_name: this.selectedProvider.name, 
                 provider_id: this.selectedProvider.id,
-                invoice_number: this.selectedProvider.invoiceNr || this.currentItem.invoice_number,
-                nr_products: this.items.length + this.newItems.length
+                invoice_number: this.selectedProvider.invoiceNr || this.currentDocument.invoice_number,
+                nr_products: this.documentProducts.length + this.createdProducts.length
             };
         },
-
-        ...mapState(entity, ['currentId', 'alreadyFetched'])
     },
 
     methods: {
 
-        ...mapActions(entity, ['setId', 'setChange', 'updateItems', 'deleteFromDoc', 'updateDocument', 'setAlreadyFetched', 'resetDeletedItems']),
+        ...mapActions(entity, [
+            'setId', 
+            'setChange', 
+            'updateItems', 
+            'deleteFromDoc', 
+            'updateDocument', 
+            'setAlreadyFetched', 
+            'resetDeletedItems',
+            'fetchProductsByDocumentId', 
+            'resetUpdatedProducts',
+            'resetCreatedProducts', 
+            'addUpdatedProduct', 
+            'addCreatedProduct',
+            'deleteCreatedProduct', 
+            'addFieldToCreatedProduct', 
+            'resetDeletedProducts', 
+            'addDeletedProduct',
+            'sendUpdatedProducts',
+            'sendCreatedProducts',
+            'sendDeletedProducts',
+            'resetProducts',
+        ]),
 
         ...mapActions('document', ['addNewItem', 'resetArr', 'deleteItem', 'addFieldValue']),
 
-        shouldUpdateDocument () {
+        getDocumentChanges () {
             console.log(this.selectedProvider)
 
             const changes = {};
+            const previousData = {};
             let changeFound = false;
 
             for (const key of Object.keys(this.selectedProvider)) {
                 if (key === 'inserted_date' || key === 'URC')
                     continue;
 
-                const currentItemKey = key === 'id' 
-                    ? 'provider_id' 
-                    : key === 'invoiceNr' 
-                        ? 'invoice_number'
-                        : key === 'id'
-                            ? 'provider_id'
-                            : key === 'name'
-                                ? 'provider_name'
-                                : key
+                const currentItemKey =
+                    key === 'id'
+                        ? 'provider_id'
+                        : key === 'invoiceNr' 
+                            ? 'invoice_number'
+                                : key === 'name'
+                                    ? 'provider_name'
+                                    : key
 
-                if (`${this.selectedProvider[key]}` !== `${this.currentItem[currentItemKey]}`) {
+                if (`${this.selectedProvider[key]}` !== `${this.currentDocument[currentItemKey]}`) {
                     changes[currentItemKey] = this.selectedProvider[key];
+                    previousData[currentItemKey] = this.currentDocument[currentItemKey];
                     changeFound = true;
                 }
             }
 
-            return changeFound ? changes : changeFound;
+            return changeFound ? { changes, previousData } : changeFound;
         },
         
-        /**
-         * @param { Map } pristine
-         */
+        // ? closer look!
         verifyChanges (changed, pristine) {
             let prevState = ``,
                 currentState = ``,
@@ -202,140 +241,93 @@ export default {
             return [prevState, currentState, additionalInfo]
         },
 
-        async sendUpdates () {
-            let willChange = false;
-
-            // If the document is updated
-            let changes = null;
-            if ((changes = this.shouldUpdateDocument())) {
-                willChange = true
-                await this.updateDocument({ ...changes, id: this.currentItem.id })
-
-                let prevState = ``,
-                    currentState = ``;
-
-                console.log(changes)
-                Object.entries(changes).forEach(([key, value]) => {
-                    if (key !== 'provider_id') {
-                        prevState += `${key}:${this.currentItem[key]}|`
-                        currentState += `${value}|`
-                    }
-                })
-
-                const message = `Update document information`;
-                this.$store.dispatch('dashboard/insertHistoryRow', {
-                    entity: `documents/edit/${this.id}`, 
-                    message, action_type: 'update',
-                    prev_state: prevState.slice(0, -1),
-                    current_state: currentState.slice(0, -1),
-                });
+        async sendUpdates () {            
+            const documentChanges = this.getDocumentChanges();
+            if (documentChanges) {
+                this.documentNeedsUpdate = true;
+                
+                await this.updateDocument({ ...documentChanges, id: this.currentDocument.id })
             }
 
-            // If any product from this document has been updated
-            let productsChangedLen = Object.keys(this.changes).length;
-            if (productsChangedLen) {
-                const [prevState, currentState, additionalInfo] = this.verifyChanges(this.changes, this.pristineData)
+            if (this.initialProductsLen !== this.documentProducts.length) {
+                this.documentNeedsUpdate = true;
                 
-                console.log(prevState, currentState, additionalInfo)
-                
-                if (prevState === ``)
-                    return;
-    
-                willChange = true;
-                this.updateItems(this.changes);
-                
-                const message = `Update product${productsChangedLen > 1 ? 's' : ''} in document`;
-                this.$store.dispatch('dashboard/insertHistoryRow', {
-                    entity: `documents/edit/${this.id}`, 
-                    message, 
-                    action_type: 'update',
-                    prev_state: prevState.slice(0, -1),
-                    current_state: currentState.slice(0, -1),
-                    additional_info: additionalInfo.slice(0, -1)
-                });
+                const deleteResponse = await this.sendDeletedProducts(this.currentDocumentId);
+                console.log('deleteResponse', deleteResponse)
             }
 
-            if (this.newItems.length && !hasEmptyValues(this.newItems)) {
-                willChange = true;
-                const url = `${this.$store.getters['api/mainURL']}/documents/insert_products_only`
-                const config = {
-                    ...this.$store.getters['api/config'],
-                    body: JSON.stringify({ items: this.newItems, docId: this.id })
-                }
-                
-                await this.$store.dispatch('api/makeRequest', { url, config })
+            if (this.updatedProducts.size) {
+                this.documentNeedsUpdate = true;
 
-                const message = `Add new products in a document`;
-                this.$store.dispatch('dashboard/insertHistoryRow', {
-                    entity: `documents/edit/${this.id}`, 
-                    message,
-                    action_type: 'insert',
-                    additional_info: JSON.stringify(this.newItems)
-                });
+                const updateResponse = await this.sendUpdatedProducts();
+                console.log('updateResponse', updateResponse)
             }
 
-            if (!willChange)
-                return;
+            if (this.createdProducts.length) {
+                this.documentNeedsUpdate = true;
 
-            this.alreadyFetched && this.setAlreadyFetched(false);
+                const createResponse = await this.sendCreatedProducts(this.currentDocumentId);
+                console.log('createResponse', createResponse);
+            }
 
+            if (this.documentNeedsUpdate) {
+                const documentsUrl = this.mainUrl + 'documents';
+                const documentEntity = 'document';
 
-            this.$router.push('/documents');
+                await this.fetchItems(documentsUrl, documentEntity);
+            }
+
+            this.$router.push('/documents'); 
         },
 
         confirmDelete () {
-            // Send a different request in order to only delete this item from its document
-            this.deleteFromDoc(this.selectedItem.id)
+            this.addDeletedProduct(this.selectedItem);
             this.closeModal();
         }
     },
 
-    async created () {
+    beforeRouteLeave (to, from, next) {
+        this.resetProducts();
+        // this.$store.commit('SET_PROVIDER', null);
 
-        if (!this.$store.state.currentEntity) {
-            this.$router.push({ name: 'documents' });
-            // Avoid showing any errors
-            return;
-        }
-
-        this.resetArr({ prop: 'newItems' })
-        this.setChange({})
-        this.setId(this.id);
-
-        this.currentItem = { ...this.$store.getters['getEntityItems'].find(item => item.id === this.id) };
-
-        !(this.$store && this.$store.state['provider']) 
-            && ((this.$store.registerModule('provider', common)), this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'providers' }));
-
-        // We want to get the products first, because the items will depend on them
-        // Have a look at store/modules/document_product: actions/fetchById
-        !(this.$store && this.$store.state['product'])
-        && ((this.$store.registerModule('product', common)), await this.$store.dispatch('api/FETCH_DATA', { avoidChangingState: true, anotherEntity: 'products' }));
-
-        this.items.length === 0 && this.$store.dispatch(`${entity}/fetchById`, this.id);
+        next();
     },
 
-    beforeRouteLeave (to, from, next) {
-        this.$store.commit('SET_PROVIDER', null);
-        this.$store.commit('document_product/SET_LAST_DELETED_DOC_ID', -1);
-        
-        let deletedItemsLen;
-        if ((deletedItemsLen = this.deletedItems.length)) {
-            
-            const isDocumentDeleted = this.items.length === 0 && this.newItems.length === 0
-
-            const message = `Delete ${deletedItemsLen === 1 ? 'one product' : 'products'} from document`
-            this.$store.dispatch('dashboard/insertHistoryRow', {
-                entity: `${isDocumentDeleted ? 'document/empty' : 'documents/edit/' + this.id}`,
-                message, 
-                action_type: 'delete',
-                additional_info: JSON.stringify(this.deletedItems.map(({ product_id = null, document_id, product_name, ...rest }) => ({ product_name, ...rest })))
-            });
-
-            this.resetDeletedItems();
+    beforeRouteEnter (to, from, next) {
+        /** 
+         * Avoid showing any errors when we're in this view
+         * and we refresh the page
+         */
+        if (from.name === null) {
+            return next({ name: 'documents' });
         }
 
-        next();   
+        next();
+    },
+
+    async created () {
+
+        this.currentDocument = { ...this.documents.find(document => document.id === this.currentDocumentId) };
+
+        if (this.$store && !this.$store.state['provider']) {
+            this.$store.dispatch('api/FETCH_DATA', { 
+                avoidChangingState: true, 
+                anotherEntity: 'providers',
+            });
+        }
+
+        if (this.$store && !this.$store.state['product']) {
+            await this.$store.dispatch('api/FETCH_DATA', { 
+                avoidChangingState: true, 
+                anotherEntity: 'products' 
+            });
+        }
+
+        // if singleDocument.currentDoc id !== this.currentDocumentId... 
+        // || this.documentProducts.length === 0
+        await this.fetchProductsByDocumentId(this.currentDocumentId);
+
+        this.initialProductsLen = this.documentProducts.length;
     },
 }
 </script>

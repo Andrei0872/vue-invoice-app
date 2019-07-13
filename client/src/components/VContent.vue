@@ -8,13 +8,28 @@
             </div>
             <div>
                 <VButton 
-                @createItems="addNewItems"
-                :showBtn="isCreating"
-                btnClass="success"
-            >
-                Create
-            </VButton>
+                    :disabled="disableCreateButton"
+                    @createItems="isCreating = false; $emit('insertCreatedItems')"
+                    :showBtn="isCreating"
+                    btnClass="success"
+                >
+                    Create
+                </VButton>
             </div>
+            
+            <template v-if="shouldDisplayConfirmCancelButtons">
+                <div>
+                    <VButton @cancelChanges="$emit('cancelChanges')">
+                        Cancel Changes
+                    </VButton>
+                </div>
+    
+                <div style="margin-left: 1rem;">
+                    <VButton @confirmChanges="$emit('confirmChanges')">
+                        Confirm Changes
+                    </VButton>
+                </div>
+            </template>
         </div>
 
         <transition name="fade" mode="out-in">
@@ -42,9 +57,17 @@ export default {
         disableButton: {
             type: Boolean,
             default: false
+        },
+        disableCreateButton: {
+            type: Boolean,
+            default: false,
+        },
+        shouldDisplayConfirmCancelButtons: {
+            type: Boolean,
+            default: false
         }
     },
-
+    // TODO: test created btn disabled states
     computed: {
         mainButtonContent () {
             return this.isCreating ? 'Go Back' : `Add ${this.entityName}`
@@ -54,60 +77,16 @@ export default {
             return this.isCreating ? 'danger' : 'primary'
         },
 
-        ...mapGetters({
-            newItems: 'getEntityNewItems'
-        }),
+        // ...mapGetters({
+        //     newItems: 'getEntityNewItems'
+        // }),
 
-        ...mapState(['currentEntity'])
+        // ...mapState(['currentEntity'])
     },
 
     data: () => ({
         isCreating: false,
     }),
-
-    methods: {
-        addNewItems () {
-            
-            if (!this.newItems.length)
-                return;
-
-            const entityName = this.currentEntity.slice(0, -1);
-
-            this.isCreating = false
-
-            this.$store.dispatch('api/insertItem', this.newItems)
-                .then(() => {
-                    
-                    const message = `Add new ${this.newItems.length === 1 || this.$route.name === 'documents' ? this.currentEntity.slice(0, -1) : this.currentEntity}`
-                    this.$store.dispatch('dashboard/insertHistoryRow', {
-                        entity: this.currentEntity, 
-                        message, 
-                        action_type: 'insert',
-                        /**
-                         * If the current_state is not empty and the prev_state is, it means that the history row
-                         * should display which items have been added
-                         */
-                        current_state: JSON.stringify(this.newItems)
-                    });
-                })
-
-
-            // const allValid = this.filterNewItems(this.newItems)
-
-            // allValid && (this.isCreating = false, console.log('creating data..'))
-        },
-
-        filterNewItems (arr) {
-            return !(arr.some(
-                item => Object.entries(item).some(([key, value]) => key !== 'id' && key === value)
-            ))
-            // const errors = arr.reduce((memo, currentItem) => {
-            //     const id = currentItem.id;
-
-            //     Object.entries(currentItem).forEach(([key, value]))
-            // }, {})
-        },
-    },
 }
 </script>
 
