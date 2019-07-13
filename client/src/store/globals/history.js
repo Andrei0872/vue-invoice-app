@@ -37,13 +37,13 @@ export const historyStore = new Vuex.Store({
         addUndoAction: ({ commit, getters }, payload) => {
             const lastItem = getters.getLastRedoItem;
 
-            if (lastItem &&  +payload.item.id !== +lastItem.id || lastItem === undefined) {
+            // if (lastItem &&  +payload.item.id !== +lastItem.id || lastItem === undefined) {
                 commit('ADD_UNDO_ACTION', payload)
-            }
+            // }
         },
 
         undo: ({ commit, getters, state }) => {
-            
+
             const { mainStore, currentEntity, callbacks: { undo: cb } } = state
 
             const { action, ...lastUndoItem } = getters.getLastUndoItem;
@@ -65,7 +65,7 @@ export const historyStore = new Vuex.Store({
             } else if (action === 'update') {
                 const { id, beforeChanges } = lastUndoItem;
 
-                const { pristineItems, updatedItems } = mainStore.state[currentEntity]
+                const { items: pristineItems, updatedItems } = mainStore.state[currentEntity]
                 const pristineItem = pristineItems.get(+id);
                 const updatedItem = updatedItems.get(+id);
 
@@ -123,7 +123,7 @@ export const historyStore = new Vuex.Store({
 
                 console.log(beforeChanges)
 
-                const { updatedItems, pristineItems } = mainStore.state[currentEntity];
+                const { updatedItems, items: pristineItems } = mainStore.state[currentEntity];
                 const updatedItem = updatedItems.get(+id) || {};
                 const pristineItem = pristineItems.get(+id)
 
