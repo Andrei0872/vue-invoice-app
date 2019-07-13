@@ -28,22 +28,9 @@ export const actions = {
      */
     insertCreatedItems: async ({ dispatch, getters, rootGetters }) => {
         const createdItemsAsArr = getters.getCreatedItemsAsArr;
-        const createItemsWithoutId = createdItemsAsArr.map(({ id, ...rest }) => rest);
-        // const entityNameSingularForm = rootGetters['getEntityNameSingularForm'];
-        // const entityNamePluralForm = rootGetters['getEntityNamePluralForm'];
-
         const url = rootGetters['getEntityBackendEndpoint'];
 
         return await dispatch('api/makePOSTRequest', { payload: createdItemsAsArr, url }, { root: true });
-        
-        // const message = `Add new ${createdItemsAsArr.length === 1 ? entityNameSingularForm : entityNamePluralForm}`;
-
-        // dispatch('dashboard/insertHistoryRow', {
-        //     entity: entityNamePluralForm, 
-        //     message, 
-        //     action_type: 'insert',
-        //     current_state: JSON.stringify(createItemsWithoutId),
-        // }, { root: true });
     },
 
     // TODO: add test

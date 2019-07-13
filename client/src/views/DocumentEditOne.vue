@@ -288,6 +288,7 @@ export default {
 
     beforeRouteLeave (to, from, next) {
         this.resetProducts();
+        // this.$store.commit('SET_PROVIDER', null);
 
         next();
     },

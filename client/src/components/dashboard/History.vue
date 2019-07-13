@@ -6,13 +6,16 @@
               @click="historyPageIndex - 1 >= 0 ? historyPageIndex-- : null">
               <font-awesome-icon icon="arrow-left" />
             </div>
+            
             <div>History</div>
+            
             <div 
               :class="{'c-card__arrow': 1, 'disabled': historyPageIndex + 1 === historyPages}" 
               @click="historyPageIndex + 1 < historyPages ? historyPageIndex++ : null">
                 <font-awesome-icon icon="arrow-right" />
             </div>
           </div>
+          
           <div :class="{'c-card__content': true, 'vertical-line': historyData.length !== 0}">
             <template v-if="historyData.length">
               <div 
@@ -29,6 +32,7 @@
                 </div>
               </div>
             </template>
+
             <template v-else-if="!historyDataShown.length && componentLoaded">
               <div class="h-centered">
                 <p>No history</p>

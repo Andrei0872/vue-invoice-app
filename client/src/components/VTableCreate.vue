@@ -122,6 +122,7 @@ export default {
         
         capitalize (field) { return capitalize(field) },
 
+        // ? why async
         async addField (row, fieldName, ev) {
             if (this.listVisible)
                 return;
@@ -129,6 +130,7 @@ export default {
             let val = ev.target ? ev.target.value : ev;
             this.$emit('addField', [row.id, fieldName,  val]);
             
+            // TODO: isolate this
             if (fieldName === 'buy_price' || fieldName === 'markup') {
                 const sellPriceValue = parseFloat(this.computeSellPrice(row, fieldName, val)).toFixed(2);
                 this.$emit('addField', [row.id, 'sell_price', sellPriceValue]);
