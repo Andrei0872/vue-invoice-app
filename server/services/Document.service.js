@@ -38,7 +38,8 @@ class DocumentService extends mainService {
             await this.insertProductsOnly(lastInsertId, items)
 
             return {
-                message: 'success'
+                message: 'success',
+                reqType: 'insert'
             }
         } catch (err) {
             console.error(err)
@@ -49,7 +50,6 @@ class DocumentService extends mainService {
     }
 
     async insertProductsOnly (docId, items) {
-        console.log(items)
         const sanitizedItems = items.map(({ id, product_name: { id: product_id }, ...rest }) => ({ product_id, ...rest }));
 
         this.table.currentTable = 'document_product';
@@ -59,8 +59,16 @@ class DocumentService extends mainService {
                 this.documentProductTableColumns.join(', '),
                 sanitizedItems.map(row => [docId, ...Object.values(row)])
             );
+
+            return { 
+                message: 'successfully inserted products in a document',
+                reqType: 'insert'
+            };
+
         } catch (err) {
-            throw err
+            console.error(err);
+
+            return { message: 'error inserting products in document', erer };
         } finally {
             this.table.currentTable = 'document';
         }
@@ -105,15 +113,24 @@ class DocumentService extends mainService {
     }
 
     async getAllByDocument(id) {
-        const data = await (this.table || this.db)._promisify(
-            `
+        const sql = `
             select * from document_product
-            where document_id = ?
-            `,
-            id
-        );
+            where document_id = ${id}
+        `;
 
-        return data;
+        try {
+            const data = await (this.table || this.db)._promisify(sql);
+
+            return {
+                message: 'successfully retrieved items!',
+                data,
+                reqType: 'delete'
+            }
+        } catch (err) {
+            console.error(err);
+
+            return { message: 'error fetching data' };
+        }
     }
 
     async updateProducts (data) {
@@ -156,26 +173,55 @@ class DocumentService extends mainService {
         try {
             await this.table._promisify(sql);
 
-            return { message: 'Successfully updated!' }
+            return { 
+                message: 'Successfully updated!',
+                reqType: 'update'
+            };
         } catch {
             return { message: 'An error has occurred when updating!' }
         }
     }
 
-    async deleteFromDoc (id, docId) {
-        return (await this.table._promisify(
-            `call remove_document(${docId}, ${id})`
-        ))[0]
+    async deleteFromDoc (ids, docId, shouldDeleteDoc) {
+        const sql = `
+            delete from document_product dp
+            where 
+                dp.document_id = ${docId}
+                and dp.product_id in (${ids.join(', ')});
+        `;
+
+        try {
+            await this.table._promisify(sql);
+
+            return { message: 'Successfully deleted products!!' }
+        } catch (err) {
+            console.error(err);
+
+            return { message: 'Error deleting products!!' }
+        } finally {
+            if (shouldDeleteDoc) {
+                this.table._promisify(`
+                    delete from document d
+                    where d.id = ${docId};
+                `
+                );
+            }
+        }
     }
 
     async updateDocument ({ id, ...otherFields }) {
+        console.log(id, otherFields)
+
         const keys = Object.keys(otherFields).join(' = ?, ') + ' = ?';
         const values = [...Object.values(otherFields), id];
         
         try {
             await this.table.updateOne(keys, values);
 
-            return { message: 'The document has been updated!' }
+            return { 
+                message: 'The document has been updated!',
+                reqType: 'update'
+            }
         } catch {
             return { message: 'There has been an error updating the document' }
         }
@@ -195,6 +241,8 @@ class DocumentService extends mainService {
     }
 
     async updateDocumentVat ([vatType, vatValue]) {
+        console.log(vatType, vatValue)
+        
         try {
             const data = await this.table._promisify(
                 `
@@ -204,7 +252,11 @@ class DocumentService extends mainService {
                 `
             )
 
-            return { message: 'Successfully updated in all docd', data }
+            return { 
+                message: 'Successfully updated in all docd',
+                data,
+                reqType: 'update'
+            }
         } catch {
             return { message: 'There has been an error updating all docs' }
         }
@@ -220,7 +272,11 @@ class DocumentService extends mainService {
                 `
             )
 
-            return { message: 'Provider updated in doc!', data }
+            return { 
+                message: 'Provider updated in doc!', 
+                data,
+                reqType: 'update'
+            }
         } catch (err) {
             console.log(err)
             return { message: 'There has been an error updating provider in doc' }

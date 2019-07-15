@@ -20,18 +20,24 @@ class Controller {
 
     async updateOne (req, res) {
         const { body } = req;
-        
+
         const responseFromDB = await this.service.updateOne(body);
 
         res.json(responseFromDB)
     }
 
-    async deleteOne (req, res) {
+    async delete (req, res) {
         const { body } = req;
         
-        const responseFromDB = await this.service.deleteOne(body);
+        const responseFromDB = await this.service.delete(body);
 
-        res.json(responseFromDB)
+        return res.json(responseFromDB)
+    }
+
+    async simpleUpdate (req, res) {
+        const responseFromDB = await this.service.simpleUpdate(req.body);
+
+        return res.json(responseFromDB);
     }
 }
 

@@ -1,14 +1,21 @@
 <template>
-    <div>
-        <VContent v-if="everythingReady === true" entityName="provider">
+    <div v-if="isEverythingLoaded">
+        <VContent 
+            :disableCreateButton="disableCreateButton" 
+            :entityName="entity"
+            @insertCreatedItems="onInsertCreatedItems"
+            :shouldDisplayConfirmCancelButtons="shouldDisplayConfirmCancelButtons"
+            @confirmChanges="onConfirmChanges"
+            @cancelChanges="onCancelChanges"
+        >
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="items.length"
                     :fields="readColumns" 
                     :items="items" 
-                    @update="update($event)"
+                    @update="updateRow($event)"
                     @showInfo="showInfo($event)"
-                    @deleteRow="deleteRow($event)"
+                    @deleteRow="prepareRowForDeletion($event)"
                 />
                 <div v-else class="no-items">
                     There are no providers!
@@ -21,15 +28,12 @@
                 <VTableCreate 
                     @deleteRow="deleteRowInstantly($event)" 
                     :fields="createColumns" 
-                    :items="newItems"
+                    :items="createdItems"
                     @addField="addField($event)"
-                    @init="init"
+                    @tableCreateReady="onTableCreateReady"
                 />
             </template>
         </VContent>
-        <div v-else-if="everythingReady !== 'pending'">
-            Some other error happened
-        </div>
 
         <VModal :showModal="showDetails" :isAboutToDelete="isAboutToDelete" @closeModal="closeModal">
             <template v-slot:header>
@@ -72,9 +76,11 @@ const entityName = 'provider';
 
 import uuidv1 from 'uuid/v1';
 
-import { createNamespacedHelpers } from 'vuex';
+import { createNamespacedHelpers, mapMutations } from 'vuex';
 import * as common from '@/store/modules/common';
-const { mapState, mapActions } = createNamespacedHelpers(entityName)
+const { mapActions, mapGetters } = createNamespacedHelpers(entityName)
+
+import { canJoinMapsBasedOnProp } from '@/utils/';
 
 export default {
     name: 'providers',
@@ -87,17 +93,97 @@ export default {
 
     data: () => ({
         readColumns: ['name', 'URC', 'inserted_date'],
-        createColumns: ['name', 'URC']
+        createColumns: ['name', 'URC'],
+        isEverythingLoaded: false,
+        entity: entityName
     }),
 
-    methods: mapActions(['resetArr', 'addNewItem', 'deleteItem', 'addFieldValue', 'updateItems']),
+    methods: {
+        ...mapActions([
+            'deleteCreatedItem', 'addFieldValue', 
+            'updateItem', 'addCreatedItem', 'resetCreatedItems',
+            'insertCreatedItems', 'deleteItem',
+            'sendModifications',
+            'resetCUDItems',
+            'sendHistoryData'
+        ]),
 
-    computed: mapState(['items', 'newItems']),
+        async onConfirmChanges () {
+            console.log('confirm')
 
-    created () {
-        !(this.$store && this.$store.state[entityName]) && (this.$store.registerModule(entityName, common))
+            const results =  await this.sendModifications();
+            
+            results.length && this.fetchItems();
 
-        !this.items.length && this.$store.dispatch('api/FETCH_DATA');
+            // TODO: send to history the deleted documents
+            this.deleteDocumentsOfDeletedProviders();
+
+            if (this.deletedItems.size) {
+                this.sendDeletedHistoryData();
+            }
+
+
+            if (this.updatedItemsMap.size) {
+                this.sendUpdatedHistoryData();
+            }
+
+            this.resetCUDItems();
+        },
+
+        onCancelChanges () {
+            console.log('cancel');
+
+            this.resetCUDItems();
+        },
+
+        deleteDocumentsOfDeletedProviders () {
+            const documents = this.$store.state['document'] && this.$store.state['document'].items;
+            const deletedProviders = this.$store.state['provider'].deletedItems
+
+            if (
+                documents
+                && documents.size
+                && canJoinMapsBasedOnProp(documents, deletedProviders, 'provider_id')
+            ) {
+                const endpoint = 'documents';
+                const entity = 'document';
+                const url = this.$store.getters['mainUrl'] + endpoint;
+
+                this.$store.dispatch('api/makeGETRequest', { url, entity });
+            }
+        },
+
+        // TODO: add to common
+        async onInsertCreatedItems () {
+            await this.insertCreatedItems();
+
+            this.$store.dispatch('api/makeGETRequest', { url: this.backendUrl, entity: this.entity });
+
+            this.sendCreatedHistoryData();
+        }
+    },
+
+    computed: {
+        ...mapGetters({
+            items: 'getItemsAsArr',
+            createdItems: 'getCreatedItemsAsArr',
+            createdItemsAsArrWithoutIds: 'getCreatedItemsAsArrWithoutIds',
+            updatedItems: 'getUpdatedItemsAsArr',
+            deletedItems: 'getDeletedItems',
+            updatedItemsMap: 'getUpdatedItems',
+            itemsMap: 'getItems',
+            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
+        }),
+    },
+
+    async created () {
+        if (this.$store && !this.$store.state[entityName]) {
+            this.$store.registerModule(entityName, common);
+
+            this.fetchItems();
+        }
+
+        this.isEverythingLoaded = true;
     }
 }
 </script>

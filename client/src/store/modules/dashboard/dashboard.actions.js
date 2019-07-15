@@ -1,41 +1,3 @@
-export const namespaced = true;
-
-export const state = {
-    ['dashboard/overview']: {},
-    vat: {},
-    history: [],
-    needsUpdate: false,
-    isInit: false,
-    // Used to identify which documents no longer exist
-    documentIds: null,
-}
-
-export const getters = {
-    getEndpoints: () => ['dashboard/overview', 'vat', 'history'],
-
-    getUpdateState: state => state.needsUpdate,
-
-    getCurrentVat: state => state.vat,
-
-    getHistoryLen: state => state.history.length,
-
-    needsInit: state => !state.isInit,
-
-    getDocumentsLen: (state, getters, rootState) => rootState['document'] ? rootState['document'].items.length : null
-}
-
-export const mutations = {
-    SET_PROP_DATA: (state, { stateProp, payload }) => state[stateProp] = payload,
-
-    SET_NEW_VAT: (state, payload) => state.vat = payload,
-
-    SET_UPDATE_STATE: (state, payload) => state.needsUpdate = payload,
-
-    SET_INIT_FALSE: state => state.isInit = true,
-
-    ADD_DOCUMENT_IDS: (state, payload) => state.documentIds = new Map(payload)
-}
-
 export const actions = {
     fetchMainOverview: async ({ dispatch, commit, getters, rootGetters }, endpoint = null) => {
         const mainUrl = rootGetters['api/mainURL'];
@@ -90,5 +52,11 @@ export const actions = {
         await dispatch('api/makeRequest', { url, config }, { root: true })
 
         await dispatch('dashboard/fetchMainOverview', 'history', { root: true });
-    }
+    },
+
+    updateVat: async ({ dispatch, rootGetters }, payload) => {
+        const url = `${rootGetters['api/mainURL']}/vat/`;
+
+        await dispatch('api/makePUTRequest', { url, payload }, { root: true });
+    },
 }

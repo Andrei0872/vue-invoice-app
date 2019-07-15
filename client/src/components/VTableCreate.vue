@@ -38,8 +38,10 @@
                             />
                             <component
                                 @itemSelected="selectItem($event)" 
+                                @displayOrHideList="listVisible = $event"
                                 v-if="field === 'product_name' && selectedField === 'product_name' && inputValue && row.id === selectedRowId"
                                 :is="VList"
+                                :listItems="listItems"
                                 :filterKey="inputValue"
                                 :key="row.id"
                                 :currentTdWidth="currentTdWidth"
@@ -62,7 +64,8 @@ import { formatColumnName, capitalize } from '../utils/'
 export default {
     props: {
         fields: Array,
-        items: Array
+        items: Array,
+        listItems: Array
     },
 
     mixins: [computeDoc],
@@ -119,6 +122,7 @@ export default {
         
         capitalize (field) { return capitalize(field) },
 
+        // ? why async
         async addField (row, fieldName, ev) {
             if (this.listVisible)
                 return;
@@ -126,6 +130,7 @@ export default {
             let val = ev.target ? ev.target.value : ev;
             this.$emit('addField', [row.id, fieldName,  val]);
             
+            // TODO: isolate this
             if (fieldName === 'buy_price' || fieldName === 'markup') {
                 const sellPriceValue = parseFloat(this.computeSellPrice(row, fieldName, val)).toFixed(2);
                 this.$emit('addField', [row.id, 'sell_price', sellPriceValue]);
@@ -206,7 +211,7 @@ export default {
     },
 
     created () {
-        this.$emit('init');
+        this.$emit('tableCreateReady');
     }
 }
 </script>

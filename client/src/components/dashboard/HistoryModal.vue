@@ -5,118 +5,105 @@
     </template>
       
     <template v-slot:body v-if="selectedHistoryRow">
-      
-      <template v-if="selectedHistoryRow.entity.includes('documents/edit')">
-        <router-link  
-          class="redirect-link" 
-          :to="selectedHistoryRow.entity"
-          v-if="documentIds !== null && documentIds.get(+selectedHistoryRow.entity.slice(selectedHistoryRow.entity.lastIndexOf('/') + 1)) === true"
-        >
-          Read more about this document
-        </router-link>
-        <p v-else>This document no longer exists</p>
-      </template>
-      
-      <div v-if="selectedHistoryRow.entity.includes('empty')">
-        <p v-if="getEmptyEntityName === 'document'">
-          This document does not exist anymore. <br>
-        </p>
-        <p>
-          There are no more {{ getEmptyEntityName }}s
-        </p>
-      </div>
-
-      <!-- Show when a document has been deleted because its provider has been removed -->
-      <template v-if="selectedHistoryRow.entity.includes('indirectProvider')">
-        <p>Removed because the provider <b>{{ selectedHistoryRow.additional_info }}</b> has been deleted</p>
-      </template>
-      
-      <!-- If a product / provider / document has been updated -->
-      <template v-else-if="multipleRowsUpdated === false">
-        <div v-if="selectedHistoryRow.additional_info">{{ getHistoryProductNames[0] }}</div>
+      <template v-if="actionType === 'delete'">
+        <div v-if="selectedHistoryRow.entity.includes('empty')">
+          <!-- TODO: add this msg to `additional_info` -->
+          <p v-if="getEmptyEntityName === 'document'">
+            This document does not exist anymore. <br>
+          </p>
+          <p>
+            There are no more {{ getEmptyEntityName }}s
+          </p>
+        </div>
 
         <div class="c-table">
-          <VTableSimple :columns="['Field', 'From', 'To']">
-            <template v-slot:tbody>
-              <tr
-                  v-for="(values, field) in getHistoryStateInformation"
-                  :key="field"
-                >
-                  <td>{{ field }}</td>
-                  <td>{{ values[0] }}</td>
-                  <td>{{ values[1] }}</td>
-              </tr>
-            </template>
-          </VTableSimple>
-        </div>
+            <VTableSimple 
+              :columns="getPropertiesOfPropArr(modalData)"
+            >
+              <template v-slot:tbody>
+                
+                <tr v-for="(item, index) in modalData" :key="index">
+                  <td v-for="columnName in $options.currentEntityColumns" :key="index + columnName">
+                    {{ item[columnName] }}
+                  </td>
+                </tr>
+
+              </template>
+            </VTableSimple>
+          </div>
       </template>
 
-      <!-- If products in a document have been updated-->
-      <template v-else-if="multipleRowsUpdated === true">
-        <template v-for="(product, productIndex) in computeProductRows">
-          <div :key="product.id">{{ getHistoryProductNames[productIndex] }}</div>
-          
-          <div :key="product.id + productIndex" class="c-table">
-            <VTableSimple  :columns="['Field', 'From', 'To']">
+      <template v-else-if="actionType === 'update'">
+        <template v-for="(fromTo, id) in modalData">
+          <p :key="id"><b>{{ id }}</b></p>
+
+          <p :key="id + 'from'">From</p>
+          <div :key="id + 'table'" class="c-table">
+            <VTableSimple 
+              :columns="getPropertiesOfNestedObj(fromTo)"
+            >
               <template v-slot:tbody>
-                <tr
-                  v-for="(field) in Object.keys(getRidOfObjProp(product, 'id'))"
-                  :key="product.id + field"
-                >
-                  <td>{{ field }}</td>
-                  <td>{{ product[field][0] }}</td>
-                  <td>{{ product[field][1] }}</td>
+                <tr>
+                  <td v-for="column in $options.currentEntityColumns" :key="id + column">
+                    {{ fromTo.from[column] }}
+                  </td>
+                </tr> 
+              </template>
+            </VTableSimple>
+          </div>
+
+          <p :key="id + 'to'">To</p>
+          <div :key="id + 'table' + 'to'" class="c-table">
+            <VTableSimple 
+              :columns="$options.currentEntityColumns"
+            >
+              <template v-slot:tbody>
+                <tr>
+                  <td v-for="column in $options.currentEntityColumns" :key="column + id">
+                    {{ fromTo.to[column] }}
+                  </td>
                 </tr>
               </template>
             </VTableSimple>
-        </div>
+          </div>
         </template>
       </template>
 
-      <!-- If products have been added / removed from a document -->
-      <template v-else-if="displayDeletedOrAddedProductsInDoc">
-        <div>
-          {{ selectedHistoryRow.action_type === 'insert' ? 'Added' : 'Removed' }} {{ displayDeletedOrAddedProductsInDoc.length === 1 ? 'product' : 'products' }}
-        </div>
-
+      <template v-else-if="actionType === 'insert'">
         <div class="c-table">
-          <VTableSimple :columns="Object.keys(getRidOfObjProp(displayDeletedOrAddedProductsInDoc[0], 'id'))">
+          <VTableSimple
+            :columns="$options.currentEntityColumns"
+          >
             <template v-slot:tbody>
-              <tr
-                  v-for="item in displayDeletedOrAddedProductsInDoc"
-                  :key="item.id"
-                >
-                  <template v-for="(k, kIndex) in Object.keys(item)">
-                    <td
-                      :key="item.id + item[k] + kIndex"
-                      v-if="k !== 'id'"
-                    >
-                      {{ typeof item[k] === 'object' && k === 'product_name' ? item[k]['name'] : item[k] }}
-                    </td>
-                  </template>
-              </tr>
+              <!-- Using `index` as a key because this modal is readonly -->
+              <tr v-for="(createdItem, index) in modalData" :key="index">
+                <td v-for="column in $options.currentEntityColumns" :key="column + index">
+                  {{ createdItem[column] }}
+                </td>
+              </tr> 
             </template>
           </VTableSimple>
         </div>
-      </template>
 
-      <!-- If multiple products (not in a document) / providers have been inserted -->
-      <!-- or (at least for now) if a product / document / provider has been deleted / added-->
-      <template v-else>
-        <div class="c-table" v-if="displayDeletedOrAdded">
-          <VTableSimple :columns="Object.keys(getRidOfObjProp((displayDeletedOrAdded[0] || displayDeletedOrAdded), 'id'))">
-            <template v-slot:tbody>
-              <!-- Decided to use the index for key's computation in order to reduce -->
-              <!-- the possibility of key duplication -->
-              <tr v-for="(item, rowIndex) in displayDeletedOrAdded" :key="item.id + rowIndex">
-                <template v-for="(k, kIndex) in Object.keys(item)">
-                  <!-- 'Not Specified' - in case a product doesn't have an expiration date -->
-                  <td v-if="k !== 'id'" :key="item.id + item[k] + kIndex + rowIndex">{{ item[k] ? k === 'product_name' ? item[k]['name'] : item[k] : item[k] === 0 ? item[k] : 'Not specified' }}</td>
+        <template v-if="additionalInfo">
+          <template v-for="(additionalItemObj, title, index) in additionalInfo">
+            <p :key="index + 'title'">{{ title }}</p>
+
+            <div :key="index + title" class="c-table">
+                <VTableSimple
+                  :columns="getPropertiesOfPropArr(additionalInfo[title])"
+                >
+                <template v-slot:tbody>
+                  <tr v-for="(additionalItem, index) in additionalItemObj" :key="index">
+                    <td v-for="column in $options.currentEntityColumns" :key="column + index + title">
+                      {{ additionalItem[column] }}
+                    </td>
+                  </tr> 
                 </template>
-              </tr>
-            </template>
-          </VTableSimple>
-        </div>
+              </VTableSimple>
+            </div>
+          </template>
+        </template>
       </template>
 
       <div align="right">
@@ -136,7 +123,7 @@ import uuidv1 from 'uuid/v1'
 
 import modalMixin from '../../mixins/modalMixin';
 
-import { separateValues, formatDate, getRidOfObjProp } from '../../utils/index';
+import { separateValues, formatDate, getRidOfObjProp, getPropertiesOfNestedObj } from '../../utils/index';
 
 import historySharedData from '../../observables/history';
 
@@ -145,11 +132,25 @@ export default {
 
     components: { VModal, VTableSimple },
 
+    /**
+     * We don't want this variable to be reactive, as we might get into infinite loops
+     * when mutating this variable
+     */
+    currentEntityColumns: null,
+
     data: () => ({
       multipleRowsUpdated: null,
       displayDeletedOrAdded: null,
       // Couldn't think of a better name...
       displayDeletedOrAddedProductsInDoc: null,
+
+      actionType: null,
+      modalData: null,
+      /**
+       * For example, when creating a product, we need to keep tract of
+       * the `created provider` and the `created products`
+       */
+      additionalInfo: null
     }),
 
     mixins: [modalMixin],
@@ -163,27 +164,29 @@ export default {
         },
 
         selectedHistoryRow (row) {
-          if (row !== null) {
-            if (row.current_state !== null) {
-              // Products / Providers have been added
-              const hasLineBreaks = (row.current_state).includes('\n');
-              const isArray = /^\[(.*)\]$/.test(row.current_state)
+          if (!row)
+            return;
 
-              console.log(hasLineBreaks)
-              console.log(isArray)
-              this.multipleRowsUpdated = hasLineBreaks && !isArray ? true : !hasLineBreaks && !isArray ? false : null;
+          console.log(row)
+          this.actionType = row.action_type;
+
+          switch (this.actionType) {
+            case 'delete': {
+              this.modalData = (JSON.parse(row.prev_state));
+              break;
+            }
+            
+            case 'update': {
+              this.modalData = JSON.parse(row.current_state);
+              break;
+            }
+
+            case 'insert': {
+              this.modalData = JSON.parse(row.current_state);
+              row.additional_info && (this.additionalInfo = JSON.parse(row.additional_info))
+              this.$options.currentEntityColumns = Object.keys(this.modalData[0]);
               
-              if (isArray) {
-                this.displayDeletedOrAdded = JSON.parse(row.current_state)
-              }
-            } else if (row.prev_state !== null) {
-              // Products / Providers have been deleted
-              this.multipleRowsUpdated = null;
-              this.displayDeletedOrAdded = [JSON.parse(row.prev_state)]
-              this.displayDeletedOrAdded[0]['id'] = uuidv1();
-            } else if (row.additional_info !== null) {
-              // Products have been added / deleted from a DOCUMENT
-              this.displayDeletedOrAddedProductsInDoc = JSON.parse(row.additional_info);
+              break;
             }
           }
         }
@@ -255,6 +258,18 @@ export default {
     },
 
     methods: {
+        getPropertiesOfNestedObj (obj) {
+
+          this.$options.currentEntityColumns = getPropertiesOfNestedObj(obj);
+
+          return this.$options.currentEntityColumns;
+        },
+
+        getPropertiesOfPropArr (arr) {
+          this.$options.currentEntityColumns = Object.keys(arr[0]);
+
+          return this.$options.currentEntityColumns;
+        },
 
         formatDate (date) { return formatDate(date) },
 
