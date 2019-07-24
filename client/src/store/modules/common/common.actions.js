@@ -1,4 +1,7 @@
-import { convertMapToObjForAPI } from '@/utils/';
+import {
+    convertMapToObjForAPI,
+    getObjAfterDeletingCommonValues,
+} from '@/utils/';
 
 export const actions = {
 
@@ -44,10 +47,22 @@ export const actions = {
 
     updateItem: ({ state, commit }, { id, ...updatedItemDetails }) => {
         const currentUpdatedItem = state.updatedItems.get(id) || {};
+        const pristineItem = state.items.get(id);
                 
         const newUpdatedItem = { ...currentUpdatedItem, ...updatedItemDetails };
 
-        commit('ADD_UPDATED_ITEM', { id, ...newUpdatedItem });
+        const actuallyUpdatedItem = getObjAfterDeletingCommonValues(
+            newUpdatedItem,
+            pristineItem,
+            Object.keys(newUpdatedItem)
+        );
+
+        if (actuallyUpdatedItem === null) {
+            commit('DELETE_UPDATED_ITEM', id);
+        } else {
+            commit('ADD_UPDATED_ITEM', { id, ...newUpdatedItem });
+        }
+
         commit('TRACK_UPDATED_ITEMS');
     },
 
