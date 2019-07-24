@@ -46,4 +46,5 @@ export const mutations = {
 
     RESET_DELETED_PRODUCTS: state => state.deletedProducts.clear(),
 
+    DELETE_UPDATED_PRODUCT: (state, id) => state.updatedProducts.delete(id),
 }

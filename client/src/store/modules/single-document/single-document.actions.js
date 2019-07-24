@@ -2,6 +2,7 @@ import {
     convertMapToObject,
     convertMapToArrExcludingProps,
     getDiffBetweenMapsElements,
+    getObjAfterDeletingCommonValues,
 } from '@/utils/';
 
 export const actions = {
@@ -42,10 +43,22 @@ export const actions = {
         // TODO: if the updated prop would lead to its initial state, remove prop!
         // if the object has no more props, delete the updated item
         const currentUpdatedProduct = state.updatedProducts.get(id) || {};
-                
+        const pristineProduct = state.products.get(id);
+
         const newUpdatedProduct = { ...currentUpdatedProduct, ...productDetails };
 
-        commit('ADD_UPDATED_PRODUCT', { id, ...newUpdatedProduct });
+        const actuallyUpdatedProduct = getObjAfterDeletingCommonValues(
+            newUpdatedProduct,
+            pristineProduct,
+            Object.keys(newUpdatedProduct)
+        );
+
+        if (actuallyUpdatedProduct === null) {
+            commit('DELETE_UPDATED_PRODUCT', id);
+        } else {
+            commit('ADD_UPDATED_PRODUCT', { id, ...newUpdatedProduct });
+        }
+        
         commit('TRACK_UPDATED_PRODUCTS');
     },
 

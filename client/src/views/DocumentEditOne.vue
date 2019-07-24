@@ -54,7 +54,7 @@
         <span class="h-mleft"></span>
         <VButton @click="$router.push('/documents')">Back</VButton>
         <span class="h-mleft"></span>
-        <VButton @click="sendUpdates">Confirm</VButton>
+        <VButton :disabled="!shouldEnableConfirmButton" @click="sendUpdates">Confirm</VButton>
 
         <VModal 
             :showModal="showDetails" 
@@ -116,6 +116,7 @@ export default {
             documentProducts: 'getProductsAsArr', 
             createdProducts: 'getCreatedProductsAsArr',
             updatedProducts: 'getUpdatedProducts',
+            shouldEnableConfirmButton: 'getWhetherItShouldEnableConfirmBtn'
         }),
 
         ...mapGetters('provider', { providers: 'getItemsAsArr' }),

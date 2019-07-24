@@ -26,4 +26,8 @@ export const getters = {
     getCreatedProducts: state => state.createdProductsTracker && state.createdProducts,
 
     getProducts: state => state.productsTracker && state.products,
+
+    getWhetherItShouldEnableConfirmBtn: state => 
+        state.updatedProductsTracker && state.updatedProducts.size !== 0 ||
+            state.deletedProductsTracker && state.deletedProducts.size !== 0,
 }
