@@ -212,3 +212,17 @@ export const convertMapToArrExcludingProps = (m, propsToExclude) => {
 
     return result;
 }
+
+export const getObjAfterDeletingCommonValues = (o1, o2, keys) => {
+    const result = {};
+    let isResultEmpty = true;
+
+    for (const k of keys) {
+        if (`${o1[k]}`.trim() !== `${o2[k]}`.trim()) {
+            result[k] = o1[k];
+            isResultEmpty = false;
+        }
+    }
+
+    return isResultEmpty ? null : result;
+};
