@@ -7,7 +7,7 @@ export const getters = {
 
     getUpdatedItemsAsArr: state => state.updatedItemsTracker && convertMapToArr(state.updatedItems, 'id'),
 
-    getWhetherItShouldCancelOrConfirmChanges: state => 
+    getWhetherItShouldEnableConfirmBtn: state =>
         state.updatedItemsTracker && state.updatedItems.size !== 0
             || state.deletedItemsTracker && state.deletedItems.size !== 0,
 

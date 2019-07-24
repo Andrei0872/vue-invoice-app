@@ -192,7 +192,7 @@ export default {
             items: 'getItemsAsArr',
             createdItems: 'getCreatedItemsAsArr',
             deletedItems: 'getDeletedItems',
-            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
+            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldEnableConfirmBtn'
         }),
 
         ...mapGettersProvider({ providers: 'getItemsAsArr' }),

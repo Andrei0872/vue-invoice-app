@@ -155,7 +155,7 @@ export default {
             deletedItems: 'getDeletedItems',
             updatedItemsMap: 'getUpdatedItems',
             itemsMap: 'getItems',
-            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
+            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldEnableConfirmBtn'
         })
     },
 
