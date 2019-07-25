@@ -28,7 +28,12 @@ export default {
 
     watch: {
         theValue (newVal) {
-            this.widthValue = `${((newVal.trim().length || this.placeholder.length) + 4) * 8}px`
+
+            const inputValLength = newVal.trim().length > this.placeholder.length 
+                ? newVal.trim().length
+                : this.placeholder.length;
+
+            this.widthValue = `${(inputValLength + 4) * 8}px`
         }
     },
 
