@@ -49,7 +49,7 @@
                     :items="createdItems"
                     @addField="addField($event)"
                     @tableCreateReady="onTableCreateReady"
-                    :listItems="products"
+                    :listItems="productsAsList"
                 />
             </template>
         </VContent>
@@ -183,10 +183,27 @@ export default {
 
             this.resetCUDItems();
         },
-
     },
 
     computed: {
+
+        chosenProducts () {
+            console.log('chosen products!')
+            
+            const products = {};
+
+            this.createdItems.forEach(item => {
+                if (item.product_name && item.product_name.id) {
+                    products[item.product_name.id] = true;
+                }
+            });
+
+            return products;
+        },
+
+        productsAsList () {
+            return this.products.filter(({ id }) => !this.chosenProducts[id]);
+        },
 
         ...mapGetters({
             items: 'getItemsAsArr',
