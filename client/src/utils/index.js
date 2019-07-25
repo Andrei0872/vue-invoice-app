@@ -153,7 +153,8 @@ export const convertMapToObjForAPI = m => {
     return [result, columnNames];
 };
 
-/**
+/** 
+ * TODO: refactor explanation
  * Check if any value from m1 has a prop that is the same as one key of m2,
  * based on a given prop
  * 

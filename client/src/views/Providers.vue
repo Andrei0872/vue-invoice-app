@@ -123,7 +123,6 @@ export default {
                 this.sendDeletedHistoryData();
             }
 
-
             if (this.updatedItemsMap.size) {
                 this.sendUpdatedHistoryData();
             }
@@ -151,8 +150,12 @@ export default {
             let shouldRefetchDocuments = false;
             
             const deletedProviders = this.$store.state['provider'].deletedItems;
+            const updatedProviders = this.$store.state['provider'].updatedItems;
 
-            if (canJoinMapsBasedOnProp(documents, deletedProviders, 'provider_id')) {
+            if (
+                canJoinMapsBasedOnProp(documents, deletedProviders, 'provider_id')
+                    || canJoinMapsBasedOnProp(documents, updatedProviders, 'provider_id')
+            ) {
                 shouldRefetchDocuments = true;
             }
 
