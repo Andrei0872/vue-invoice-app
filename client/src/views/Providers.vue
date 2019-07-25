@@ -105,7 +105,8 @@ export default {
             'insertCreatedItems', 'deleteItem',
             'sendModifications',
             'resetCUDItems',
-            'sendHistoryData'
+            'sendHistoryData',
+            'resetChanges',
         ]),
 
         async onConfirmChanges () {
@@ -134,6 +135,7 @@ export default {
             console.log('cancel');
 
             this.resetCUDItems();
+            this.resetChanges();
         },
 
         deleteDocumentsOfDeletedProviders () {

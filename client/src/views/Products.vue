@@ -114,7 +114,8 @@ export default {
             'insertCreatedItems', 'deleteItem',
             'resetCUDItems',
             'sendModifications',
-            'sendHistoryData'
+            'sendHistoryData',
+            'resetChanges',
         ]),
 
         async onInsertCreatedItems () {
@@ -143,6 +144,7 @@ export default {
             console.log('cancel');
 
             this.resetCUDItems();
+            this.resetChanges();
         },
     },
 

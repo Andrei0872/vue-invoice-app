@@ -127,6 +127,7 @@ export default {
             'sendModifications',
             'resetCUDItems',
             'sendHistoryData',
+            'resetChanges',
         ]),
 
         showInfo ({ id }) {
@@ -182,6 +183,7 @@ export default {
             console.log('cancel');
 
             this.resetCUDItems();
+            this.resetChanges();
         },
     },
 

@@ -85,10 +85,9 @@ export const actions = {
     deleteItem: ({ state, commit }, id) => {
         const deletedItem = state.items.get(id);
 
-        commit('DELETE_ITEM', id);
-        commit('TRACK_ITEMS');
         commit('ADD_DELETED_ITEM', { id, ...deletedItem });
         commit('TRACK_DELETED_ITEMS');
+        commit('TRACK_ITEMS');
     },
 
     sendDeletedItems: async ({ dispatch, rootGetters, state, rootState }) => {
@@ -151,5 +150,9 @@ export const actions = {
 
     sendHistoryData: async ({ dispatch }, historyData) => {
         dispatch('dashboard/insertHistoryRow', historyData, { root: true });
+    },
+
+    resetChanges: ({ commit }) => {
+        commit('TRACK_ITEMS');
     },
 }
