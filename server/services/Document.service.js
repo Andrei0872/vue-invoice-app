@@ -5,7 +5,6 @@ class DocumentService extends mainService {
         super(name);
         this.documentTableColumns = {
             provider_id: null,
-            provider_name: null,
             invoice_number: null
         };
         this.documentProductTableColumns = ['document_id', 'product_id', 'quantity', 'quantity_type', 'buy_price', 'markup', 'sell_price', 'product_vat', 'sell_price_vat', 'currency'];
@@ -16,7 +15,6 @@ class DocumentService extends mainService {
         provider: {
             id: provider_id,
             invoiceNr,
-            name: provider_name
         }
     }) {
         const documentValues = {
@@ -24,7 +22,6 @@ class DocumentService extends mainService {
         };
 
         documentValues['invoice_number'] = invoiceNr;
-        documentValues['provider_name'] = provider_name;
         documentValues['provider_id'] = provider_id;
 
         try {
@@ -77,14 +74,16 @@ class DocumentService extends mainService {
     async getAll() {
         const sql = `
             select
-            document.provider_name,
+                provider.name as provider_name,
                 SUM(document_product.buy_price) as total_buy, SUM(document_product.sell_price) as total_sell,
                 document.invoice_number, document.provider_id, document.inserted_date, document.id as id,
                 count(document_product.id) as nr_products, sum(document_product.product_vat) as total_vat,
                 sum(document_product.sell_price_vat) as total_sell_vat
             from document
             inner join document_product
-            on document.id = document_product.document_id
+                on document.id = document_product.document_id
+            inner join provider
+                on document.provider_id = provider.id
             group by document_id
             order by document_id DESC
         `;
