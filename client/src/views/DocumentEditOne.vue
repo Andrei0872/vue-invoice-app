@@ -19,7 +19,7 @@
                 :fields="createColumns" 
                 :items="createdProducts"
                 @addField="addFieldToCreatedProduct($event)"
-                :listItems="products"
+                :listItems="productsAsList"
             />
         </div>
 
@@ -113,8 +113,10 @@ export default {
         },
 
         ...mapGetters(entity, { 
-            documentProducts: 'getProductsAsArr', 
+            documentProducts: 'getProductsAsArr',
+            existingProductsIds: 'getExistingProductsIds',
             createdProducts: 'getCreatedProductsAsArr',
+            createdProductsIds: 'getCreatedProductsIds',
             updatedProducts: 'getUpdatedProducts',
             shouldEnableConfirmButton: 'getWhetherItShouldEnableConfirmBtn'
         }),
@@ -153,6 +155,12 @@ export default {
                 invoice_number: this.selectedProvider.invoiceNr || this.currentDocument.invoice_number,
                 nr_products: this.documentProducts.length + this.createdProducts.length
             };
+        },
+
+        productsAsList () {
+            return this.products.filter(
+                ({ id: productId }) => !this.existingProductsIds[productId] && !this.createdProductsIds[productId]
+            )
         },
     },
 
