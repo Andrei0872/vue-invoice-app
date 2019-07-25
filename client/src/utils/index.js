@@ -93,14 +93,23 @@ export const compareObjects = (pristineObj, changedObj, cbWhenChangeFound = unde
 
 export const isObjectEmpty = obj => Object.keys(obj).length === 0
 
-export const convertMapToArr = (m, keyName = null) => {
+export const convertMapToArr = (m, keyName = null, itemsToAvoid = null) => {
     if (!m.size)
         return [];
 
-    return [...m.entries()].map(([k, v]) => ({
-        ...keyName && { [keyName]: k },
-        ...v
-    }));
+    const items = [];
+
+    for (const [k, v] of m) {
+        if (itemsToAvoid && itemsToAvoid.has(k))
+            continue;
+        
+        items.push({
+            ...keyName && { [keyName]: k },
+            ...v
+        });
+    }
+
+    return items;
 };
 
 export const convertMapToObject = m => {
