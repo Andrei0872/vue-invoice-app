@@ -94,7 +94,6 @@ export default {
         color: $text-color;
         position: absolute;
         z-index: 100;
-        max-height: 15rem;
         width: 100px;
         user-select: none;
         transform: translateY(.9rem);
