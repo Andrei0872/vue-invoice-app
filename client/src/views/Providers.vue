@@ -112,12 +112,12 @@ export default {
         async onConfirmChanges () {
             console.log('confirm')
 
-            const results =  await this.sendModifications();
+            const results = await this.sendModifications();
             
             results.length && this.fetchItems();
 
-            // TODO: send to history the deleted documents
-            this.deleteDocumentsOfDeletedProviders();
+            // TODO: send to history the deleted/updated documents
+            this.alterDocumentsOfAlteredProviders();
 
             if (this.deletedItems.size) {
                 this.sendDeletedHistoryData();
@@ -138,21 +138,25 @@ export default {
             this.resetChanges();
         },
 
-        deleteDocumentsOfDeletedProviders () {
+        alterDocumentsOfAlteredProviders () {
             const documents = this.$store.state['document'] && this.$store.state['document'].items;
-            const deletedProviders = this.$store.state['provider'].deletedItems
 
-            if (
-                documents
-                && documents.size
-                && canJoinMapsBasedOnProp(documents, deletedProviders, 'provider_id')
-            ) {
-                const endpoint = 'documents';
-                const entity = 'document';
-                const url = this.$store.getters['mainUrl'] + endpoint;
+            if (!documents || !documents.size)
+                return;            
 
-                this.$store.dispatch('api/makeGETRequest', { url, entity });
+            const endpoint = 'documents';
+            const entity = 'document';
+            const url = this.$store.state['mainUrl'] + endpoint;
+
+            let shouldRefetchDocuments = false;
+            
+            const deletedProviders = this.$store.state['provider'].deletedItems;
+
+            if (canJoinMapsBasedOnProp(documents, deletedProviders, 'provider_id')) {
+                shouldRefetchDocuments = true;
             }
+
+            shouldRefetchDocuments && this.$store.dispatch('api/makeGETRequest', { url, entity });
         },
 
         // TODO: add to common
