@@ -227,7 +227,7 @@ export const getObjAfterDeletingCommonValues = (o1, o2, keys) => {
     let isResultEmpty = true;
 
     for (const k of keys) {
-        if (`${o1[k]}`.trim() !== `${o2[k]}`.trim()) {
+        if (`${o1[k]}`.trim() !== `${o2[k]}`.trim() && !!o1[k]) {
             result[k] = o1[k];
             isResultEmpty = false;
         }
