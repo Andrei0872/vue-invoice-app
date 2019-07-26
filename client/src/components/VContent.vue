@@ -76,12 +76,6 @@ export default {
         btnState () {
             return this.isCreating ? 'danger' : 'primary'
         },
-
-        // ...mapGetters({
-        //     newItems: 'getEntityNewItems'
-        // }),
-
-        // ...mapState(['currentEntity'])
     },
 
     data: () => ({

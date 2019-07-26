@@ -209,65 +209,6 @@ export default {
 
         ...mapActions('document', ['addNewItem', 'resetArr', 'deleteItem', 'addFieldValue']),
 
-        // getDocumentChanges () {
-        //     console.log(this.selectedProvider)
-
-        //     const changes = {};
-        //     const previousData = {};
-        //     let changeFound = false;
-
-        //     for (const key of Object.keys(this.selectedProvider)) {
-        //         if (key === 'inserted_date' || key === 'URC')
-        //             continue;
-
-        //         const currentItemKey =
-        //             key === 'id'
-        //                 ? 'provider_id'
-        //                 : key === 'invoiceNr' 
-        //                     ? 'invoice_number'
-        //                         : key === 'name'
-        //                             ? 'provider_name'
-        //                             : key
-
-        //         if (`${this.selectedProvider[key]}` !== `${this.currentDocument[currentItemKey]}`) {
-        //             changes[currentItemKey] = this.selectedProvider[key];
-        //             previousData[currentItemKey] = this.currentDocument[currentItemKey];
-        //             changeFound = true;
-        //         }
-        //     }
-
-        //     return changeFound ? { changes, previousData } : changeFound;
-        // },
-        
-        // // ? closer look!
-        // verifyChanges (changed, pristine) {
-        //     let prevState = ``,
-        //         currentState = ``,
-        //         additionalInfo = ``,
-        //         changeFound = false;
-            
-        //     for (const [key, valueObj] of Object.entries(changed)) {
-        //         const pristineItem = pristine.get(+key);
-        //         console.log(pristineItem)
-
-        //         prevState !== `` && (prevState = prevState.slice(0, -1) + '\n', currentState = currentState.slice(0, -1) + '\n');
-        //         changeFound = false;
-
-        //         for (const k of Object.keys(valueObj)) {
-        //             if (`${valueObj[k]}` !== `${pristineItem[k]}`) {
-        //                 prevState += `${k}:${pristineItem[k]}|`
-        //                 currentState += `${valueObj[k]}|`;
-
-        //                 changeFound = true;
-        //             }
-        //         }
-
-        //         changeFound && (additionalInfo += `${pristineItem['product_name']}|`)
-        //     }
-            
-        //     return [prevState, currentState, additionalInfo]
-        // },
-
         async sendUpdates () {            
             if (this.hasDocumentDataChanged) {
                 this.documentNeedsUpdate = true;

@@ -139,11 +139,6 @@ export default {
     currentEntityColumns: null,
 
     data: () => ({
-      multipleRowsUpdated: null,
-      displayDeletedOrAdded: null,
-      // Couldn't think of a better name...
-      displayDeletedOrAddedProductsInDoc: null,
-
       actionType: null,
       modalData: null,
       /**
@@ -202,56 +197,8 @@ export default {
 
         selectedHistoryRow () { return historySharedData.selectedHistoryRow },
 
-        computeProductRows () {
-            const currentStateRows = this.selectedHistoryRow.current_state.split('\n');
-            const prevValuesRows = this.selectedHistoryRow.prev_state.split('\n');
-
-            return prevValuesRows.map((items, index) => {
-                const row = {};
-                const currentStateRow = currentStateRows[index].split('|');
-
-                items.split('|').forEach((kvPair, kvPairIndex) => {
-                const [key, value] = separateValues(kvPair, ':');
-
-                // row[field] = [prevValue, currentValue]
-                row[key] = [value, currentStateRow[kvPairIndex]]
-                });
-
-                row['id'] = uuidv1()
-
-                return row;
-            })
-        },
-
         getHistoryProductNames () {
             return this.selectedHistoryRow.additional_info.split('|')
-        },
-
-        getHistoryStateInformation () {
-
-          const { current_state: currentState, prev_state: prevState } = this.selectedHistoryRow;
-
-          // result[field] = [prevValue, currentValue]
-          const result = {};
-
-          if (~prevState.indexOf('|')) {
-              // Multiple fields have been updated
-              const valuesArr = currentState.split('|');
-
-              prevState.split('|').forEach((kvPair, index) => {
-              const [key, value] = separateValues(kvPair, ':');
-
-              result[key] = [value, valuesArr[index]];
-              })
-
-          } else {
-              // Only one field has been updated
-              const [key, value] = separateValues(prevState, ':');
-
-              result[key] = [value, currentState];
-          }
-
-          return result
         },
 
         ...mapState('dashboard', ['documentIds'])
@@ -278,7 +225,6 @@ export default {
         closeModal () {
             historySharedData.showModal = false
             historySharedData.selectedHistoryRow = null
-            this.multipleRowsUpdated = null;
         },
     },
 }

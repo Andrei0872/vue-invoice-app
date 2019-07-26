@@ -114,12 +114,6 @@ export const actions = {
         
         payload.forEach(({ id, ...item }) => commit('ADD_ITEM', { id, ...item }))
         commit('TRACK_ITEMS');
-
-        // if (rootGetters['dashboard/getUpdateState']) {
-        //     dispatch('dashboard/fetchMainOverview', 'dashboard/overview', {
-        //         root: true
-        //     });
-        // }
     },
 
     sendModifications: async ({ dispatch, state }) => {
