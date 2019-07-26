@@ -212,8 +212,29 @@ export default {
         async sendUpdates () {            
             if (this.hasDocumentDataChanged) {
                 this.documentNeedsUpdate = true;
+
+                const invoice_number = this.currentDocumentNewData.invoice_number || false;
+                const provider_id = this.currentDocumentNewData.provider_id || false;
+                const provider_name = provider_id
+                        && this.providersMap.get(provider_id).name
+                        || false;
+
+                const newDocumentData = {
+                    ...invoice_number && { invoice_number },
+                    ...provider_name && { provider_name },
+                };
+
+                const oldDocumentData = {
+                    ...invoice_number && { invoice_number: this.currentDocument.invoice_number },
+                    ...provider_name && { provider_name: this.currentDocument.provider_name },
+                };
                 
-                await this.updateDocument(this.currentDocument.id);
+                await this.updateDocument({
+                    docId: this.currentDocument.id,
+                    ...provider_id && { provider_id },
+                    newDocumentData,
+                    oldDocumentData,
+                });
             }
 
             if (this.initialProductsLen !== this.documentProducts.length) {

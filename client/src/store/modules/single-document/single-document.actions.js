@@ -196,17 +196,19 @@ export const actions = {
         return response;
     },
 
-    updateDocument: async ({ state, dispatch, rootState, rootGetters }, id) => {
+    updateDocument: async (
+            { dispatch, rootState, rootGetters }, 
+            { docId, provider_id, newDocumentData, oldDocumentData },
+        ) => {
         const url = `${rootState.mainUrl}documents/update_document`;
-        const newDocumentData = state.currentDocumentNewData;
-        const oldDocumentData = state.currentDocumentOwnPristineData;
 
         const config = {
             ...rootGetters['api/config'],
             method: "PUT",
             body: JSON.stringify({
-                ...newDocumentData,
-                id: id,
+                provider_id,
+                invoice_number: newDocumentData.invoice_number,
+                id: docId,
             })
         }
 
@@ -214,9 +216,8 @@ export const actions = {
 
         console.log(response)
 
-        // TODO: refactor history
         const currentState = JSON.stringify({
-            [id]: {
+            [docId]: {
                 from: oldDocumentData,
                 to: newDocumentData,
             },
