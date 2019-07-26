@@ -53,6 +53,14 @@ class DocumentController extends mainController {
     async updateProvider ({ body }, res) {
         return res.json((await this.service.updateProvider(body)))
     }
+
+    async getOneDocument (req, res) {
+        const response = await this.service.getAll(req.query.id);
+
+        console.log(response)
+
+        return res.json(response);
+    }
 }
 
 module.exports = DocumentController

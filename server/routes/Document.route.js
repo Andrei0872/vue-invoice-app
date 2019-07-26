@@ -4,7 +4,7 @@ const Controller = require('../controllers/Document.controller');
 const controller = new Controller('document', 'Document');
 
 router.route('/')
-    .get(controller.getAll.bind(controller))
+    .get(controller.getAll.bind(controller), controller.getOneDocument.bind(controller))
     .post(controller.insertOne.bind(controller))
     .delete(controller.delete.bind(controller))
 

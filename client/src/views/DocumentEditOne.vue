@@ -205,6 +205,7 @@ export default {
             'sendCreatedProducts',
             'sendDeletedProducts',
             'resetProducts',
+            'fetchOneDocument',
         ]),
 
         ...mapActions('document', ['addNewItem', 'resetArr', 'deleteItem', 'addFieldValue']),
@@ -260,9 +261,8 @@ export default {
 
             if (this.documentNeedsUpdate) {
                 const documentsUrl = this.mainUrl + 'documents';
-                const documentEntity = 'document';
 
-                await this.fetchItems(documentsUrl, documentEntity);
+                this.fetchOneDocument(documentsUrl + `?id=${this.currentDocumentId}`);
             }
 
             this.$router.push('/documents'); 
@@ -271,7 +271,7 @@ export default {
         confirmDelete () {
             this.addDeletedProduct(this.selectedItem);
             this.closeModal();
-        }
+        },
     },
 
     beforeRouteLeave (to, from, next) {

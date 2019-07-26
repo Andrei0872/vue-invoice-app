@@ -237,4 +237,11 @@ export const actions = {
     sendHistoryData: async ({ dispatch }, historyData) => {
         dispatch('dashboard/insertHistoryRow', historyData, { root: true });
     },
+
+    fetchOneDocument: async ({ dispatch, commit }, url) => {
+        const updatedDocument = (await dispatch('api/makeGETRequest', { url }, { root: true }))[0];
+
+        commit('document/ADD_ITEM', updatedDocument, { root: true });
+        commit('document/TRACK_ITEMS', undefined, { root: true });
+    },
 }

@@ -71,7 +71,7 @@ class DocumentService extends mainService {
         }
     }
 
-    async getAll() {
+    async getAll(singleDocId = false) {
         const sql = `
             select
                 provider.name as provider_name,
@@ -84,6 +84,7 @@ class DocumentService extends mainService {
                 on document.id = document_product.document_id
             inner join provider
                 on document.provider_id = provider.id
+            ${singleDocId ? 'where document.id = ' + singleDocId : '' }
             group by document_id
             order by document_id DESC
         `;

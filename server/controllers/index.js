@@ -12,10 +12,14 @@ class Controller {
         res.json(responseFromDB)
     }
 
-    async getAll (req, res) {
+    async getAll (req, res, next) {
+        if (req.query.id) {
+            return next();
+        }
+
         const responseFromDB = await this.service.getAll(req.originalUrl === '/api/history');
 
-        res.status(responseFromDB.status).json(responseFromDB);
+        return res.status(responseFromDB.status).json(responseFromDB);
     }
 
     async updateOne (req, res) {
