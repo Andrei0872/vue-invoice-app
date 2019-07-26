@@ -10,13 +10,23 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
-const { mapState, mapGetters, mapActions } = createNamespacedHelpers('documentProduct');
+const { mapGetters, mapActions } = createNamespacedHelpers('singleDocument');
 
 export default {
 
-    data: () => ({
-        src: null
-    }),
+    data: () => ({ src: null }),
+
+    computed: {
+        ...mapGetters({ documentProducts: 'getProductsAsArr' }),
+
+        id () {
+            return this.$route.params.id;
+        }
+    },
+    
+    methods: mapActions([
+        'fetchProductsByDocumentId',
+    ]),
 
     beforeRouteEnter (to, from, next) {
         if (!from.name) {
@@ -25,30 +35,11 @@ export default {
         next();
     },
 
-    beforeRouterLeave (to, from , next) {
-        this.setId(null);
-
-        next();
-    },
-
-    computed: {
-        ...mapState({ allItems : 'items' }),
-        
-        ...mapGetters({ documentProducts: 'getItemsById' }),
-
-        id () {
-            return this.$route.params.id;
-        }
-    },
-
-    methods: mapActions(['setId', 'fetchById']),
-
     async created () {
         const url = `${this.$store.getters['api/mainURL']}/file`
-        this.setId(+this.id);
 
         if (!this.documentProducts.length)
-            await this.fetchById(this.id);
+            await this.fetchProductsByDocumentId(this.id);
         
         const body = {
             id: this.id,

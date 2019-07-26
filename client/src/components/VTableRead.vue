@@ -151,7 +151,7 @@ export default {
         capitalize (field) { return capitalize(field) },
 
         generateFile (type, id, rowIndex = null) {
-            const url = `${this.$store.getters['api/mainURL']}/file`;
+            const url = `${this.$store.state['mainUrl']}/file`;
 
             if (type === 'pdf') {
                 return this.$router.push({ name: 'file', params: { id } });
