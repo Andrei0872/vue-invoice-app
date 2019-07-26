@@ -30,7 +30,8 @@ export const getters = {
     getWhetherItShouldEnableConfirmBtn: state => 
         state.updatedProductsTracker && state.updatedProducts.size !== 0 
             || state.deletedProductsTracker && state.deletedProducts.size !== 0
-            || state.createdProductsTracker && state.createdProducts.size !== 0,
+            || state.createdProductsTracker && state.createdProducts.size !== 0
+            || state.currentDocumentNewData !== null,
 
     getExistingProductsIds: state => {
         if (!state.productsTracker)
@@ -58,5 +59,7 @@ export const getters = {
         }
 
         return createdProductsIds;
-    }
+    },
+
+    getHasDocumentDataChanged: state => state.currentDocumentNewData !== null,
 }

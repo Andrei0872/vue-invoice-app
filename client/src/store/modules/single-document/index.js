@@ -6,6 +6,15 @@ export const state = {
     createdProducts: new Map(),
     deletedProducts: new Map(),
 
+    /**
+     * Looks for changes regarding the provider_id and the invoice number
+     * 
+     * The other values(price etc..) are generated when the document is fetched
+     */
+    currentDocumentNewData: null,
+    // Used to verify if changes have been made to this document
+    currentDocumentOwnPristineData: null,
+
     // ? needs a deeper look
     // deletedItems: new Map(),
     // changes: {},
