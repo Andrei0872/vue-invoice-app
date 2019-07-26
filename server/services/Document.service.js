@@ -208,14 +208,26 @@ class DocumentService extends mainService {
         }
     }
 
-    async updateDocument ({ id, ...otherFields }) {
-        console.log(id, otherFields)
+    async updateDocument ({ id, provider_id = null, invoice_number = null }) {        
+        let KVpairs = ``;
 
-        const keys = Object.keys(otherFields).join(' = ?, ') + ' = ?';
-        const values = [...Object.values(otherFields), id];
-        
+        if (provider_id) {
+            KVpairs += `provider_id = ${provider_id}`
+        }
+
+        if (invoice_number) {
+            KVpairs += KVpairs === `` ? '' : ', ';
+            KVpairs += `invoice_number = ${invoice_number}`
+        }
+
+        const sql = `
+            update document
+            set ${KVpairs}
+            where id = ${id}
+        `;
+
         try {
-            await this.table.updateOne(keys, values);
+            await this.table._promisify(sql);
 
             return { 
                 message: 'The document has been updated!',
