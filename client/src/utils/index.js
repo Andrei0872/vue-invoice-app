@@ -11,24 +11,21 @@ export const getRidOfObjProp = (obj, prop, { [prop]: _, ...rest } = obj) => rest
 export const formatDate = dateStr => dateStr.replace(/(?<year>\d{4})\-(?<month>\d{2})\-(?<day>\d{2})([a-zA-Z:0-9.]+)/, '$<day>/$<month>/$<year>')
 
 // Not using arrow function because we need to bind `this`(Vue instance)
-export const fetchExcelFile = async function (url, rowIndex, id) {
+export const fetchExcelFile = async function (url, id) {
     let link;
     
-    if (!this.allItems.length) {
-        await this.fetchProductsByDocumentId(id);
-    }
+    await this.$store.dispatch('singleDocument/fetchProductsByDocumentId', id);
 
     const config = {
         headers: new Headers({
            'Content-type': 'application/json',
-           'responseType': 'arraybuffer'
-       }),
+        }),
        method: "POST",
        body: JSON.stringify({
            fileType: 'excel', 
            id, 
            vat: this.$store.getters['dashboard/getCurrentVat'],
-           products: this.documentProducts,
+           products: this.$store.getters['singleDocument/getProductsAsArr'],
         })
    }
     
@@ -36,11 +33,13 @@ export const fetchExcelFile = async function (url, rowIndex, id) {
         .then(res => res.arrayBuffer())
         .then(res => {
 
+            console.log('res', res)
+
             const blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
 
             link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
-            link.download = `document${rowIndex + 1}.xlsx`;
+            link.download = `document${id}.xlsx`;
             link.click();
             link = null;
         })

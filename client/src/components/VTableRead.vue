@@ -157,8 +157,7 @@ export default {
                 return this.$router.push({ name: 'file', params: { id } });
             }
 
-            this.setId(id);
-            fetchExcelFile.call(this, url, rowIndex, id);
+            fetchExcelFile.call(this, url, id);
         },
 
         // TODO: add props to be avoided
