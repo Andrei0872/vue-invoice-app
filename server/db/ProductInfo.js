@@ -6,6 +6,6 @@ module.exports = {
         "sub_category VARCHAR(255) NOT NULL",
         "comestible BOOLEAN",
         "expiration_date DATE",
-        "inserted_date TIMESTAMP",
+        "inserted_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
     ]
 };
