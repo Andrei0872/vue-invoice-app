@@ -1,8 +1,15 @@
 const mainController = require('./index');
 
 class DocumentController extends mainController {
+    
     constructor (...args) {
+        if (!!DocumentController.instance) {
+            return DocumentController.instance;
+        }
+
         super(...args);
+
+        DocumentController.instance = this;
     }
 
     async getAllByDocument (req, res) {
@@ -55,11 +62,39 @@ class DocumentController extends mainController {
     }
 
     async getOneDocument (req, res) {
-        const response = await this.service.getAll(req.query.id);
+        const response = await this.service.getAll([req.query.id]);
 
         console.log(response)
 
         return res.json(response);
+    }
+
+    async getDeletedDocumentsByProviders (req, res, next) {
+        const { deletedItemsIds: deletedProvidersIds } = req.body;
+
+        const deletedDocuments = await this.service.getAlteredDocumentsByProviders(deletedProvidersIds);
+
+        req.deletedDocuments = deletedDocuments;
+
+        return next();
+    }
+
+    async sendDeletedDocumentsToHistory (req, res) {
+        const { actionMessage, deletedDocuments } = req;
+
+        if (!deletedDocuments.length) {
+            return res.json({
+                actionMessage
+            });
+        }
+
+        const historyMessage = await this.service.sendDeletedDocumentsToHistory(JSON.stringify(deletedDocuments));
+
+        return res.json({
+            actionMessage,
+            historyMessage,
+            shouldReloadHistoryAndDocuments: true,
+        });
     }
 }
 

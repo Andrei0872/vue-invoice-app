@@ -114,10 +114,16 @@ export default {
 
             const results = await this.sendModifications();
             
-            results.length && this.fetchItems();
+            if (results.length) {
+                this.fetchItems();
+                
+                const [firstReq, secondReq = {}] = results;
 
-            // TODO: send to history the deleted/updated documents
-            this.alterDocumentsOfAlteredProviders();
+                if (firstReq.shouldReloadHistoryAndDocuments || secondReq.shouldReloadHistoryAndDocuments) {
+                    this.refetchDocuments();
+                    this.refetchHistory();
+                }
+            } 
 
             if (this.deletedItems.size) {
                 this.sendDeletedHistoryData();
@@ -137,29 +143,19 @@ export default {
             this.resetChanges();
         },
 
-        alterDocumentsOfAlteredProviders () {
-            const documents = this.$store.state['document'] && this.$store.state['document'].items;
+        refetchHistory () {
+            this.$store.dispatch('dashboard/fetchMainOverview', 'history', { root: true });
+        },
 
-            if (!documents || !documents.size)
-                return;            
-
+        refetchDocuments () {
+            if (!this.$store.state['document'])
+                return;
+            
             const endpoint = 'documents';
             const entity = 'document';
             const url = this.$store.state['mainUrl'] + endpoint;
 
-            let shouldRefetchDocuments = false;
-            
-            const deletedProviders = this.$store.state['provider'].deletedItems;
-            const updatedProviders = this.$store.state['provider'].updatedItems;
-
-            if (
-                canJoinMapsBasedOnProp(documents, deletedProviders, 'provider_id')
-                    || canJoinMapsBasedOnProp(documents, updatedProviders, 'provider_id')
-            ) {
-                shouldRefetchDocuments = true;
-            }
-
-            shouldRefetchDocuments && this.$store.dispatch('api/makeGETRequest', { url, entity });
+            this.$store.dispatch('api/makeGETRequest', { url, entity });
         },
 
         // TODO: add to common

@@ -152,8 +152,9 @@ class Service {
     async delete ({ deletedItemsIds }) {
         let sql = ``;
         const tableName = this.table.currentTable;
+        const isCurrentEntityProvider = tableName === 'provider';
 
-        if (tableName === 'provider') {
+        if (isCurrentEntityProvider) {
             /**
              * Using left join so a provider is still deleted
              * even though it does not own any documents
@@ -174,11 +175,13 @@ class Service {
         }
 
         try {
-            await this.table._promisify(sql);
+            const response = await this.table._promisify(sql);
 
             return { 
                 message: 'successfully deleted',
-                reqType: 'delete'
+                response,
+                reqType: 'delete',
+                shouldRedirect: isCurrentEntityProvider,
             };
         } catch (err) {
             return { message: 'error deleting', err };

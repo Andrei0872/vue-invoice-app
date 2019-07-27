@@ -71,7 +71,7 @@ class DocumentService extends mainService {
         }
     }
 
-    async getAll(singleDocId = false) {
+    async getAll(multipleDocIds = false, whereCustomCondition = null) {
         const sql = `
             select
                 provider.name as provider_name,
@@ -84,7 +84,13 @@ class DocumentService extends mainService {
                 on document.id = document_product.document_id
             inner join provider
                 on document.provider_id = provider.id
-            ${singleDocId ? 'where document.id = ' + singleDocId : '' }
+            ${
+                multipleDocIds 
+                    ? 'where document.id in (' + multipleDocIds.join(', ') + ')' 
+                    : whereCustomCondition
+                        ? whereCustomCondition
+                        : ''
+            }
             group by document_id
             order by document_id DESC
         `;
@@ -293,6 +299,30 @@ class DocumentService extends mainService {
             console.log(err)
             return { message: 'There has been an error updating provider in doc' }
         }
+    }
+
+    async getAlteredDocumentsByProviders (deletedProvidersIds) {
+        const customWhereCondition = `
+            where document.provider_id in (${deletedProvidersIds.join(', ')})
+        `;
+
+        const { data: deletedDocuments} = await this.getAll(false, customWhereCondition);
+
+        return deletedDocuments;
+    } 
+
+    async sendDeletedDocumentsToHistory (deletedDocuments) {
+        const sql = `
+            insert into history(message, entity, action_type, prev_state)
+            values (
+                'Deleted documents because of providers',
+                'document',
+                'delete',
+                '${deletedDocuments}'
+            )
+        `;
+
+        return this.table._promisify(sql);
     }
 }
 

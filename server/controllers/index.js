@@ -30,10 +30,16 @@ class Controller {
         res.json(responseFromDB)
     }
 
-    async delete (req, res) {
+    async delete (req, res, next) {
         const { body } = req;
-        
+
         const responseFromDB = await this.service.delete(body);
+
+        if (responseFromDB.shouldRedirect) {
+            req.actionMessage = responseFromDB;
+            
+            return next();
+        }
 
         return res.json(responseFromDB)
     }
