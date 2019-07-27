@@ -1,5 +1,5 @@
 <template>
- <VModal :showModal="showModal" @closeModal="closeModal" v-bind="{ 'background-color': '#DCE4F2', 'max-height': '45rem', 'max-width': '70rem' }">
+ <VModal :showModal="showModal" @closeModal="closeModal" v-bind="{ 'background-color': '#DCE4F2', 'max-height': '45rem', 'max-width': '77rem' }">
     <template v-slot:header v-if="selectedHistoryRow">
       {{ selectedHistoryRow.message }}
     </template>
