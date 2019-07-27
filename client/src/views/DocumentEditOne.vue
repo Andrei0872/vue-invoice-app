@@ -258,11 +258,17 @@ export default {
                 const createResponse = await this.sendCreatedProducts(this.currentDocumentId);
                 console.log('createResponse', createResponse);
             }
+            
+            const documentHasNoProducts = this.documentProducts.length + this.createdProducts.length === 0;
 
             if (this.documentNeedsUpdate) {
-                const documentsUrl = this.mainUrl + 'documents';
-
-                this.fetchOneDocument(documentsUrl + `?id=${this.currentDocumentId}`);
+                if (documentHasNoProducts) {
+                    this.fetchItems(null, 'document');
+                } else {
+                    const documentsUrl = this.mainUrl + 'documents';
+    
+                    this.fetchOneDocument(documentsUrl + `?id=${this.currentDocumentId}`);
+                }
             }
 
             this.$router.push('/documents'); 
