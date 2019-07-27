@@ -12,5 +12,6 @@ module.exports = {
         "product_vat DECIMAL(7, 2) NOT NULL",
         "sell_price_vat DECIMAL(7, 2) NOT NULL",
         "currency CHAR(3)",
+        "foreign key (document_id) references document(id) on delete cascade"
     ]
 };
