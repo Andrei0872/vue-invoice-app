@@ -17,7 +17,7 @@
             <template v-slot:existingItems>
                 <VTableRead 
                     v-if="!containsErrors && !!items"
-                    :fields="[...readColumns, 'actions']" 
+                    :fields="['id', ...readColumns, 'actions']" 
                     :items="items"
                     showDelete
                     @showInfo="showInfo($event)"
