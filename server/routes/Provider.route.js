@@ -8,7 +8,11 @@ const documentController = new DocumentController('document', 'Document');
 
 router.route('/')
     .get(controller.getAll.bind(controller))
-    .put(controller.updateOne.bind(controller))
+    .put(
+        documentController.getUpdatedDocumentsByProviders.bind(documentController),
+        controller.updateOne.bind(controller),
+        documentController.sendUpdatedDocumentsToHistory.bind(documentController),
+    )
     .delete(
         documentController.getDeletedDocumentsByProviders.bind(documentController),
         controller.delete.bind(controller),

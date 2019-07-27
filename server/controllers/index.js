@@ -22,12 +22,18 @@ class Controller {
         return res.status(responseFromDB.status).json(responseFromDB);
     }
 
-    async updateOne (req, res) {
+    async updateOne (req, res, next) {
         const { body } = req;
 
         const responseFromDB = await this.service.updateOne(body);
 
-        res.json(responseFromDB)
+        if (responseFromDB.shouldRedirect) {
+            req.actionMessage = responseFromDB;
+
+            return next();
+        }
+
+        return res.json(responseFromDB);
     }
 
     async delete (req, res, next) {

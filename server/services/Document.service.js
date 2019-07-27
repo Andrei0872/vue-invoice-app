@@ -324,6 +324,20 @@ class DocumentService extends mainService {
 
         return this.table._promisify(sql);
     }
+
+    async sendUpdatedDocumentsToHistory (updatedDocuments) {
+        const sql = `
+            insert into history(message, entity, action_type, current_state)
+            values (
+                'Updated documents because of providers',
+                'document',
+                'update',
+                '${updatedDocuments}'
+            )
+        `;
+
+        return this.table._promisify(sql);
+    }
 }
 
 module.exports = DocumentService;

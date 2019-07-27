@@ -139,7 +139,8 @@ class Service {
 
             return { 
                 message: 'Successfully updated items!',
-                reqType: 'update'
+                reqType: 'update',
+                shouldRedirect: tableName === 'provider',
             };
         } catch (err) {
             console.error(err);
