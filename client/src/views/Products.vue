@@ -1,7 +1,7 @@
 <template>
     <div v-if="isEverythingLoaded">
         <VContent 
-            entityName="entity"
+            :entityName="entity"
             @insertCreatedItems="onInsertCreatedItems"
             :disableCreateButton="disableCreateButton" 
             :shouldDisplayConfirmCancelButtons="shouldDisplayConfirmCancelButtons"
