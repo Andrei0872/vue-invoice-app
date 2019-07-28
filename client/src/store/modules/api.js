@@ -84,6 +84,7 @@ export const actions = {
         return await dispatch('makeRequest', { url, config });
     },
 
+    // Might work without `async`, just returning the fn
     makeDELETERequest: async ({ getters, dispatch, commit }, { url, payload }) => {
 
         const config = { 
@@ -94,18 +95,6 @@ export const actions = {
 
 
         return await dispatch('makeRequest', { url, config });
-
-        // try {
-        //     const response = await dispatch('makeRequest', { url, config })
-
-        //     // Update data from Dashboard
-        //     dispatch('dashboard/fetchMainOverview', 'dashboard/overview', { root: true });
-        //     commit('dashboard/SET_UPDATE_STATE', false, { root: true });
-            
-        //     return response
-        // } catch (err) {
-        //     console.error(err)
-        // }
     },
 
     makeRequest: (_, { url, config }) => {

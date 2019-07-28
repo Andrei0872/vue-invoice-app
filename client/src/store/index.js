@@ -35,8 +35,6 @@ const store = new Vuex.Store({
         },
 
         getEntityItems: (state, getters, rootState, rootGetters) => {
-            // return state[getters.getEntityName].items
-
             return rootGetters[`${getters.getEntityName}/getItemsAsArr`];
         },
 

@@ -1,6 +1,7 @@
 export default {
-    data: () => ({
-        createColumns: [
+    data() {
+        return {
+            createColumns: [
                 "product_name",
                 "quantity",
                 "quantity_type",
@@ -20,6 +21,45 @@ export default {
                 "invoice_number",
                 "inserted_date",
                 "nr_products"
-            ]
-    })
+            ],
+
+            initialListItemsLen: 0,
+            unwatchStore: null,
+            isDeletingCreatedItems: false,
+        }
+    },
+
+    methods: {
+        initCreatedItemsWatcher () {
+
+            this.unwatchStore = this.$store.watch(
+                (state, getters) => getters[this.createdItemsObservee],
+                (createdItems) => {
+                    if (this.isDeletingCreatedItems)
+                        return;
+
+                    if (createdItems.length > this.initialListItemsLen && !this.productsAsList.length) {
+                        console.log('should delete');
+
+                        this.deleteExcessiveCreatedItems();
+                    }
+                }
+            )
+        },
+
+        deleteExcessiveCreatedItems () {
+            this.isDeletingCreatedItems = true;
+
+            (this.createdItems || this.createdProducts).forEach(({ id: deletedId, product_name }) => {
+                if (product_name === '' || typeof product_name !== 'object')
+                    (this.deleteCreatedItem || this.deleteCreatedProduct)(deletedId);
+            })
+
+            this.isDeletingCreatedItems = false;
+        }
+    },
+
+    destroyed () {
+        this.unwatchStore();
+    },
 }

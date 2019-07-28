@@ -71,6 +71,7 @@ import VTableRead from '../components/VTableRead';
 import modalMixin from '../mixins/modalMixin';
 import commonMixin from '../mixins/commonMixin';
 import titleMixin from '../mixins/titleMixin';
+import documentUtilityMixin from '../mixins/documentUtilityMixin';
 
 const entityName = 'provider';
 
@@ -89,7 +90,7 @@ export default {
 
     components: { VContent, VModal, VTableCreate, VTableRead },
 
-    mixins: [modalMixin, commonMixin, titleMixin],
+    mixins: [modalMixin, commonMixin, titleMixin, documentUtilityMixin],
 
     data: () => ({
         readColumns: ['name', 'URC', 'inserted_date'],
@@ -105,23 +106,29 @@ export default {
             'insertCreatedItems', 'deleteItem',
             'sendModifications',
             'resetCUDItems',
-            'sendHistoryData'
+            'sendHistoryData',
+            'resetChanges',
         ]),
 
         async onConfirmChanges () {
             console.log('confirm')
 
-            const results =  await this.sendModifications();
+            const results = await this.sendModifications();
             
-            results.length && this.fetchItems();
+            if (results.length) {
+                this.fetchItems();
+                
+                const [firstReq, secondReq = {}] = results;
 
-            // TODO: send to history the deleted documents
-            this.deleteDocumentsOfDeletedProviders();
+                if (firstReq.shouldReloadHistoryAndDocuments || secondReq.shouldReloadHistoryAndDocuments) {
+                    this.refetchDocuments();
+                    this.refetchHistory();
+                }
+            } 
 
             if (this.deletedItems.size) {
                 this.sendDeletedHistoryData();
             }
-
 
             if (this.updatedItemsMap.size) {
                 this.sendUpdatedHistoryData();
@@ -134,23 +141,11 @@ export default {
             console.log('cancel');
 
             this.resetCUDItems();
+            this.resetChanges();
         },
 
-        deleteDocumentsOfDeletedProviders () {
-            const documents = this.$store.state['document'] && this.$store.state['document'].items;
-            const deletedProviders = this.$store.state['provider'].deletedItems
-
-            if (
-                documents
-                && documents.size
-                && canJoinMapsBasedOnProp(documents, deletedProviders, 'provider_id')
-            ) {
-                const endpoint = 'documents';
-                const entity = 'document';
-                const url = this.$store.getters['mainUrl'] + endpoint;
-
-                this.$store.dispatch('api/makeGETRequest', { url, entity });
-            }
+        refetchHistory () {
+            this.$store.dispatch('dashboard/fetchMainOverview', 'history', { root: true });
         },
 
         // TODO: add to common
@@ -172,7 +167,7 @@ export default {
             deletedItems: 'getDeletedItems',
             updatedItemsMap: 'getUpdatedItems',
             itemsMap: 'getItems',
-            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldCancelOrConfirmChanges'
+            shouldDisplayConfirmCancelButtons: 'getWhetherItShouldEnableConfirmBtn'
         }),
     },
 

@@ -26,4 +26,40 @@ export const getters = {
     getCreatedProducts: state => state.createdProductsTracker && state.createdProducts,
 
     getProducts: state => state.productsTracker && state.products,
+
+    getWhetherItShouldEnableConfirmBtn: state => 
+        state.updatedProductsTracker && state.updatedProducts.size !== 0 
+            || state.deletedProductsTracker && state.deletedProducts.size !== 0
+            || state.createdProductsTracker && state.createdProducts.size !== 0
+            || state.currentDocumentNewData !== null,
+
+    getExistingProductsIds: state => {
+        if (!state.productsTracker)
+            return;
+        
+        const productsIds = {};
+
+        for (const p of state.products.values()) {
+            productsIds[p.product_id] = true;
+        }
+
+        return productsIds;
+    },
+
+    getCreatedProductsIds: state => {
+        if (!state.createdProductsTracker)
+            return;
+
+        const createdProductsIds = {};
+
+        for (const p of state.createdProducts.values()) {
+            if (p.product_name && p.product_name.id) {
+                createdProductsIds[p.product_name.id] = true;
+            }
+        }
+
+        return createdProductsIds;
+    },
+
+    getHasDocumentDataChanged: state => state.currentDocumentNewData !== null,
 }

@@ -1,8 +1,10 @@
 export default {
     methods: {
+        /**
+         * Compute a new value for `sell_price` depending on which values can be found
+         * in `buy_price` / `markup` fields
+         */
         computeSellPrice (row, fieldName, currentFieldValue) {
-            // Compute a new value for `sell_price` depending on which values can be found
-            // in `buy_price` / `markup` fields
             currentFieldValue = parseFloat(currentFieldValue);
             currentFieldValue = isNaN(currentFieldValue) ? 0 : currentFieldValue;
 
@@ -12,17 +14,15 @@ export default {
 
             const sellPriceValue = this.getValueAfterMarkup(...fieldName === 'buy_price' ? ([currentFieldValue, existingValueInOtherField]) : ([existingValueInOtherField, currentFieldValue]))
 
-            return sellPriceValue.toFixed(2)
+            return +sellPriceValue.toFixed(2)
         },
 
         getValueAfterMarkup (buyPrice, markup) {
-            return buyPrice + (markup / 100) * buyPrice
+            return buyPrice + markup;
         },
 
         getVatValue (isComestible, sellPriceValue, vat) {
             return ((parseFloat(isComestible === 1 ? vat['food_vat'] : vat['non_food_vat'])) / 100) * sellPriceValue
         },
-
-        computeVatFields (cb, ...args) {/* ... */}
     }
 }

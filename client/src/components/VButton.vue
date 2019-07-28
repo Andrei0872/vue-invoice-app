@@ -19,15 +19,22 @@ export default {
         },
     },
 
-    render (h, { listeners, children, props }) {        
-        const content = children[0].text;
+    render (h, { listeners, children, props, slots }) {        
+        const hasContentTag = children[0].tag !== undefined;
+        const isSvg = children[0].tag === 'svg';
+        
+        const content = hasContentTag ? slots().default : children[0].text;
 
         const functionNames = Object.keys(listeners);
         const combinedFunctions = ctx => functionNames.forEach(fn => listeners[fn](ctx));
 
         const button = h('button', {
-            ...functionNames.length && { on: { click: combinedFunctions } },
-            class: {[`button--${props.btnClass}`]: true, 'h-disabled': props.disabled},
+            ...functionNames.length && !props.disabled && { on: { click: combinedFunctions } },
+            class: {
+                [`button--${props.btnClass}`]: true, 
+                'h-disabled': props.disabled,
+                'is-svg-parent': isSvg,
+            },
         }, content);
 
         return props.btnClass === 'success'
@@ -75,6 +82,11 @@ export default {
     .button--primary {
         background-color: $button-color-primary;
         @include boxShadow($button-color-primary);
+    }
+
+    .button--primary.is-svg-parent {
+        background: none;
+        box-shadow: none;
     }
 
     .button--danger {

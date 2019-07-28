@@ -41,4 +41,6 @@ export const mutations = {
     RESET_UPDATED_ITEMS: state => state.updatedItems.clear(),
 
     TRACK_DELETED_ITEMS: state => state.deletedItemsTracker++,
+
+    DELETE_UPDATED_ITEM: (state, id) => state.updatedItems.delete(id),
 }

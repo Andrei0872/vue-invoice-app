@@ -151,14 +151,13 @@ export default {
         capitalize (field) { return capitalize(field) },
 
         generateFile (type, id, rowIndex = null) {
-            const url = `${this.$store.getters['api/mainURL']}/file`;
+            const url = `${this.$store.state['mainUrl']}/file`;
 
             if (type === 'pdf') {
                 return this.$router.push({ name: 'file', params: { id } });
             }
 
-            this.setId(id);
-            fetchExcelFile.call(this, url, rowIndex, id);
+            fetchExcelFile.call(this, url, id);
         },
 
         // TODO: add props to be avoided
@@ -261,9 +260,8 @@ export default {
             row[fieldName] = val;
 
             if (fieldName === 'buy_price' || fieldName === 'markup') {
-                this.selectedRow['sell_price'] = row['sell_price'] = this.computeSellPrice(row, fieldName, val);
 
-                const sellPriceValue = parseFloat(this.computeSellPrice(row, fieldName, val)).toFixed(2);
+                const sellPriceValue = this.computeSellPrice(row, fieldName, val);
                 this.selectedRow['sell_price'] = row['sell_price'] = sellPriceValue;
 
                 const vat = this.$store.getters['dashboard/getCurrentVat'];

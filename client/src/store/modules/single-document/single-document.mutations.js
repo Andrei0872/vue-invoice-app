@@ -1,3 +1,7 @@
+import {
+    getObjAfterDeletingCommonValues,
+} from '@/utils/';
+
 export const mutations = {
     SET_ITEMS: (state, payload) => state.items = payload,
 
@@ -46,4 +50,33 @@ export const mutations = {
 
     RESET_DELETED_PRODUCTS: state => state.deletedProducts.clear(),
 
+    DELETE_UPDATED_PRODUCT: (state, id) => state.updatedProducts.delete(id),
+
+    SET_CURRENT_DOCUMENT_OWN_PRISTINE_DATA: (state, docData) => {
+        state.currentDocumentOwnPristineData = docData;
+    },
+
+    SET_CURRENT_DOCUMENT_NEW_DATA: (state, newDocData) => {
+        const newActualDocData = getObjAfterDeletingCommonValues(
+            newDocData,
+            state.currentDocumentOwnPristineData,
+            Object.keys(newDocData),
+        );
+
+        if (!newActualDocData) {
+            state.currentDocumentNewData = null;
+
+            return;
+        }
+
+        state.currentDocumentNewData = {
+            ...state.currentDocumentNewData,
+            ...newActualDocData
+        };
+
+    },
+
+    RESET_DOCUMENT_DATA: state => {
+        state.currentDocumentOwnPristineData = state.currentDocumentNewData = null;
+    },
 }

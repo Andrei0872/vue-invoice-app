@@ -2,6 +2,7 @@ import {
     convertMapToObject,
     convertMapToArrExcludingProps,
     getDiffBetweenMapsElements,
+    getObjAfterDeletingCommonValues,
 } from '@/utils/';
 
 export const actions = {
@@ -17,7 +18,12 @@ export const actions = {
             (product) => ({
                 ...product,
                 product_name: products.get(product.product_id).name,
-                isComestible: products.get(product.product_id).isComestible
+                /**
+                 * This will be used when computing values that depend on
+                 * `buy_price` and `markup`, such as `sell_price`, `product_vat`
+                 * and `sell_price_vat`
+                 */
+                isComestible: products.get(product.product_id).comestible
             })
         );
 
@@ -42,10 +48,22 @@ export const actions = {
         // TODO: if the updated prop would lead to its initial state, remove prop!
         // if the object has no more props, delete the updated item
         const currentUpdatedProduct = state.updatedProducts.get(id) || {};
-                
+        const pristineProduct = state.products.get(id);
+
         const newUpdatedProduct = { ...currentUpdatedProduct, ...productDetails };
 
-        commit('ADD_UPDATED_PRODUCT', { id, ...newUpdatedProduct });
+        const actuallyUpdatedProduct = getObjAfterDeletingCommonValues(
+            newUpdatedProduct,
+            pristineProduct,
+            Object.keys(newUpdatedProduct)
+        );
+
+        if (actuallyUpdatedProduct === null) {
+            commit('DELETE_UPDATED_PRODUCT', id);
+        } else {
+            commit('ADD_UPDATED_PRODUCT', { id, ...newUpdatedProduct });
+        }
+        
         commit('TRACK_UPDATED_PRODUCTS');
     },
 
@@ -183,14 +201,19 @@ export const actions = {
         return response;
     },
 
-    updateDocument: async ({ dispatch, rootState, rootGetters }, payload) => {
+    updateDocument: async (
+            { dispatch, rootState, rootGetters }, 
+            { docId, provider_id, newDocumentData, oldDocumentData },
+        ) => {
         const url = `${rootState.mainUrl}documents/update_document`;
+
         const config = {
             ...rootGetters['api/config'],
             method: "PUT",
             body: JSON.stringify({
-                ...payload.changes,
-                id: payload.id,
+                provider_id,
+                invoice_number: newDocumentData.invoice_number,
+                id: docId,
             })
         }
 
@@ -198,14 +221,10 @@ export const actions = {
 
         console.log(response)
 
-        const { id: documentId, ...documentChanges } = payload;
-        const { provider_id: provider_id_prev, ...previousData } = documentChanges.previousData;
-        const { provider_id: provider_id_crt, ...changes } = documentChanges.changes;
-
         const currentState = JSON.stringify({
-            [documentId]: {
-                from: previousData,
-                to: changes,
+            [docId]: {
+                from: oldDocumentData,
+                to: newDocumentData,
             },
         });
 
@@ -222,5 +241,12 @@ export const actions = {
 
     sendHistoryData: async ({ dispatch }, historyData) => {
         dispatch('dashboard/insertHistoryRow', historyData, { root: true });
+    },
+
+    fetchOneDocument: async ({ dispatch, commit }, url) => {
+        const updatedDocument = (await dispatch('api/makeGETRequest', { url }, { root: true }))[0];
+
+        commit('document/ADD_ITEM', updatedDocument, { root: true });
+        commit('document/TRACK_ITEMS', undefined, { root: true });
     },
 }

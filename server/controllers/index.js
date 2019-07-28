@@ -12,24 +12,40 @@ class Controller {
         res.json(responseFromDB)
     }
 
-    async getAll (req, res) {
+    async getAll (req, res, next) {
+        if (req.query.id) {
+            return next();
+        }
+
         const responseFromDB = await this.service.getAll(req.originalUrl === '/api/history');
 
-        res.status(responseFromDB.status).json(responseFromDB);
+        return res.status(responseFromDB.status).json(responseFromDB);
     }
 
-    async updateOne (req, res) {
+    async updateOne (req, res, next) {
         const { body } = req;
 
         const responseFromDB = await this.service.updateOne(body);
 
-        res.json(responseFromDB)
+        if (responseFromDB.shouldRedirect) {
+            req.actionMessage = responseFromDB;
+
+            return next();
+        }
+
+        return res.json(responseFromDB);
     }
 
-    async delete (req, res) {
+    async delete (req, res, next) {
         const { body } = req;
-        
+
         const responseFromDB = await this.service.delete(body);
+
+        if (responseFromDB.shouldRedirect) {
+            req.actionMessage = responseFromDB;
+            
+            return next();
+        }
 
         return res.json(responseFromDB)
     }

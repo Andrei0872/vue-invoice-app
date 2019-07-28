@@ -5,7 +5,6 @@ class DocumentService extends mainService {
         super(name);
         this.documentTableColumns = {
             provider_id: null,
-            provider_name: null,
             invoice_number: null
         };
         this.documentProductTableColumns = ['document_id', 'product_id', 'quantity', 'quantity_type', 'buy_price', 'markup', 'sell_price', 'product_vat', 'sell_price_vat', 'currency'];
@@ -16,7 +15,6 @@ class DocumentService extends mainService {
         provider: {
             id: provider_id,
             invoiceNr,
-            name: provider_name
         }
     }) {
         const documentValues = {
@@ -24,7 +22,6 @@ class DocumentService extends mainService {
         };
 
         documentValues['invoice_number'] = invoiceNr;
-        documentValues['provider_name'] = provider_name;
         documentValues['provider_id'] = provider_id;
 
         try {
@@ -74,17 +71,26 @@ class DocumentService extends mainService {
         }
     }
 
-    async getAll() {
+    async getAll(multipleDocIds = false, whereCustomCondition = null) {
         const sql = `
             select
-            document.provider_name,
+                provider.name as provider_name,
                 SUM(document_product.buy_price) as total_buy, SUM(document_product.sell_price) as total_sell,
                 document.invoice_number, document.provider_id, document.inserted_date, document.id as id,
                 count(document_product.id) as nr_products, sum(document_product.product_vat) as total_vat,
                 sum(document_product.sell_price_vat) as total_sell_vat
             from document
             inner join document_product
-            on document.id = document_product.document_id
+                on document.id = document_product.document_id
+            inner join provider
+                on document.provider_id = provider.id
+            ${
+                multipleDocIds 
+                    ? 'where document.id in (' + multipleDocIds.join(', ') + ')' 
+                    : whereCustomCondition
+                        ? whereCustomCondition
+                        : ''
+            }
             group by document_id
             order by document_id DESC
         `;
@@ -209,14 +215,26 @@ class DocumentService extends mainService {
         }
     }
 
-    async updateDocument ({ id, ...otherFields }) {
-        console.log(id, otherFields)
+    async updateDocument ({ id, provider_id = null, invoice_number = null }) {        
+        let KVpairs = ``;
 
-        const keys = Object.keys(otherFields).join(' = ?, ') + ' = ?';
-        const values = [...Object.values(otherFields), id];
-        
+        if (provider_id) {
+            KVpairs += `provider_id = ${provider_id}`
+        }
+
+        if (invoice_number) {
+            KVpairs += KVpairs === `` ? '' : ', ';
+            KVpairs += `invoice_number = ${invoice_number}`
+        }
+
+        const sql = `
+            update document
+            set ${KVpairs}
+            where id = ${id}
+        `;
+
         try {
-            await this.table.updateOne(keys, values);
+            await this.table._promisify(sql);
 
             return { 
                 message: 'The document has been updated!',
@@ -281,6 +299,44 @@ class DocumentService extends mainService {
             console.log(err)
             return { message: 'There has been an error updating provider in doc' }
         }
+    }
+
+    async getAlteredDocumentsByProviders (deletedProvidersIds) {
+        const customWhereCondition = `
+            where document.provider_id in (${deletedProvidersIds.join(', ')})
+        `;
+
+        const { data: deletedDocuments} = await this.getAll(false, customWhereCondition);
+
+        return deletedDocuments;
+    } 
+
+    async sendDeletedDocumentsToHistory (deletedDocuments) {
+        const sql = `
+            insert into history(message, entity, action_type, prev_state)
+            values (
+                'Deleted documents because of providers',
+                'document',
+                'delete',
+                '${deletedDocuments}'
+            )
+        `;
+
+        return this.table._promisify(sql);
+    }
+
+    async sendUpdatedDocumentsToHistory (updatedDocuments) {
+        const sql = `
+            insert into history(message, entity, action_type, current_state)
+            values (
+                'Updated documents because of providers',
+                'document',
+                'update',
+                '${updatedDocuments}'
+            )
+        `;
+
+        return this.table._promisify(sql);
     }
 }
 

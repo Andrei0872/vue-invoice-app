@@ -1,4 +1,7 @@
-import { convertMapToObjForAPI } from '@/utils/';
+import {
+    convertMapToObjForAPI,
+    getObjAfterDeletingCommonValues,
+} from '@/utils/';
 
 export const actions = {
 
@@ -44,10 +47,22 @@ export const actions = {
 
     updateItem: ({ state, commit }, { id, ...updatedItemDetails }) => {
         const currentUpdatedItem = state.updatedItems.get(id) || {};
+        const pristineItem = state.items.get(id);
                 
         const newUpdatedItem = { ...currentUpdatedItem, ...updatedItemDetails };
 
-        commit('ADD_UPDATED_ITEM', { id, ...newUpdatedItem });
+        const actuallyUpdatedItem = getObjAfterDeletingCommonValues(
+            newUpdatedItem,
+            pristineItem,
+            Object.keys(newUpdatedItem)
+        );
+
+        if (actuallyUpdatedItem === null) {
+            commit('DELETE_UPDATED_ITEM', id);
+        } else {
+            commit('ADD_UPDATED_ITEM', { id, ...newUpdatedItem });
+        }
+
         commit('TRACK_UPDATED_ITEMS');
     },
 
@@ -70,10 +85,9 @@ export const actions = {
     deleteItem: ({ state, commit }, id) => {
         const deletedItem = state.items.get(id);
 
-        commit('DELETE_ITEM', id);
-        commit('TRACK_ITEMS');
         commit('ADD_DELETED_ITEM', { id, ...deletedItem });
         commit('TRACK_DELETED_ITEMS');
+        commit('TRACK_ITEMS');
     },
 
     sendDeletedItems: async ({ dispatch, rootGetters, state, rootState }) => {
@@ -100,12 +114,6 @@ export const actions = {
         
         payload.forEach(({ id, ...item }) => commit('ADD_ITEM', { id, ...item }))
         commit('TRACK_ITEMS');
-
-        // if (rootGetters['dashboard/getUpdateState']) {
-        //     dispatch('dashboard/fetchMainOverview', 'dashboard/overview', {
-        //         root: true
-        //     });
-        // }
     },
 
     sendModifications: async ({ dispatch, state }) => {
@@ -136,5 +144,9 @@ export const actions = {
 
     sendHistoryData: async ({ dispatch }, historyData) => {
         dispatch('dashboard/insertHistoryRow', historyData, { root: true });
+    },
+
+    resetChanges: ({ commit }) => {
+        commit('TRACK_ITEMS');
     },
 }

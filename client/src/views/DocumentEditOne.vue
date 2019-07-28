@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container" v-if="currentDocument">
         <VTableRead
             v-if="this.documentProducts.length"
             :fields="createColumns"
@@ -9,9 +9,13 @@
         />
 
         <div class="c-new">
-            <div @click="addCreatedProduct(createNewItem())" class="icon icon--add-row">
-                <font-awesome-icon icon="plus-circle" />
-            </div>
+            
+            <VButton 
+                @click="addCreatedProduct(createNewItem())" 
+                :disabled="!productsAsList.length"
+            >
+                <font-awesome-icon class="is-base-icon" icon="plus-circle" />
+            </VButton>
 
             <VTableCreate 
                 v-if="createdProducts.length"
@@ -19,15 +23,16 @@
                 :fields="createColumns" 
                 :items="createdProducts"
                 @addField="addFieldToCreatedProduct($event)"
-                :listItems="products"
+                :listItems="productsAsList"
             />
         </div>
 
+        <!-- TODO: delete from global store: invoice nr and provider -->
         <div class="c-provider-info" :style="{ 'margin-top':  createdProducts.length ? 0 : '2rem' }">
             <VSelect
                 v-if="providers.length"
                 @change.native="$refs.invoiceNr.$el.value = ''"
-                @addProvider="$store.commit('SET_PROVIDER', $event)" 
+                @addProvider="setCurrentDocumentNewData({ provider_id: $event.id })"
                 class="c-select c-select--no-margin" 
                 :items="providers"
                 :selectedFieldId="currentDocument.provider_id"
@@ -35,7 +40,7 @@
             <VInput
                 ref="invoiceNr"
                 :key="currentDocument.provider_id"
-                @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" 
+                @blur.native="setCurrentDocumentNewData({ invoice_number: $event.target.value })" 
                 placeholder="Invoice Nr."
                 class="c-input" 
             />
@@ -43,7 +48,7 @@
         </div>
 
         <VTableRead
-            v-if="selectedProvider && documentProducts.length + createdProducts.length > 0"
+            v-if="currentDocument.provider_id && documentProducts.length + createdProducts.length > 0"
             :fields="readColumns" 
             :readonly="true" 
             :items="[results]"
@@ -54,7 +59,7 @@
         <span class="h-mleft"></span>
         <VButton @click="$router.push('/documents')">Back</VButton>
         <span class="h-mleft"></span>
-        <VButton @click="sendUpdates">Confirm</VButton>
+        <VButton :disabled="!shouldEnableConfirmButton" @click="sendUpdates">Confirm</VButton>
 
         <VModal 
             :showModal="showDetails" 
@@ -88,7 +93,7 @@ import commonMixin from '../mixins/commonMixin';
 import modalMixin from '../mixins/modalMixin';
 
 import * as common from '@/store/modules/common';
-import { mapGetters, mapActions, mapState } from 'vuex'
+import { mapGetters, mapActions, mapState, mapMutations } from 'vuex'
 
 import { hasEmptyValues } from '../utils/';
 
@@ -102,7 +107,7 @@ export default {
     data: () => ({
         currentDocument: null,
         documentNeedsUpdate: false,
-
+        createdItemsObservee: 'singleDocument/getCreatedProductsAsArr',
         // Determine whether some products were deleted or not
         initialProductsLen: 0,
     }),
@@ -112,23 +117,28 @@ export default {
             return parseInt(this.$route.params.id)
         },
 
-        ...mapGetters(entity, { 
-            documentProducts: 'getProductsAsArr', 
-            createdProducts: 'getCreatedProductsAsArr',
-            updatedProducts: 'getUpdatedProducts',
+        ...mapState(entity, {
+            currentDocumentNewData: 'currentDocumentNewData'
         }),
 
-        ...mapGetters('provider', { providers: 'getItemsAsArr' }),
+        ...mapGetters(entity, { 
+            documentProducts: 'getProductsAsArr',
+            existingProductsIds: 'getExistingProductsIds',
+            createdProducts: 'getCreatedProductsAsArr',
+            createdProductsIds: 'getCreatedProductsIds',
+            updatedProducts: 'getUpdatedProducts',
+            shouldEnableConfirmButton: 'getWhetherItShouldEnableConfirmBtn',
+            hasDocumentDataChanged: 'getHasDocumentDataChanged'
+        }),
+
+        ...mapGetters('provider', { providers: 'getItemsAsArr', providersMap: 'getItems' }),
 
         ...mapGetters('product', { products: 'getItemsAsArr' }),
 
         ...mapGetters('document', { documents: 'getItemsAsArr', }),
-        
-        selectedProvider () {
-            return this.$store.state.selectedProvider
-        },
 
         results () {
+
             const { total_buy, total_sell, total_vat, total_sell_vat } = [...this.documentProducts, ...this.createdProducts].reduce((memo, product) => {
 
                 const currentUpdatedItem = this.updatedProducts.get(product.id);
@@ -141,21 +151,42 @@ export default {
                 return memo;
             }, { total_buy: 0, total_sell: 0, total_vat: 0, total_sell_vat: 0 })
 
+            const newProviderId = this.currentDocumentNewData && this.currentDocumentNewData.provider_id || false;
+            const currentProviderId = newProviderId || this.currentDocument.provider_id;
+            const currentInvoiceNumber = 
+                this.currentDocumentNewData && this.currentDocumentNewData.invoice_number 
+                    || this.currentDocument.invoice_number;
+
+            console.log('this.currentDocumentNewData', this.currentDocumentNewData)
+            console.log(currentInvoiceNumber)
+
             return { 
                 ...this.currentDocument, 
                 total_buy: total_buy.toFixed(2), 
                 total_sell: total_sell.toFixed(2), 
                 total_vat: total_vat.toFixed(2), 
                 total_sell_vat: total_sell_vat.toFixed(2), 
-                provider_name: this.selectedProvider.name, 
-                provider_id: this.selectedProvider.id,
-                invoice_number: this.selectedProvider.invoiceNr || this.currentDocument.invoice_number,
-                nr_products: this.documentProducts.length + this.createdProducts.length
+                provider_name: this.providersMap.get(currentProviderId).name, 
+                provider_id: currentProviderId,
+                invoice_number: currentInvoiceNumber,
+                nr_products: this.documentProducts.length + this.createdProducts.length,
             };
+        },
+
+        productsAsList () {
+            return this.products.filter(
+                ({ id: productId }) => !this.existingProductsIds[productId] && !this.createdProductsIds[productId]
+            )
         },
     },
 
     methods: {
+
+        ...mapMutations(entity, {
+            setCurrentDocumentOwnPristineData: 'SET_CURRENT_DOCUMENT_OWN_PRISTINE_DATA',
+            setCurrentDocumentNewData: 'SET_CURRENT_DOCUMENT_NEW_DATA',
+            resetDocumentData: 'RESET_DOCUMENT_DATA',
+        }),
 
         ...mapActions(entity, [
             'setId', 
@@ -178,75 +209,37 @@ export default {
             'sendCreatedProducts',
             'sendDeletedProducts',
             'resetProducts',
+            'fetchOneDocument',
         ]),
 
         ...mapActions('document', ['addNewItem', 'resetArr', 'deleteItem', 'addFieldValue']),
 
-        getDocumentChanges () {
-            console.log(this.selectedProvider)
-
-            const changes = {};
-            const previousData = {};
-            let changeFound = false;
-
-            for (const key of Object.keys(this.selectedProvider)) {
-                if (key === 'inserted_date' || key === 'URC')
-                    continue;
-
-                const currentItemKey =
-                    key === 'id'
-                        ? 'provider_id'
-                        : key === 'invoiceNr' 
-                            ? 'invoice_number'
-                                : key === 'name'
-                                    ? 'provider_name'
-                                    : key
-
-                if (`${this.selectedProvider[key]}` !== `${this.currentDocument[currentItemKey]}`) {
-                    changes[currentItemKey] = this.selectedProvider[key];
-                    previousData[currentItemKey] = this.currentDocument[currentItemKey];
-                    changeFound = true;
-                }
-            }
-
-            return changeFound ? { changes, previousData } : changeFound;
-        },
-        
-        // ? closer look!
-        verifyChanges (changed, pristine) {
-            let prevState = ``,
-                currentState = ``,
-                additionalInfo = ``,
-                changeFound = false;
-            
-            for (const [key, valueObj] of Object.entries(changed)) {
-                const pristineItem = pristine.get(+key);
-                console.log(pristineItem)
-
-                prevState !== `` && (prevState = prevState.slice(0, -1) + '\n', currentState = currentState.slice(0, -1) + '\n');
-                changeFound = false;
-
-                for (const k of Object.keys(valueObj)) {
-                    if (`${valueObj[k]}` !== `${pristineItem[k]}`) {
-                        prevState += `${k}:${pristineItem[k]}|`
-                        currentState += `${valueObj[k]}|`;
-
-                        changeFound = true;
-                    }
-                }
-
-                changeFound && (additionalInfo += `${pristineItem['product_name']}|`)
-            }
-            
-            return [prevState, currentState, additionalInfo]
-        },
-
         async sendUpdates () {            
-            const documentChanges = this.getDocumentChanges();
-            if (documentChanges) {
+            if (this.hasDocumentDataChanged) {
                 this.documentNeedsUpdate = true;
+
+                const invoice_number = this.currentDocumentNewData.invoice_number || false;
+                const provider_id = this.currentDocumentNewData.provider_id || false;
+                const provider_name = provider_id
+                        && this.providersMap.get(provider_id).name
+                        || false;
+
+                const newDocumentData = {
+                    ...invoice_number && { invoice_number },
+                    ...provider_name && { provider_name },
+                };
+
+                const oldDocumentData = {
+                    ...invoice_number && { invoice_number: this.currentDocument.invoice_number },
+                    ...provider_name && { provider_name: this.currentDocument.provider_name },
+                };
                 
-                await this.updateDocument({ ...documentChanges, id: this.currentDocument.id })
+                await this.updateDocument({
+                    docId: this.currentDocument.id,
+                    ...provider_id && { provider_id },
+                    newDocumentData,
+                    oldDocumentData,
+                });
             }
 
             if (this.initialProductsLen !== this.documentProducts.length) {
@@ -269,12 +262,17 @@ export default {
                 const createResponse = await this.sendCreatedProducts(this.currentDocumentId);
                 console.log('createResponse', createResponse);
             }
+            
+            const documentHasNoProducts = this.documentProducts.length + this.createdProducts.length === 0;
 
             if (this.documentNeedsUpdate) {
-                const documentsUrl = this.mainUrl + 'documents';
-                const documentEntity = 'document';
-
-                await this.fetchItems(documentsUrl, documentEntity);
+                if (documentHasNoProducts) {
+                    this.fetchItems(null, 'document');
+                } else {
+                    const documentsUrl = this.mainUrl + 'documents';
+    
+                    this.fetchOneDocument(documentsUrl + `?id=${this.currentDocumentId}`);
+                }
             }
 
             this.$router.push('/documents'); 
@@ -283,12 +281,13 @@ export default {
         confirmDelete () {
             this.addDeletedProduct(this.selectedItem);
             this.closeModal();
-        }
+        },
     },
 
     beforeRouteLeave (to, from, next) {
         this.resetProducts();
-        // this.$store.commit('SET_PROVIDER', null);
+        this.resetCreatedProducts();
+        this.resetDocumentData();
 
         next();
     },
@@ -309,6 +308,11 @@ export default {
 
         this.currentDocument = { ...this.documents.find(document => document.id === this.currentDocumentId) };
 
+        this.setCurrentDocumentOwnPristineData({
+            provider_id: this.currentDocument.provider_id,
+            invoice_number: this.currentDocument.invoice_number,
+        });
+
         if (this.$store && !this.$store.state['provider']) {
             this.$store.dispatch('api/FETCH_DATA', { 
                 avoidChangingState: true, 
@@ -326,8 +330,11 @@ export default {
         // if singleDocument.currentDoc id !== this.currentDocumentId... 
         // || this.documentProducts.length === 0
         await this.fetchProductsByDocumentId(this.currentDocumentId);
-
+        
         this.initialProductsLen = this.documentProducts.length;
+        this.initialListItemsLen = this.productsAsList.length;
+
+        this.initCreatedItemsWatcher();
     },
 }
 </script>
@@ -369,6 +376,12 @@ export default {
             padding: .3rem;
             border: 1px solid #303753;
         }
+    }
+
+    .is-base-icon {
+        width: 2rem;
+        height: 2rem;
+        color: green;
     }
 
 </style>

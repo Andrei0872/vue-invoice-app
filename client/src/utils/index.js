@@ -11,24 +11,21 @@ export const getRidOfObjProp = (obj, prop, { [prop]: _, ...rest } = obj) => rest
 export const formatDate = dateStr => dateStr.replace(/(?<year>\d{4})\-(?<month>\d{2})\-(?<day>\d{2})([a-zA-Z:0-9.]+)/, '$<day>/$<month>/$<year>')
 
 // Not using arrow function because we need to bind `this`(Vue instance)
-export const fetchExcelFile = async function (url, rowIndex, id) {
+export const fetchExcelFile = async function (url, id) {
     let link;
     
-    if (!this.allItems.length) {
-        await this.fetchProductsByDocumentId(id);
-    }
+    await this.$store.dispatch('singleDocument/fetchProductsByDocumentId', id);
 
     const config = {
         headers: new Headers({
            'Content-type': 'application/json',
-           'responseType': 'arraybuffer'
-       }),
+        }),
        method: "POST",
        body: JSON.stringify({
            fileType: 'excel', 
            id, 
            vat: this.$store.getters['dashboard/getCurrentVat'],
-           products: this.documentProducts,
+           products: this.$store.getters['singleDocument/getProductsAsArr'],
         })
    }
     
@@ -36,11 +33,13 @@ export const fetchExcelFile = async function (url, rowIndex, id) {
         .then(res => res.arrayBuffer())
         .then(res => {
 
+            console.log('res', res)
+
             const blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
 
             link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
-            link.download = `document${rowIndex + 1}.xlsx`;
+            link.download = `document${id}.xlsx`;
             link.click();
             link = null;
         })
@@ -93,14 +92,23 @@ export const compareObjects = (pristineObj, changedObj, cbWhenChangeFound = unde
 
 export const isObjectEmpty = obj => Object.keys(obj).length === 0
 
-export const convertMapToArr = (m, keyName = null) => {
+export const convertMapToArr = (m, keyName = null, itemsToAvoid = null) => {
     if (!m.size)
         return [];
 
-    return [...m.entries()].map(([k, v]) => ({
-        ...keyName && { [keyName]: k },
-        ...v
-    }));
+    const items = [];
+
+    for (const [k, v] of m) {
+        if (itemsToAvoid && itemsToAvoid.has(k))
+            continue;
+        
+        items.push({
+            ...keyName && { [keyName]: k },
+            ...v
+        });
+    }
+
+    return items;
 };
 
 export const convertMapToObject = m => {
@@ -144,7 +152,8 @@ export const convertMapToObjForAPI = m => {
     return [result, columnNames];
 };
 
-/**
+/** 
+ * TODO: refactor explanation
  * Check if any value from m1 has a prop that is the same as one key of m2,
  * based on a given prop
  * 
@@ -212,3 +221,17 @@ export const convertMapToArrExcludingProps = (m, propsToExclude) => {
 
     return result;
 }
+
+export const getObjAfterDeletingCommonValues = (o1, o2, keys) => {
+    const result = {};
+    let isResultEmpty = true;
+
+    for (const k of keys) {
+        if (`${o1[k]}`.trim() !== `${o2[k]}`.trim() && !!o1[k]) {
+            result[k] = o1[k];
+            isResultEmpty = false;
+        }
+    }
+
+    return isResultEmpty ? null : result;
+};

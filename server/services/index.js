@@ -64,7 +64,6 @@ class Service {
         return response;
     }
 
-    
     /**
      * 
      *  
@@ -92,10 +91,11 @@ class Service {
 
     */
     async updateOne ([idsAndKVPairs, columnNames]) {
-        console.log(idsAndKVPairs, columnNames)
         const punctuation = [', ', ' '];
         const columnNamesLen = columnNames.length;
         
+        let areDocumentsAlteredBecauseOfProducts = false;
+
         let setValues = ``;
         let columnValues = ``;
         
@@ -124,12 +124,44 @@ class Service {
         }
 
         const tableName = this.table.currentTable;
+        let additionalMiddleQuery = ``;
+        let additionalEndingQuery = ``;
+
+        if (tableName === 'product' && columnValues.includes('comestible')) {
+            areDocumentsAlteredBecauseOfProducts = true;
+
+            // `t` is referring to the alias set to the table in question
+            additionalMiddleQuery = `
+                inner join document_product
+                    on document_product.product_id = t.id
+            `;
+
+            additionalEndingQuery = `
+                ,document_product.product_vat = case 
+                    when vals.new_comestible = 1 then
+                        (@productVatFood:=document_product.sell_price * (select food_vat from vat) / 100)
+                    when vals.new_comestible = 0 then
+                        (@productVatNonFood:=document_product.sell_price * (select non_food_vat from vat) / 100)
+                    else document_product.product_vat
+                end,
+                document_product.sell_price_vat = case
+                    when vals.new_comestible = 1 then
+                        @productVatFood + document_product.sell_price
+                    when vals.new_comestible = 0 then
+                        @productVatNonFood + document_product.sell_price
+                    else document_product.product_vat
+                end
+            `;
+        }
+
         const sql = `
             update ${tableName} t
             join (
                 ${columnValues}
             ) vals on vals.id = t.id
+            ${additionalMiddleQuery}
             set ${setValues}
+            ${additionalEndingQuery}
         `;
 
         console.log(sql)
@@ -139,7 +171,9 @@ class Service {
 
             return { 
                 message: 'Successfully updated items!',
-                reqType: 'update'
+                reqType: 'update',
+                shouldRedirect: tableName === 'provider',
+                ...areDocumentsAlteredBecauseOfProducts && { shouldReloadDocuments: true }
             };
         } catch (err) {
             console.error(err);
@@ -152,8 +186,9 @@ class Service {
     async delete ({ deletedItemsIds }) {
         let sql = ``;
         const tableName = this.table.currentTable;
+        const isCurrentEntityProvider = tableName === 'provider';
 
-        if (tableName === 'provider') {
+        if (isCurrentEntityProvider) {
             /**
              * Using left join so a provider is still deleted
              * even though it does not own any documents
@@ -174,11 +209,13 @@ class Service {
         }
 
         try {
-            await this.table._promisify(sql);
+            const response = await this.table._promisify(sql);
 
             return { 
                 message: 'successfully deleted',
-                reqType: 'delete'
+                response,
+                reqType: 'delete',
+                shouldRedirect: isCurrentEntityProvider,
             };
         } catch (err) {
             return { message: 'error deleting', err };
