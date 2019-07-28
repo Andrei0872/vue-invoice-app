@@ -71,6 +71,7 @@ import VTableRead from '../components/VTableRead';
 import modalMixin from '../mixins/modalMixin';
 import commonMixin from '../mixins/commonMixin';
 import titleMixin from '../mixins/titleMixin';
+import documentUtilityMixin from '../mixins/documentUtilityMixin';
 
 const entityName = 'provider';
 
@@ -89,7 +90,7 @@ export default {
 
     components: { VContent, VModal, VTableCreate, VTableRead },
 
-    mixins: [modalMixin, commonMixin, titleMixin],
+    mixins: [modalMixin, commonMixin, titleMixin, documentUtilityMixin],
 
     data: () => ({
         readColumns: ['name', 'URC', 'inserted_date'],
@@ -145,17 +146,6 @@ export default {
 
         refetchHistory () {
             this.$store.dispatch('dashboard/fetchMainOverview', 'history', { root: true });
-        },
-
-        refetchDocuments () {
-            if (!this.$store.state['document'])
-                return;
-            
-            const endpoint = 'documents';
-            const entity = 'document';
-            const url = this.$store.state['mainUrl'] + endpoint;
-
-            this.$store.dispatch('api/makeGETRequest', { url, entity });
         },
 
         // TODO: add to common
