@@ -18,7 +18,12 @@ export const actions = {
             (product) => ({
                 ...product,
                 product_name: products.get(product.product_id).name,
-                isComestible: products.get(product.product_id).isComestible
+                /**
+                 * This will be used when computing values that depend on
+                 * `buy_price` and `markup`, such as `sell_price`, `product_vat`
+                 * and `sell_price_vat`
+                 */
+                isComestible: products.get(product.product_id).comestible
             })
         );
 

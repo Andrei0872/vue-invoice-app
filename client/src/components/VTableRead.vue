@@ -260,9 +260,8 @@ export default {
             row[fieldName] = val;
 
             if (fieldName === 'buy_price' || fieldName === 'markup') {
-                this.selectedRow['sell_price'] = row['sell_price'] = this.computeSellPrice(row, fieldName, val);
 
-                const sellPriceValue = parseFloat(this.computeSellPrice(row, fieldName, val)).toFixed(2);
+                const sellPriceValue = this.computeSellPrice(row, fieldName, val);
                 this.selectedRow['sell_price'] = row['sell_price'] = sellPriceValue;
 
                 const vat = this.$store.getters['dashboard/getCurrentVat'];
