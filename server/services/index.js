@@ -136,24 +136,21 @@ class Service {
                     on document_product.product_id = t.id
             `;
 
-            /**
-             * We're applying the `food_vat` value when the product is not comestible because
-             * this comestible value is not updated yet. 
-             * So we are referring to the next value
-             */
             additionalEndingQuery = `
                 ,document_product.product_vat = case 
-                    when t.comestible = 0 then
+                    when vals.new_comestible = 1 then
                         (@productVatFood:=document_product.sell_price * (select food_vat from vat) / 100)
-                    else
+                    when vals.new_comestible = 0 then
                         (@productVatNonFood:=document_product.sell_price * (select non_food_vat from vat) / 100)
-                    end,
+                    else document_product.product_vat
+                end,
                 document_product.sell_price_vat = case
-                    when t.comestible = 0 then
+                    when vals.new_comestible = 1 then
                         @productVatFood + document_product.sell_price
-                    else
+                    when vals.new_comestible = 0 then
                         @productVatNonFood + document_product.sell_price
-                    end
+                    else document_product.product_vat
+                end
             `;
         }
 
