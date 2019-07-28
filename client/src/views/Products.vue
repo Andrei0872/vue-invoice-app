@@ -71,6 +71,7 @@ import VTableRead from '../components/VTableRead';
 import modalMixin from '../mixins/modalMixin';
 import commonMixin from '../mixins/commonMixin';
 import titleMixin from '../mixins/titleMixin';
+import documentUtilityMixin from '../mixins/documentUtilityMixin';
 
 const entityName = 'product';
 
@@ -85,7 +86,7 @@ export default {
 
     components: { VContent, VModal, VTableCreate, VTableRead },
 
-    mixins: [modalMixin, commonMixin, titleMixin],
+    mixins: [modalMixin, commonMixin, titleMixin, documentUtilityMixin],
 
     data: () => ({
         createColumns: [
@@ -132,6 +133,15 @@ export default {
             const results =  await this.sendModifications();
             
             results.length && this.fetchItems();
+
+            const [firstReq, secondReq = {}] = results;
+
+            if (
+                this.$store.state['document'] && this.$store.state['document'].items.size
+                    && (firstReq.shouldReloadDocuments || secondReq.shouldReloadDocuments)
+            ) {
+                this.refetchDocuments();
+            }
 
             this.deletedItems.size && this.sendDeletedHistoryData();
             

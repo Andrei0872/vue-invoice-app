@@ -64,7 +64,6 @@ class Service {
         return response;
     }
 
-    
     /**
      * 
      *  
@@ -92,10 +91,11 @@ class Service {
 
     */
     async updateOne ([idsAndKVPairs, columnNames]) {
-        console.log(idsAndKVPairs, columnNames)
         const punctuation = [', ', ' '];
         const columnNamesLen = columnNames.length;
         
+        let areDocumentsAlteredBecauseOfProducts = false;
+
         let setValues = ``;
         let columnValues = ``;
         
@@ -124,12 +124,47 @@ class Service {
         }
 
         const tableName = this.table.currentTable;
+        let additionalMiddleQuery = ``;
+        let additionalEndingQuery = ``;
+
+        if (tableName === 'product' && columnValues.includes('comestible')) {
+            areDocumentsAlteredBecauseOfProducts = true;
+
+            // `t` is referring to the alias set to the table in question
+            additionalMiddleQuery = `
+                inner join document_product
+                    on document_product.product_id = t.id
+            `;
+
+            /**
+             * We're applying the `food_vat` value when the product is not comestible because
+             * this comestible value is not updated yet. 
+             * So we are referring to the next value
+             */
+            additionalEndingQuery = `
+                ,document_product.product_vat = case 
+                    when t.comestible = 0 then
+                        (@productVatFood:=document_product.sell_price * (select food_vat from vat) / 100)
+                    else
+                        (@productVatNonFood:=document_product.sell_price * (select non_food_vat from vat) / 100)
+                    end,
+                document_product.sell_price_vat = case
+                    when t.comestible = 0 then
+                        @productVatFood + document_product.sell_price
+                    else
+                        @productVatNonFood + document_product.sell_price
+                    end
+            `;
+        }
+
         const sql = `
             update ${tableName} t
             join (
                 ${columnValues}
             ) vals on vals.id = t.id
+            ${additionalMiddleQuery}
             set ${setValues}
+            ${additionalEndingQuery}
         `;
 
         console.log(sql)
@@ -141,6 +176,7 @@ class Service {
                 message: 'Successfully updated items!',
                 reqType: 'update',
                 shouldRedirect: tableName === 'provider',
+                ...areDocumentsAlteredBecauseOfProducts && { shouldReloadDocuments: true }
             };
         } catch (err) {
             console.error(err);
