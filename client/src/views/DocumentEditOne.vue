@@ -9,9 +9,13 @@
         />
 
         <div class="c-new">
-            <div @click="addCreatedProduct(createNewItem())" class="icon icon--add-row">
-                <font-awesome-icon icon="plus-circle" />
-            </div>
+            
+            <VButton 
+                @click="addCreatedProduct(createNewItem())" 
+                :disabled="!productsAsList.length"
+            >
+                <font-awesome-icon class="is-base-icon" icon="plus-circle" />
+            </VButton>
 
             <VTableCreate 
                 v-if="createdProducts.length"
@@ -103,7 +107,7 @@ export default {
     data: () => ({
         currentDocument: null,
         documentNeedsUpdate: false,
-
+        createdItemsObservee: 'singleDocument/getCreatedProductsAsArr',
         // Determine whether some products were deleted or not
         initialProductsLen: 0,
     }),
@@ -282,6 +286,7 @@ export default {
 
     beforeRouteLeave (to, from, next) {
         this.resetProducts();
+        this.resetCreatedProducts();
         this.resetDocumentData();
 
         next();
@@ -325,8 +330,11 @@ export default {
         // if singleDocument.currentDoc id !== this.currentDocumentId... 
         // || this.documentProducts.length === 0
         await this.fetchProductsByDocumentId(this.currentDocumentId);
-
+        
         this.initialProductsLen = this.documentProducts.length;
+        this.initialListItemsLen = this.productsAsList.length;
+
+        this.initCreatedItemsWatcher();
     },
 }
 </script>
@@ -368,6 +376,12 @@ export default {
             padding: .3rem;
             border: 1px solid #303753;
         }
+    }
+
+    .is-base-icon {
+        width: 2rem;
+        height: 2rem;
+        color: green;
     }
 
 </style>

@@ -8,7 +8,7 @@
                     || vat['food_vat'] === null 
                     || vat['non_food_vat'] === null
                 "
-            :disableCreateButton="disableCreateButton" 
+            :disableCreateButton="disableCreateButton"
             @insertCreatedItems="onInsertCreatedItems"
             :shouldDisplayConfirmCancelButtons="shouldDisplayConfirmCancelButtons"
             @confirmChanges="onConfirmChanges"
@@ -35,9 +35,9 @@
 
             <template v-slot:createItems>
                 <div class="l-flex">
-                    <div @click="addRow" class="icon icon--add-row">
-                        <font-awesome-icon icon="plus-circle" />
-                    </div>
+                    <VButton @click="addRow" :disabled="!productsAsList.length">
+                        <font-awesome-icon class="is-base-icon" icon="plus-circle" />
+                    </VButton>
                     <VSelect @addProvider="$store.commit('SET_PROVIDER', $event)" class="c-select" :items="providers" />
                     <VInput @blur.native="$store.commit('SET_PROVIDER_INVOICE_NR', $event.target.value)" placeholder="Invoice Nr" class="c-input" />
                     <VVat />
@@ -89,6 +89,7 @@ import VTableRead from '../components/VTableRead';
 import VSelect from '../components/VSelect';
 import VInput from '../components/VInput';
 import VVat from '../components/VVat';
+import VButton from '../components/VButton';
 
 import modalMixin from '../mixins/modalMixin';
 import commonMixin from '../mixins/commonMixin';
@@ -109,7 +110,7 @@ const { mapGetters: mapGettersProduct } = createNamespacedHelpers(productEntity)
 export default {
     name: 'documents',
 
-    components: { VContent, VModal, VTableCreate, VTableRead, VSelect, VInput, VVat },
+    components: { VContent, VModal, VTableCreate, VTableRead, VSelect, VInput, VVat, VButton },
 
     mixins: [modalMixin, commonMixin, documentMixin],
 
@@ -117,6 +118,7 @@ export default {
         errorMessage: null,
         isEverythingLoaded: false,
         entity: entityName,
+        createdItemsObservee: 'document/getCreatedItemsAsArr'
     }),
 
     methods: {
@@ -190,8 +192,6 @@ export default {
     computed: {
 
         chosenProducts () {
-            console.log('chosen products!')
-            
             const products = {};
 
             this.createdItems.forEach(item => {
@@ -232,7 +232,7 @@ export default {
 
         vat () {
            return this.$store.getters['dashboard/getCurrentVat']
-        }
+        },
     },
 
     beforeRouteLeave (to, from, next) {
@@ -275,6 +275,10 @@ export default {
 
         await Promise.all(promises);
 
+        this.initialListItemsLen = this.productsAsList.length;
+
+        this.initCreatedItemsWatcher();
+
         this.isEverythingLoaded = true;
     },
 }
@@ -287,6 +291,8 @@ export default {
     @import '../styles/modal.scss';
 
     .l-flex {
+        margin-top: 2rem;
+        margin-left: 2rem;
         display: flex;
         justify-content: flex-start;
         align-items: flex-end;
@@ -305,6 +311,12 @@ export default {
             margin-left: 5rem;
             padding: .3rem;
             border: 1px solid #303753;
+        }
+
+        .is-base-icon {
+            width: 2rem;
+            height: 2rem;
+            color: green;
         }
     }
 </style>
