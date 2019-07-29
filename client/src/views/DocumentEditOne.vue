@@ -234,33 +234,48 @@ export default {
                     ...provider_name && { provider_name: this.currentDocument.provider_name },
                 };
                 
-                await this.updateDocument({
+                const response = await this.updateDocument({
                     docId: this.currentDocument.id,
                     ...provider_id && { provider_id },
                     newDocumentData,
                     oldDocumentData,
                 });
+
+                this.openModalBox(response.message);
             }
 
             if (this.initialProductsLen !== this.documentProducts.length) {
                 this.documentNeedsUpdate = true;
                 
                 const deleteResponse = await this.sendDeletedProducts(this.currentDocumentId);
-                console.log('deleteResponse', deleteResponse)
+
+                if (deleteResponse.message) {
+                    this.openModalBox(deleteResponse.message);
+                }
+
+                if (deleteResponse.shouldDeletedDoc) {
+                    this.openModalBox('Document has been deleted because its provider has been removed');
+                }
             }
 
             if (this.updatedProducts.size) {
                 this.documentNeedsUpdate = true;
 
                 const updateResponse = await this.sendUpdatedProducts();
-                console.log('updateResponse', updateResponse)
+                
+                if (updateResponse.message) {
+                    this.openModalBox(updateResponse.message);
+                }
             }
 
             if (this.createdProducts.length) {
                 this.documentNeedsUpdate = true;
 
                 const createResponse = await this.sendCreatedProducts(this.currentDocumentId);
-                console.log('createResponse', createResponse);
+                
+                if (createResponse.message) {
+                    this.openModalBox(createResponse.message);
+                }
             }
             
             const documentHasNoProducts = this.documentProducts.length + this.createdProducts.length === 0;

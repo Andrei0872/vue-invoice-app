@@ -1,0 +1,19 @@
+.h-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  height: 1rem;
+  width: 1rem;
+  padding: .6rem;
+  border-radius: 50%;
+  transform: translateY(-20%);
+  
+  svg {
+    color: red;
+  }
+
+  &:hover {
+    background-color: #ccc;
+  }
+}

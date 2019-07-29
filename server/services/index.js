@@ -20,13 +20,14 @@ class Service {
             params = params.map(row => ({ ...row, expiration_date: row['expiration_date'] !== '' ? row['expiration_date'] : null }))
 
         try {
-
             const keys = Object.keys((paramsIsArr ? params[0] : params)).join(', ');
             const values = paramsIsArr ? params.map(Object.values) : [Object.values(params)];
             
             const resp = await this.table.insertOne(keys, values);
+            const tableName = this.table.currentTable;
+
             response = {
-                message: `Inserted into ${this.tableName} successfully`,
+                message: `${tableName}${values.length > 1 ? 's have' : ' has'} been added successfully`,
                 status: 200,
                 data: resp,
                 reqType: 'insert'
@@ -94,6 +95,7 @@ class Service {
         const punctuation = [', ', ' '];
         const columnNamesLen = columnNames.length;
         
+        let updatedRows = 0;
         let areDocumentsAlteredBecauseOfProducts = false;
 
         let setValues = ``;
@@ -111,6 +113,8 @@ class Service {
         columnValues += `null as id`;
         
         for (const id in idsAndKVPairs) {
+            updatedRows++;
+
             const KVPair = idsAndKVPairs[id];
 
             columnValues += ` union all `;
@@ -170,7 +174,7 @@ class Service {
             await this.table._promisify(sql);
 
             return { 
-                message: 'Successfully updated items!',
+                message: `${tableName}${updatedRows > 1 ? 's' : ''} successfully updated`,
                 reqType: 'update',
                 shouldRedirect: tableName === 'provider',
                 ...areDocumentsAlteredBecauseOfProducts && { shouldReloadDocuments: true }
@@ -209,10 +213,11 @@ class Service {
         }
 
         try {
+            const tableName = this.table.currentTable;
             const response = await this.table._promisify(sql);
 
             return { 
-                message: 'successfully deleted',
+                message: `${tableName}${deletedItemsIds.length > 1 ? 's' : ''} successfully deleted`,
                 response,
                 reqType: 'delete',
                 shouldRedirect: isCurrentEntityProvider,

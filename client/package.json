@@ -1,6 +1,6 @@
 {
   "name": "invoice-app-fe",
-  "version": "2.0.0",
+  "version": "2.1.1",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

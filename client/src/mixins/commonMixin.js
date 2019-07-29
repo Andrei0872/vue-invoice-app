@@ -136,6 +136,10 @@ export default {
                     || { current_state: JSON.stringify(this.createdItemsAsArrWithoutIds) },
             });
         },
+
+        openModalBox (title) {
+            this.$root.$emit('activateModalBox', title);
+        },
     },
 
     computed: {

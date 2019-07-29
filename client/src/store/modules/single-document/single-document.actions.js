@@ -198,7 +198,7 @@ export const actions = {
 
         dispatch('resetDeletedProducts');
 
-        return response;
+        return { ...response, shouldDeletedDoc };
     },
 
     updateDocument: async (
@@ -219,8 +219,6 @@ export const actions = {
 
         const response = await dispatch('api/makeRequest', { url, config }, { root: true })
 
-        console.log(response)
-
         const currentState = JSON.stringify({
             [docId]: {
                 from: oldDocumentData,
@@ -235,6 +233,8 @@ export const actions = {
             action_type: 'update',
             current_state: currentState
         }, { root: true });
+
+        return response;
     },
 
     // setAlreadyFetched: ({ commit }, payload) => commit('SET_ALREADY_FETCHED', payload),

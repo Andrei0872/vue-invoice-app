@@ -35,7 +35,7 @@ class DocumentService extends mainService {
             await this.insertProductsOnly(lastInsertId, items)
 
             return {
-                message: 'success',
+                message: 'Document successfully inserted',
                 reqType: 'insert'
             }
         } catch (err) {
@@ -58,7 +58,7 @@ class DocumentService extends mainService {
             );
 
             return { 
-                message: 'successfully inserted products in a document',
+                message: `Successfully inserted ${items.length > 1 ? 'products' : 'a product'} in a document`,
                 reqType: 'insert'
             };
 
@@ -180,7 +180,7 @@ class DocumentService extends mainService {
             await this.table._promisify(sql);
 
             return { 
-                message: 'Successfully updated!',
+                message: 'Successfully updated products in document!',
                 reqType: 'update'
             };
         } catch {
@@ -199,11 +199,11 @@ class DocumentService extends mainService {
         try {
             await this.table._promisify(sql);
 
-            return { message: 'Successfully deleted products!!' }
+            return { message: `Successfully deleted ${ids.length > 1 ? 'products' : 'a product'}!` }
         } catch (err) {
             console.error(err);
 
-            return { message: 'Error deleting products!!' }
+            return { message: 'Error deleting products!' }
         } finally {
             if (shouldDeleteDoc) {
                 this.table._promisify(`

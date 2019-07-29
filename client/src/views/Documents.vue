@@ -106,6 +106,7 @@ const { mapState, mapActions, mapGetters } = createNamespacedHelpers(entityName)
 const { mapGetters: mapGettersProvider } = createNamespacedHelpers(providerEntity);
 const { mapGetters: mapGettersProduct } = createNamespacedHelpers(productEntity);
 
+import { capitalize } from '@/utils/';
 
 export default {
     name: 'documents',
@@ -162,7 +163,8 @@ export default {
         },
 
         async onInsertCreatedItems () {
-            await this.insertCreatedItems();
+            const response = await this.insertCreatedItems();
+            this.openModalBox(capitalize(response.message));
 
             this.sendCreatedHistoryData(this.prepareCreatedItemsForHistory());
 
@@ -175,6 +177,16 @@ export default {
             const results =  await this.sendModifications();
 
             results.length && this.fetchItems();
+
+            /**
+             * Documents can only be deleted from this view
+             * They can be edited(editing their data/products) in `DocumentEditOne` view
+             */
+            const [deleteReq] = results;
+
+            if (deleteReq.message) {
+                this.openModalBox(capitalize(deleteReq.message));
+            }
 
             this.deletedItems.size && this.sendDeletedHistoryData();
 
