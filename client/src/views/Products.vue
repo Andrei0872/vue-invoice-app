@@ -79,6 +79,8 @@ import { createNamespacedHelpers } from 'vuex';
 import * as common from '@/store/modules/common';
 const { mapState, mapActions, mapGetters } = createNamespacedHelpers(entityName)
 
+import { capitalize } from '@/utils/';
+
 export default {
     name: 'products',
 
@@ -120,7 +122,8 @@ export default {
         ]),
 
         async onInsertCreatedItems () {
-            await this.insertCreatedItems();
+            const response = await this.insertCreatedItems();
+            this.openModalBox(capitalize(response.message));
 
             this.fetchItems();
 
@@ -135,6 +138,14 @@ export default {
             results.length && this.fetchItems();
 
             const [firstReq, secondReq = {}] = results;
+
+            if (firstReq.message) {
+                this.openModalBox(capitalize(firstReq.message));
+            }
+
+            if (secondReq.message) {
+                this.openModalBox(capitalize(secondReq.message));
+            }
 
             if (
                 this.$store.state['document'] && this.$store.state['document'].items.size
