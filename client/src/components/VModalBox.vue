@@ -1,9 +1,4 @@
 <script>
-
-const beforeDetroy = () => {
-    console.log('beforeDetroy');
-}
-
 export default {
     functional: true,
     
@@ -21,18 +16,25 @@ export default {
         currentIndex: Number,
 
         closeModal: Function,
+
+        timeoutId: Number,
     },
 
     render (h, { props, scopedSlots }) {
         const modalBoxAttrs = { ...props.currentIndex > 0 && { style: { 'top': `${props.currentIndex * 6}rem` } } };
-        const onModalClose = props.closeModal;
+        const closeModal = () => {
+            props.closeModal(props.title);
+
+            // Cancel the pending timer
+            clearTimeout(props.timeoutId);
+        };
 
         const modalTitle = <div class="c-modal-box__title" key={props.title}>{props.title}</div>
 
         const defaultModalContent = (
             <div 
                 class="h-icon-wrapper"
-                onClick={onModalClose.bind(null, props.title)}
+                onClick={closeModal.bind(null, props.title)}
             >
             <font-awesome-icon icon="times" />
           </div>
@@ -48,8 +50,10 @@ export default {
             </div>
         );
 
+        props.timeoutId = setTimeout(() => { closeModal() }, 2500);
+
         const modalBox = (
-            <transition onBeforeLeave={beforeDetroy} name="slide-up" appear>
+            <transition name="slide-up" appear>
                 {
                     props.shouldDisplayModal
                         ? <div {...modalBoxAttrs} class="c-modal-box">{modalTitle}{modalContent}</div>
