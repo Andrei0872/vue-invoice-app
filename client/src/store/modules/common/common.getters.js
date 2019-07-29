@@ -3,7 +3,12 @@ import { convertMapToArr } from '@/utils/';
 export const getters = {
     getItemsAsArr: state => 
         state.itemsTracker 
-            && convertMapToArr(state.items, 'id', state.deletedItems.size ? state.deletedItems : null),
+            && convertMapToArr(
+                state.items, 
+                'id', 
+                state.deletedItems.size ? state.deletedItems : null,
+                state.updatedItems
+            ),
 
     getCreatedItemsAsArr: state => state.createdItemsTracker && convertMapToArr(state.createdItems, 'id'),
 
