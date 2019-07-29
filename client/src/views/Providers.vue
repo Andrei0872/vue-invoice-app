@@ -81,7 +81,7 @@ import { createNamespacedHelpers, mapMutations } from 'vuex';
 import * as common from '@/store/modules/common';
 const { mapActions, mapGetters } = createNamespacedHelpers(entityName)
 
-import { canJoinMapsBasedOnProp } from '@/utils/';
+import { canJoinMapsBasedOnProp, capitalize } from '@/utils/';
 
 export default {
     name: 'providers',
@@ -120,6 +120,14 @@ export default {
                 
                 const [firstReq, secondReq = {}] = results;
 
+                if (firstReq.actionMessage) {
+                    this.openModalBox(capitalize(firstReq.actionMessage.message));
+                }
+
+                if (secondReq.actionMessage) {
+                    this.openModalBox(capitalize(secondReq.actionMessage.message));
+                }
+
                 if (firstReq.shouldReloadHistoryAndDocuments || secondReq.shouldReloadHistoryAndDocuments) {
                     this.refetchDocuments();
                     this.refetchHistory();
@@ -150,7 +158,8 @@ export default {
 
         // TODO: add to common
         async onInsertCreatedItems () {
-            await this.insertCreatedItems();
+            const response = await this.insertCreatedItems();
+            this.openModalBox(capitalize(response.message));
 
             this.$store.dispatch('api/makeGETRequest', { url: this.backendUrl, entity: this.entity });
 
