@@ -191,7 +191,7 @@ class Service {
         let sql = ``;
         const tableName = this.table.currentTable;
         const isCurrentEntityProvider = tableName === 'provider';
-
+        const isCurrentEntityProduct = tableName === 'product';
         if (isCurrentEntityProvider) {
             /**
              * Using left join so a provider is still deleted
@@ -202,6 +202,14 @@ class Service {
                 from provider p
                 left join document d
                 on p.id = d.provider_id
+                where p.id in (${deletedItemsIds.join(', ')})
+            `;
+        } else if (isCurrentEntityProduct) {
+            sql = `
+                delete p, dp
+                from product p
+                left join document_product dp
+                on p.id = dp.product_id
                 where p.id in (${deletedItemsIds.join(', ')})
             `;
         } else {
@@ -216,11 +224,19 @@ class Service {
             const tableName = this.table.currentTable;
             const response = await this.table._promisify(sql);
 
+            console.log(response)
+
             return { 
                 message: `${tableName}${deletedItemsIds.length > 1 ? 's' : ''} successfully deleted`,
                 response,
                 reqType: 'delete',
                 shouldRedirect: isCurrentEntityProvider,
+
+                /**
+                 * If the condition `response.affectedRows > deletedItemsIds.length` evaluates to true
+                 * it means that rows from `document_product` have also been deleted.
+                 */
+                shouldReloadDocuments: isCurrentEntityProduct && response.affectedRows > deletedItemsIds.length
             };
         } catch (err) {
             return { message: 'error deleting', err };

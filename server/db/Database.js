@@ -39,6 +39,7 @@ class Database {
     async _initTablesAndProcedures () {
         await this._createTables();
         await this._addDefaultValues();
+        await this._initTrigger();
         await this._initProcedure();
     }
 
@@ -74,6 +75,23 @@ class Database {
                 resolve(data)
             })
         })
+    }
+
+    async _initTrigger () {
+        await this._promisify('drop trigger if exists delete_document_if_it_has_no_products');
+
+        await this._promisify(
+            `   
+                create trigger delete_document_if_it_has_no_products after delete on document_product 
+                for each row 
+                begin 
+                    if (select count(*) from document_product dp where dp.document_id = (@docId:=old.document_id) ) = 0 
+                    then 
+                        delete from document d where d.id = @docId; 
+                    end if; 
+                end;
+            `
+        );    
     }
 
     async _initProcedure () {
