@@ -21,6 +21,17 @@ Keeping track of goods sent and services provided should be a computer's job.
 <img width="950" height="550" src="./screenshots/inside-doc.png">
 </div>
 
+## Features
+
+* **CRUD on**
+    - products
+    - documents
+    - providers
+
+* Keep track of the actions performed throughout the application
+
+* Generate invoice from documents in **PDF**/**Excel** format
+
 ## Getting Started
 ```bash
 git clone https://github.com/Andrei0872/invoice-app.git
