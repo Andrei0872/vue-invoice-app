@@ -50,7 +50,8 @@ export default {
         }
 
         const config = { headers: new Headers({
-            'Content-Type': 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': this.$store.state.user.currentUser.token
             }), 
             method: "POST",
             body: JSON.stringify(body)

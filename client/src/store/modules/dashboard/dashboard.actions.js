@@ -1,7 +1,7 @@
 export const actions = {
     fetchMainOverview: async ({ dispatch, commit, getters, rootGetters }, endpoint = null) => {
         const mainUrl = rootGetters['api/mainURL'];
-        const reqConfig = { ...rootGetters['api/headers'], method: "GET"};
+        const reqConfig = { ...rootGetters['api/config'], method: "GET"};
         const endpoints = getters.getEndpoints;
 
         if (endpoint === null) {

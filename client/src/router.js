@@ -34,12 +34,27 @@ const router = new Router({
     ], undefined, 'AuthAfter'),
 
     // Show PDF
-    loadComp('/pdf/:id(\\d+)', null, 'file', 'File')
+    loadComp('/pdf/:id(\\d+)', null, 'file', 'File'),
+    loadComp('/auth', null, 'auth'),
+    {
+      path: '**',
+      beforeEnter: (to, from, next) => {
+        if (!store.state.user.currentUser) {
+          return next('/auth');
+        }
+
+        return next('/');
+      }
+    }
   ]
 })
 
 const entities = ["documents", "products", "providers"];
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from, next) => {  
+  if (to.name !== 'auth' && !store.state.user.currentUser) {
+    return next('/auth');
+  }
+
   entities.includes(to.name) && store.dispatch('changeEntity', to.name)
   
   next();

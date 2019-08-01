@@ -19,6 +19,7 @@ export const fetchExcelFile = async function (url, id) {
     const config = {
         headers: new Headers({
            'Content-type': 'application/json',
+           'x-access-token': this.$store.state.user.currentUser.token
         }),
        method: "POST",
        body: JSON.stringify({
