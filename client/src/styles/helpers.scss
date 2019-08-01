@@ -17,3 +17,14 @@
     background-color: #ccc;
   }
 }
+
+.h-perfectly-centerd {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.h-fullscreen {
+  height: 100%;
+  width: 100%;
+}
