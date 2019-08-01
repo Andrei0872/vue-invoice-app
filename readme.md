@@ -5,6 +5,12 @@ Keeping track of goods sent and services provided should be a computer's job.
 
 ## [Demo](https://www.youtube.com/watch?v=BpFPk3wXWZk&t=4s)
 
+## UML
+
+<div style="text-align: center;">
+<img width="950" height="550" src="./screenshots/uml.jpg">
+</div>
+
 ## Screenshots
 
 <div style="text-align: center;">
