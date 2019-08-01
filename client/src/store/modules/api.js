@@ -1,9 +1,10 @@
 export const namespaced = true;
 
 export const getters = {
-    config: () => ({
+    config: (state, getters, rootState) => ({
         headers: new Headers({
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'x-access-token': rootState.user.currentUser ? rootState.user.currentUser.token : '',
         }),
         method: "POST"
     }),
@@ -32,7 +33,7 @@ export const actions = {
         }
     },
 
-    makeGETRequest: async ({ dispatch }, { url, entity = null }) => {
+    makeGETRequest: async ({ dispatch, getters }, { url, entity = null }) => {
         try {
             // !(avoidChangingState) && commit('CHANGE_STATE', 'pending', { root: true });
 
@@ -71,6 +72,7 @@ export const actions = {
             return await dispatch('makeRequest', { url, config });
         } catch (err) {
             console.error(err)
+            return { err };
         }
     },
 
