@@ -52,6 +52,15 @@ cd client/ && npm run serve
 cd server/ && npm run dev
 ```
 
+## Behind the scenes
+
+### A common pattern for *provider*, *product* and *document* entities.
+All the above mentioned entities rely on a single piece of logic([a vuex module](https://github.com/Andrei0872/vue-invoice-app/blob/master/client/src/store/modules/common/index.js) + common methods found in a [mixin](https://github.com/Andrei0872/vue-invoice-app/blob/master/client/src/mixins/commonMixin.js)) that it's been written once
+and used multiple times.
+
+### History
+[Here](https://dev.to/anduser96/vue-js-sharing-data-between-components-with-vue-observable-2lc) you can read more about the technique I've used to implement such feature.
+
 ## App structure 
 ```
 .
