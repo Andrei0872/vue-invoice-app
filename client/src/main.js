@@ -23,13 +23,14 @@ import {
   faMinus,
   faFilePdf,
   faFileExcel,
+  faSignOutAlt,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // Add icons to the library
 library.add(
   faIndustry, faCartPlus, faCog, faFile, faTachometerAlt, faTimes, faArrowRight, faPlusCircle, faMinusCircle, 
-  faPencilAlt, faCheck, faClipboardList, faArrowLeft, faPlus, faMinus, faFilePdf, faFileExcel,
+  faPencilAlt, faCheck, faClipboardList, faArrowLeft, faPlus, faMinus, faFilePdf, faFileExcel, faSignOutAlt
 );
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);

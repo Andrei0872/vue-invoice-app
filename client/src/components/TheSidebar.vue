@@ -2,7 +2,7 @@
     <div class="l-sidebar">
         <div class="l-sidebar__avatar">
             <div class="l-sidebar__avatar--image"></div>
-            <div class="l-sidebar__avatar--name">Gatej Andrei</div>
+            <div class="l-sidebar__avatar--name">{{ $store.state.user.currentUser.email }}</div>
         </div>
         <div class="l-sidebar__links">
             <ul class="c-list">
@@ -23,6 +23,9 @@
                 </router-link>
             </ul>
         </div>
+        <div class="l-sidebar__logout">
+            <font-awesome-icon @click="logout()" icon="sign-out-alt" />
+        </div>
     </div>
 </template>
 
@@ -39,6 +42,11 @@ export default {
         isActive (input) {
             return this.$route.matched.some(({ path }) => path.includes(input)) 
                 && input !== '/'
+        },
+
+        logout () {
+            this.$store.dispatch('user/logout');
+            this.$router.push('/auth');
         }
     }
 }
@@ -85,6 +93,18 @@ export default {
         display: flex;
         flex-flow: column wrap;
         justify-content: center;
+    }
+
+    &__logout {
+        display: flex;
+        justify-content: center;
+        height: 3rem;
+    
+        svg {
+            color: #fff;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
     }
 }
 

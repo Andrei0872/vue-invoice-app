@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import * as api from './modules/api';
 import * as singleDocument from './modules/single-document/';
 import * as dashboard from './modules/dashboard/';
+import * as user from './modules/user/';
 
 Vue.use(Vuex)
 
@@ -60,7 +61,8 @@ const store = new Vuex.Store({
     modules: {
         api,
         singleDocument,
-        dashboard
+        dashboard,
+        user,
     }
 });
 
