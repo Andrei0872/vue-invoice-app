@@ -168,6 +168,7 @@ export default {
 
             this.sendCreatedHistoryData(this.prepareCreatedItemsForHistory());
 
+            this.refetchMainOverview();
             await this.fetchItems();
         },
 
@@ -187,8 +188,11 @@ export default {
             if (deleteReq.message) {
                 this.openModalBox(capitalize(deleteReq.message));
             }
-
-            this.deletedItems.size && this.sendDeletedHistoryData();
+ 
+            if (this.deletedItems.size) {
+                this.sendDeletedHistoryData();
+                this.refetchMainOverview();
+            }
 
             this.resetCUDItems();
         },

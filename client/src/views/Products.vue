@@ -128,6 +128,7 @@ export default {
             this.fetchItems();
 
             this.sendCreatedHistoryData();
+            this.refetchMainOverview();
         },
 
         async onConfirmChanges () {
@@ -153,8 +154,11 @@ export default {
             ) {
                 this.refetchDocuments();
             }
-
-            this.deletedItems.size && this.sendDeletedHistoryData();
+ 
+            if (this.deletedItems.size) {
+                this.sendDeletedHistoryData();
+                this.refetchMainOverview();
+            }
             
             this.updatedItemsMap.size && this.sendUpdatedHistoryData();
 
