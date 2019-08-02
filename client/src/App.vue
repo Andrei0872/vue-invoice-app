@@ -54,5 +54,6 @@ export default {
 .c-main {
   height: 100%;
   position: relative;
+  overflow-x: hidden;
 }
 </style>

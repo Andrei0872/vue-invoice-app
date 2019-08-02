@@ -64,6 +64,9 @@ export default {
     display: flex;
     flex-direction: column;
 
+    position: fixed;
+    width: 16.5rem;
+
     &__avatar {
         border: none;
         flex-basis: 12%;
@@ -115,9 +118,9 @@ export default {
     margin-top: -80%;
     list-style: none;
 
-    @media only screen and (max-width: 1150px) {
-        margin-top: -175%;
-    }
+    // @media only screen and (max-width: 1150px) {
+    //     margin-top: -175%;
+    // }
 
     &__wrapper {
         &:not(:last-child) {
