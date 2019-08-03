@@ -10,7 +10,7 @@
             <div>History</div>
             
             <div 
-              :class="{'c-card__arrow': 1, 'disabled': historyPageIndex + 1 === historyPages}" 
+              :class="{'c-card__arrow': 1, 'disabled': historyPageIndex + 1 === historyPages || historyPages === 0}" 
               @click="historyPageIndex + 1 < historyPages ? historyPageIndex++ : null">
                 <font-awesome-icon icon="arrow-right" />
             </div>
