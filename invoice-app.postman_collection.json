@@ -1,0 +1,253 @@
+{
+	"info": {
+		"_postman_id": "58b82d21-9872-46d5-a5fe-06bc456dfbcb",
+		"name": "invoice-app",
+		"description": "# Introduction\nWhat does your API do?\n\n# Overview\nThings that the developers should know about\n\n# Authentication\nWhat is the preferred way of using the API?\n\n# Error Codes\nWhat errors and status codes can a user expect?\n\n# Rate limit\nIs there a limit to the number of requests an user can send?",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "provider",
+			"item": [
+				{
+					"name": "delete providers",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"deletedItemsIds\": [56]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/providers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"providers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add provider",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n\t{\"id\":\"449a3350-a0b2-11e9-a927-83d183c17e58\",\"name\":\"dummyProvider13\",\"URC\":\"12345\"}\n]"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/providers/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"providers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get providers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "eyJhbGciOiJIUzI1NaiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiaWF0IjoxNTY0NjkyNTQxLCJleHAiOjE1NjQ2OTk3NDF9.5_CQqfBTvFv9wS4PLUl4yeo0X8qOM42Eh685hLzwfAw",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/providers/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"providers",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "product",
+			"item": [
+				{
+					"name": "add product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": " [{\n \t\"id\":\"95652f10-a0b2-11e9-9017-31505d91e6e0\",\n \t\"name\":\"dummyProduct\",\n \t\"category\":\"cat\",\n \t\"sub_category\":\"subcat\",\n \t\"comestible\":\"1\",\n \t\"expiration_date\":\"2019-04-19\"\n }]\n"
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "document",
+			"item": [
+				{
+					"name": "add document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"items\":[{\n\t\"id\":\"06b95470-a0b3-11e9-b3be-d1daeff878ad\",\n\t\"product_name\":{\"id\":25,\"name\":\"dummyProduct\",\"isComestible\":1},\n\t\"quantity\":\"10\",\n\t\"quantity_type\":\"kg\",\n\t\"buy_price\":\"123\",\n\t\"markup\":\"12\",\n\t\"sell_price\":\"137.76\",\n\t\"product_vat\":\"12.40\",\n\t\"sell_price_vat\":\"150.16\",\"currency\":\"$\"\n\t}],\n\"provider\":{\"id\":133,\"name\":\"dummyProvider\",\"URC\":12345,\"inserted_date\":\"2019-07-07T12:27:16.000Z\"}\n}\n"
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/documents/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"documents",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get products by doc id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get one document",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "register user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

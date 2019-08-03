@@ -136,6 +136,7 @@ export default {
 
             if (this.deletedItems.size) {
                 this.sendDeletedHistoryData();
+                this.refetchMainOverview();
             }
 
             if (this.updatedItemsMap.size) {
@@ -164,6 +165,7 @@ export default {
             this.$store.dispatch('api/makeGETRequest', { url: this.backendUrl, entity: this.entity });
 
             this.sendCreatedHistoryData();
+            this.refetchMainOverview();
         }
     },
 

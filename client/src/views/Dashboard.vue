@@ -151,7 +151,15 @@ export default {
 
       await this.updateDocVat([type, value]);
 
-      this.vatHistoryMessage = `Update ${type} from ${this.initialVat[type] === null ? "'Not Specified'" : this.initialVat[type]} to ${this.vatData[type]}`
+      // this.vatHistoryMessage = `Update ${type} from ${this.initialVat[type] === null ? "'Not Specified'" : this.initialVat[type]} to ${this.vatData[type]}`
+
+      const message = `Update ${type} from ${this.initialVat[type] === null ? "'Not Specified'" : this.initialVat[type]} to ${this.vatData[type]}`;
+
+      this.insertHistoryRow({ 
+        entity: currentEntity, 
+        message, 
+        action_type: 'update' 
+      });
 
       this.shouldUpdateDocument = true;
     },
@@ -178,7 +186,7 @@ export default {
   async beforeRouteLeave (to, from, next) {
     
     if (this.shouldUpdateDocument) {
-      this.insertHistoryRow({ entity: currentEntity, message: this.vatHistoryMessage, action_type: 'update' });
+      // this.insertHistoryRow({ entity: currentEntity, message: this.vatHistoryMessage, action_type: 'update' });
 
       this.$store.dispatch('api/makeGETRequest', {
         url: this.$store.state['mainUrl'] + 'documents',

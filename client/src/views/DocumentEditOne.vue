@@ -262,6 +262,8 @@ export default {
                 this.documentNeedsUpdate = true;
 
                 const updateResponse = await this.sendUpdatedProducts();
+
+                this.refetchMainOverview();
                 
                 if (updateResponse.message) {
                     this.openModalBox(updateResponse.message);

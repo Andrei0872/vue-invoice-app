@@ -140,6 +140,10 @@ export default {
         openModalBox (title) {
             this.$root.$emit('activateModalBox', title);
         },
+
+        refetchMainOverview () {
+            this.$store.dispatch('dashboard/fetchMainOverview', 'dashboard/overview', { root: true });
+        },
     },
 
     computed: {
