@@ -249,6 +249,8 @@ export default {
                 
                 const deleteResponse = await this.sendDeletedProducts(this.currentDocumentId);
 
+                this.refetchMainOverview();
+
                 if (deleteResponse.message) {
                     this.openModalBox(deleteResponse.message);
                 }
@@ -275,6 +277,8 @@ export default {
 
                 const createResponse = await this.sendCreatedProducts(this.currentDocumentId);
                 
+                this.refetchMainOverview();
+
                 if (createResponse.message) {
                     this.openModalBox(createResponse.message);
                 }
