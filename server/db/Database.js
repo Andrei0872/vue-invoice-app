@@ -1,5 +1,5 @@
 const path = require('path');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 const debug = require('debug')('db:Database');
 
@@ -17,9 +17,12 @@ class Database {
         Database.prototype.isConnecting = true;
         debug('connecting to db')
         this.connection = mysql.createConnection({
+            // This is set in the `docker-compose.yml` file.
             host: process.env.DB_HOST,
-            user: process.env.DB_USERNAME,
-            password: process.env.DB_PASSWORD,
+            // user: process.env.DB_USERNAME,
+            user: 'root',
+            // password: process.env.DB_PASSWORD,
+            password: process.env.DB_ROOT_PASSWORD,
             database: process.env.DB_NAME
         });
         
@@ -70,8 +73,9 @@ class Database {
     _promisifyConn () {
         return new Promise((resolve, reject) => {
             this.connection.connect((err, data) => {
-                if (err) reject(err)
+                if (err) reject(err);
 
+                debug('Connection established');
                 resolve(data)
             })
         })
