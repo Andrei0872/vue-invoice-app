@@ -1,0 +1,71 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    restart: on-failure
+    volumes:
+      - database_invoice_dev:/var/lib/mysql
+    networks:
+      - invoice_dev
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 8070:80
+    environment:
+      PMA_HOST: db
+      PMA_USER: "${DB_USERNAME}"
+      PMA_PASSWORD: "${DB_PASSWORD}"
+    networks:
+      - invoice_dev
+
+  server:
+    build:
+      context: ./server/
+      dockerfile: .docker/Dockerfile.dev
+    environment:
+      NODE_ENV: development
+      DB_HOST: 'db'
+    volumes:
+      - $PWD/server:/app
+      # Don't want to use the `node_modules` from the working tree,
+      # but the one which has been created in the container, due to
+      # `npm i`.
+      - /app/node_modules
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+    - invoice_dev
+
+  client:
+    build:
+      context: ./client
+      dockerfile: .docker/Dockerfile.dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - $PWD/client:/app
+      - /app/node_modules
+    ports:
+      - "8080:8080"
+    command: npm run serve
+    depends_on:
+      - server
+    networks:
+      - invoice_dev
+
+volumes:
+  database_invoice_dev:
+
+networks:
+  invoice_dev:
