@@ -4,7 +4,8 @@
   "description": "Invoice app",
   "main": "app.js",
   "scripts": {
-    "dev": "DEBUG='router, invoice-app, db:Product, db:Database, db:Provider, service' nodemon app.js"
+    "dev": "DEBUG='router, invoice-app, db:Product, db:Database, db:Provider, service' nodemon app.js",
+    "prod": "node app.js"
   },
   "keywords": [
     "invoice",
