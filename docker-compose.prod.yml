@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    restart: always
+    volumes:
+      - database_invoide_prod:/var/lib/mysql
+    networks:
+      - invoice_prod
+
+  server:
+    restart: always
+    environment:
+      # It's important to specify this in order for the external packages
+      # to act accordingly(e.g. the `debug` package won't print as it does in DEV mode).
+      NODE_ENV: production
+      DB_HOST: 'db'
+    build:
+      context: ./server/
+      dockerfile: .docker/Dockerfile.prod
+      args:
+        GIT_COMMIT: git log -1 --format=%h
+    command: npm run prod
+    volumes:
+        - $PWD/server:/app
+        - /app/node_modules
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - invoice_prod
+
+volumes:
+  database_invoide_prod:
+
+networks:
+  invoice_prod:

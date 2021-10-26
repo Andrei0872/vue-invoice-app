@@ -1,5 +1,5 @@
 const debug = require('debug')('service')
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 class Service {
     constructor (name) {

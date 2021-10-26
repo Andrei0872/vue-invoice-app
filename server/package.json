@@ -4,7 +4,8 @@
   "description": "Invoice app",
   "main": "app.js",
   "scripts": {
-    "dev": "DEBUG='router, invoice-app, db:Product, db:Database, db:Provider, service' nodemon app.js"
+    "dev": "DEBUG='router, invoice-app, db:Product, db:Database, db:Provider, service' nodemon app.js",
+    "prod": "node app.js"
   },
   "keywords": [
     "invoice",
@@ -25,7 +26,7 @@
     "html-pdf": "^3.0.1",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.9.1",
-    "mysql": "^2.16.0",
+    "mysql2": "^2.3.0",
     "xlsx": "^0.17.2"
   },
   "devDependencies": {
