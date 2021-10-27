@@ -9,7 +9,7 @@ const app = express();
 debug('app initialized')
 
 const corsOptions = {
-    origin: 'http://localhost:8080'
+    origin: process.env.CLIENT_URL
 }
 
 app.use(morgan((tokens, req, res) => {
