@@ -16,7 +16,7 @@ const store = new Vuex.Store({
         currentEntity: null,
         selectedProvider: null,
         // FIXME: use the URL from api/getters
-        mainUrl: 'http://localhost:3000/api/'
+        mainUrl: `${process.env.VUE_APP_API_URL}/api/`
     },
 
     getters: {

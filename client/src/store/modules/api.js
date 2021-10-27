@@ -1,5 +1,7 @@
 export const namespaced = true;
 
+const API_URL = process.env.VUE_APP_API_URL;
+
 export const getters = {
     config: (state, getters, rootState) => ({
         headers: new Headers({
@@ -9,7 +11,7 @@ export const getters = {
         method: "POST"
     }),
 
-    mainURL: () => 'http://localhost:3000/api',
+    mainURL: () => `${API_URL}/api`,
     updateEndpoint: () => '/update',
     deleteEndpoint: () => '/delete'
 }
@@ -102,6 +104,7 @@ export const actions = {
     makeRequest: (_, { url, config }) => {
         return new Promise(async (resolve, reject) => {
             try {
+                debugger;
                 const initialResponse = await fetch(url, config);
 
                 if (!initialResponse.ok)
