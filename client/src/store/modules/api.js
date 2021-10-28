@@ -57,7 +57,6 @@ export const actions = {
     },
 
     makePOSTRequest: async ({ getters, rootState, dispatch },  { url, payload } ) => {
-
         if (rootState.selectedProvider) {
             payload = {
                 items: payload,
