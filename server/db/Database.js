@@ -16,7 +16,7 @@ class Database {
         // Avoid connecting multiple times while awaiting for the first connection to resolve
         Database.prototype.isConnecting = true;
         debug('connecting to db')
-        this.connection = mysql.createConnection({
+        this.pool = mysql.createPool({
             // This is set in the `docker-compose.yml` file.
             host: process.env.DB_HOST,
             // user: process.env.DB_USERNAME,
@@ -25,15 +25,19 @@ class Database {
             password: process.env.DB_ROOT_PASSWORD,
             database: process.env.DB_NAME
         });
+
+        this.pool.on('error', err => {
+            process.exit(1);
+        });
         
         try {
             this._initTables();
-            await this._promisifyConn();
+            await this._testConnection();
 
             !(await this._tablesExist()) && this._initTablesAndProcedures();
 
             Database.prototype.isConnecting = false;
-            Database.prototype.connection = this.connection;
+            Database.prototype.pool = this.pool;
         } catch (err) {
             console.error(err)
         }
@@ -70,14 +74,14 @@ class Database {
         })
     }
 
-    _promisifyConn () {
+    _testConnection () {
         return new Promise((resolve, reject) => {
-            this.connection.connect((err, data) => {
-                if (err) reject(err);
+            this.pool.query('SELECT 1 + 1 AS solution', (err, results) => {
+                if (err) return reject(err);
 
-                debug('Connection established');
-                resolve(data)
-            })
+                console.log('Connection successful.');
+                resolve();
+            });
         })
     }
 
@@ -208,13 +212,20 @@ class Database {
         params !== null && neededParams.push(params);
 
         return new Promise((resolve, reject) => {
-            this.connection.query(...neededParams, (err, data) => {
+            this.pool.getConnection((err, conn) => {
+                if (err) {
+                    return reject(err);
+                }
+
+                conn.query(...neededParams, (err, data) => {
                 if (err) {
                     console.log(err)
                     reject(err);
                 }
 
-                resolve(data)
+                conn.release();
+                resolve(data);
+            });
             });
         });
     }
