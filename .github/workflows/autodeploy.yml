@@ -45,12 +45,12 @@ jobs:
           # must be up to date.
           git merge HEAD origin/master
 
-          if [ clientExitCode == 0 ]; then
+          if [ $clientExitCode == 0 ]; then
               echo "Updating 'client'."
               npm run build
           fi
 
-          if [ serverExitCode == 0 ]; then
+          if [ $serverExitCode == 0 ]; then
               echo "Updating 'server'."
               docker-compose -f docker-compose.prod.yml --env-file ./server/.env -p "$(basename $(pwd))_PROD" restart server
           fi
