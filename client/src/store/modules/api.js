@@ -89,7 +89,6 @@ export const actions = {
     },
 
     makeDELETERequest: async ({ getters, dispatch, commit }, { url, payload }) => {
-
         const config = { 
             body: JSON.stringify(payload), 
             ...getters.config, 
