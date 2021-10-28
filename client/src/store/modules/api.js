@@ -88,7 +88,6 @@ export const actions = {
         return await dispatch('makeRequest', { url, config });
     },
 
-    // Might work without `async`, just returning the fn
     makeDELETERequest: async ({ getters, dispatch, commit }, { url, payload }) => {
 
         const config = { 
