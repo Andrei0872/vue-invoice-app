@@ -1,0 +1,45 @@
+name: Auto Deploy
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches:
+      - master
+    types: [closed]
+
+
+jobs:
+  deploy:
+#     if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: 'master'
+        fetch-depth: 1
+    - uses: appleboy/ssh-action@v0.1.4
+      with:
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        username: ${{ secrets.USERNAME }}
+        host: ${{ secrets.HOST }}
+        script: |
+          cd ${{ secrets.PROJECT_PATH }}
+
+          git fetch origin master
+
+          if ! git diff --quiet HEAD origin/master; then
+            echo "No changes from the upstream."
+            exit 0
+          fi
+
+          if git show --pretty=%gd --stat HEAD | grep -q client/; then
+              echo "client"
+          fi
+
+          if git show --pretty=%gd --stat HEAD | grep -q server/; then
+              echo "server"
+          fi
+
+
