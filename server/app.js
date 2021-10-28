@@ -6,7 +6,7 @@ const path = require('path')
 const morgan = require('morgan');
 
 const app = express();
-debug('app initialized');
+debug('app initialized')
 
 const corsOptions = {
     origin: process.env.CLIENT_URL
