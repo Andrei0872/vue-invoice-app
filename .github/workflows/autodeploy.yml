@@ -34,6 +34,9 @@ jobs:
             exit 0
           fi
 
+          # Make sure to also update the top of the `master` branch.
+          git merge HEAD origin/master
+
           if git diff --pretty=%gd --stat HEAD FETCH_HEAD | grep -q client/; then
               echo "Updating 'client'."
               npm run build -- &
@@ -43,9 +46,5 @@ jobs:
               echo "Updating 'server'."
               docker-compose -f docker-compose.prod.yml --env-file ./server/.env -p "$(basename $(pwd))_PROD" restart server
           fi
-
-          # After everything has been updated, make sure to also update
-          # the top of the `master` branch.
-          git merge HEAD origin/master
 
 
