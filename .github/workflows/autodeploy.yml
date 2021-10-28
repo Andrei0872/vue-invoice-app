@@ -47,7 +47,9 @@ jobs:
 
           if [ $clientExitCode == 0 ]; then
               echo "Updating 'client'."
+              cd client
               npm run build
+              cd ..
           fi
 
           if [ $serverExitCode == 0 ]; then
