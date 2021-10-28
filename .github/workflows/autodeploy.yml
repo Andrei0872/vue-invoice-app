@@ -29,17 +29,23 @@ jobs:
 
           git fetch origin master
 
-          if ! git diff --quiet HEAD origin/master; then
+          if [ $(git log --format="%H" HEAD -1) == $(git log --format="%H" FETCH_HEAD -1) ]; then
             echo "No changes from the upstream."
             exit 0
           fi
 
-          if git show --pretty=%gd --stat HEAD | grep -q client/; then
-              echo "client"
+          if git diff --pretty=%gd --stat HEAD FETCH_HEAD | grep -q client/; then
+              echo "Updating 'client'."
+              npm run build -- &
           fi
 
-          if git show --pretty=%gd --stat HEAD | grep -q server/; then
-              echo "server"
+          if git diff --pretty=%gd --stat HEAD FETCH_HEAD | grep -q server/; then
+              echo "Updating 'server'."
+              docker-compose -f docker-compose.prod.yml --env-file ./server/.env -p "$(basename $(pwd))_PROD" restart server
           fi
+
+          # After everything has been updated, make sure to also update
+          # the top of the `master` branch.
+          git merge HEAD origin/master
 
 
