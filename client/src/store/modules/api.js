@@ -14,7 +14,7 @@ export const getters = {
     mainURL: () => `${API_URL}/api`,
     updateEndpoint: () => '/update',
     deleteEndpoint: () => '/delete'
-};
+}
 
 export const actions = {
     FETCH_DATA: async ({ getters, rootState, dispatch, commit }, { avoidChangingState = false, anotherEntity = null } = {}) => {
