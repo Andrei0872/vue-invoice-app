@@ -95,7 +95,6 @@ export const actions = {
             method: "DELETE" 
         };
 
-
         return await dispatch('makeRequest', { url, config });
     },
 
