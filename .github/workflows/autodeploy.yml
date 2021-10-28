@@ -43,7 +43,7 @@ jobs:
           # Make sure to also update the top of the `master` branch.
           # When updating the client/server, the local `master` branch
           # must be up to date.
-          git merge HEAD origin/master
+          git reset --hard origin/master
 
           if [ $clientExitCode == 0 ]; then
               echo "Updating 'client'."
