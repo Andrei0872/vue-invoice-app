@@ -19,7 +19,7 @@ Keeping track of goods sent and services provided should be a computer's job.
 <img width="950" height="550" src="./screenshots/inside-doc.png">
 </div>
 
-## Features
+## Features 
 
 * **CRUD on**
     - products
