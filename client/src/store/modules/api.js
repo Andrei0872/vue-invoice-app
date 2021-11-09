@@ -161,6 +161,10 @@ export const actions = {
                         );
                         requestsToRemake.length = 0;
                     } catch {
+                        // If this point is reached, it means we have an error after making a call
+                        // to `/token`, in order to receive a new access token. In this situation,
+                        // we'd simply want to log out.
+                        dispatch('user/logout', undefined, { root: true });
                     }
                 } else if (isExchangingRequest) {
                     // For `/token` requests, we want to actually reject, so that we know it's time

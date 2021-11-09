@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import router from '@/router';
 
 import * as api from './modules/api';
 import * as singleDocument from './modules/single-document/';
@@ -65,5 +66,11 @@ const store = new Vuex.Store({
         user,
     }
 });
+
+store.subscribeAction(action => {
+    if (action.type === 'user/logout') {
+        router.push('/auth');
+    }
+})
 
 export default store;
