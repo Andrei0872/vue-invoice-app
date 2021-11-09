@@ -1,4 +1,5 @@
 const userService = require('../services/User.service');
+const { jwt } = require('../utils/index');
 
 class UserController {
     
@@ -19,9 +20,25 @@ class UserController {
 
         const insertedUser = await this.userService.insertUser(req.body);
 
-        const token = this.userService.sign(insertedUser.insertId);
+        const token = jwt.createAccessToken({ id: insertedUser.insertId });
+
+        const refreshToken = jwt.createRefreshToken();
+        try {
+            await jwt.storeRefreshToken(insertedUser.insertId, refreshToken);
+        } catch (err) {
+            console.log(err);
+
+            return res.status(500).json({
+                message: 'An error occurred while signing up.',
+            });
+        }
     
-        return res.status(200).json({ email: req.body.email, token, });
+        return res.status(200).json({
+            email: req.body.email,
+            token,
+            refreshToken,
+            id: insertedUser.insertId,
+        });
     }
 
     async loginUser (req, res) {
@@ -41,9 +58,24 @@ class UserController {
             });
         }
 
-        const token = this.userService.sign(existingUser.id);
+        const token = jwt.createAccessToken({ id: existingUser.id });
+        const refreshToken = jwt.createRefreshToken();
+        try {
+            await jwt.storeRefreshToken(existingUser.id, refreshToken);
+        } catch (err) {
+            console.log(err);
 
-        return res.status(200).json({ token, email: req.body.email, });
+            return res.status(500).json({
+                message: 'An error occurred while signing in.',
+            });
+        }
+
+        return res.status(200).json({
+            token,
+            email: req.body.email,
+            refreshToken,
+            id: existingUser.id,
+    });
     }
 }
 

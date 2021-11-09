@@ -38,6 +38,12 @@ services:
     networks:
       - invoice_prod
 
+  redis:
+    image: redis:6.2
+    networks:
+      - invoice_prod
+
+
 volumes:
   database_invoide_prod:
 

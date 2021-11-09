@@ -55,12 +55,6 @@ class UserService extends mainService {
         }
     }
 
-    sign (id) {
-        const token = jwt.sign({ id }, key.tokenKey, { expiresIn: '2h' });
-
-        return token;
-    }
-
     async verifyUser (candidatePassword, encryptedPass) {
         return bcrypt.compare(candidatePassword, encryptedPass);
     }

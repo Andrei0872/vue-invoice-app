@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { jwt } = require('../utils/index');
 
 const jwtMiddleware = require('../middlewares/jwt.middleware');
 
@@ -12,5 +13,7 @@ router.use('/vat', jwtMiddleware, require('./Vat.route'))
 router.post('/file', jwtMiddleware, require('../controllers/File.controller'));
 
 router.use('/auth', require('./User.route'));
+
+router.post('/token', jwt.exchangeRefreshToken);
 
 module.exports = router;
