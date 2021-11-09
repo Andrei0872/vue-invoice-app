@@ -44,8 +44,14 @@ services:
       - "3000:3000"
     depends_on:
       - db
+      - redis
     networks:
-    - invoice_dev
+      - invoice_dev
+
+  redis:
+    image: redis:6.2
+    networks:
+      - invoice_dev
 
   client:
     build:
