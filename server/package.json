@@ -4,7 +4,8 @@
   "description": "Invoice app",
   "main": "app.js",
   "scripts": {
-    "dev": "DEBUG='router, invoice-app, db:Product, db:Database, db:Provider, service' nodemon app.js",
+    "dev": "DEBUG='router, invoice-app, db:Product, db:Database, db:Provider, service, redis' nodemon app.js",
+    "dev:debug": "nodemon --inspect-brk=0.0.0.0 app.js",
     "prod": "node app.js"
   },
   "keywords": [
@@ -27,6 +28,7 @@
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.9.1",
     "mysql2": "^2.3.0",
+    "rand-token": "^1.0.1",
     "redis": "^3.1.2",
     "xlsx": "^0.17.2"
   },
