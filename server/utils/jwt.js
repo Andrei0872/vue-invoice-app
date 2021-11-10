@@ -1,8 +1,10 @@
 const randToken = require('rand-token');
 const jwt = require('jsonwebtoken');
-const key = require('../key');
 const redisClient = require('../redis/client');
+const fs = require('fs');
+const path = require('path');
 
+const key = fs.readFileSync(path.resolve(__dirname, '../', '.key'), 'utf8');
 // In seconds.
 const EXPIRY_TIME = 3 * 24 * 60 * 60;
 
@@ -23,7 +25,7 @@ const verifyRefreshToken = async (userId, tokenToVerify) => {
 
 const revokeRefreshToken = userId => redisClient.del(userId);
 
-const createAccessToken = payload => jwt.sign(payload, key.tokenKey, { algorithm: 'HS256', expiresIn: '2h' });
+const createAccessToken = payload => jwt.sign(payload, key, { algorithm: 'HS256', expiresIn: '2h' });
 
 const exchangeRefreshToken = async (req, res) => {
   const commonErrorMessage = 'An error occurred while exchanging the refresh token.';

@@ -1,9 +1,6 @@
 const mainService = require('./index');
 
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-
-const key = require('../key.js');
 
 class UserService extends mainService {
 
