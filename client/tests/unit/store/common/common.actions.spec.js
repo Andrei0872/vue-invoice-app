@@ -20,7 +20,7 @@ describe('common - actions', () => {
 
             actions.insertCreatedItems({ rootGetters, dispatch, getters });
 
-            expect(dispatch).toHaveBeenCalledWith('api/insertItem', createdItems, { root: true })
+            expect(dispatch).toHaveBeenCalledWith('api/makePOSTRequest', { payload: createdItems }, { root: true })
         });
     });
 
@@ -28,7 +28,8 @@ describe('common - actions', () => {
         it('should update an item that has already been updated several times', () => {
             const state = {
                 updatedItems: new Map()
-                    .set(1, { name: 'updated item #1' })
+                    .set(1, { name: 'updated item #1' }),
+                items: new Map().set(1, { name: 'old' }),
             };
             const commit = jest.fn();
             
@@ -43,7 +44,8 @@ describe('common - actions', () => {
         it('should update a different prop of an item that has already been updated several times', () => {
             const state = {
                 updatedItems: new Map()
-                    .set(1, { name: 'updated item #1' })
+                    .set(1, { name: 'updated item #1' }),
+                items: new Map().set(1, { name: 'old value' })
             };
             const commit = jest.fn();
             
@@ -60,7 +62,8 @@ describe('common - actions', () => {
 
         it('should update an item that has not been updated before', () => {
             const state = {
-                updatedItems: new Map()
+                updatedItems: new Map(),
+                items: new Map().set(2, { name: 'old value' }),
             };
 
             const commit = jest.fn();
@@ -86,7 +89,6 @@ describe('common - actions', () => {
 
             actions.deleteItem({ state, commit }, deletedItemId);
 
-            expect(commit).toHaveBeenCalledWith('DELETE_ITEM', 1);
             expect(commit).toHaveBeenCalledWith('TRACK_ITEMS');
             expect(commit).toHaveBeenCalledWith('ADD_DELETED_ITEM', { id: 1, prop: 'foo' });
             expect(commit).toHaveBeenCalledWith('TRACK_DELETED_ITEMS');

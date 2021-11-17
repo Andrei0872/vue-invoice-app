@@ -9,6 +9,7 @@ describe('common - getters', () => {
                 .set(2, { name: 'product2' })
                 .set(3, { name: 'product3' }),
             itemsTracker: 1,
+            deletedItems: new Map(),
         };
 
         const itemsAsArr = [
