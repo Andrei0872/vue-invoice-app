@@ -24,12 +24,24 @@
                 </form>
             </div>
         </div>
+
+        <div class="c-demo-session" v-if="demoMessage">
+            <div>Since this is just a demo version of the app, once every 5 days all the accumulated data will be cleaned up.</div>
+
+            <div>
+                <span class="c-demo-session__message">{{ demoMessage }}</span> until the next clean-up.
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
 
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
+import { getMsUntilNextEvent, formatDateFromMs } from '../utils/date';
+
+const CRONJOB_START_DATE = process.env.VUE_APP_CRONJOB_START_DATE;
+const WINDOW_SIZE = 5;
 
 export default {
 
@@ -38,7 +50,9 @@ export default {
         formData: {
             email: '',
             password: '',
-        }
+        },
+        remainingMsUntilDemoSessionOver: null,
+        demoInformationIntervalId: null,
     }),
 
     computed: {
@@ -48,6 +62,19 @@ export default {
 
         otherView () {
             return this.isSigningUp ? 'Sign In' : 'Sign Up';
+        },
+
+        demoMessage () {
+            const isDemoSessionDisabled = !CRONJOB_START_DATE;
+            if (isDemoSessionDisabled) {
+                return null;
+            }
+
+            const remainingTime = Object.entries(formatDateFromMs(this.remainingMsUntilDemoSessionOver))
+                .reduce((acc, [timeUnit, timeValue]) => acc + (timeValue === 0 ? '' : `${timeValue} ${timeUnit}, `) , ``)
+                // Getting rid of the last `, `.
+                .slice(0, -2);
+            return `${remainingTime}`
         },
     },
 
@@ -81,8 +108,37 @@ export default {
 
         handleSuccess () {
             this.$router.push('/');
-        }
+        },
+
+        setUpDemoSession () {
+            const isDemoSessionDisabled = !CRONJOB_START_DATE;
+            if (isDemoSessionDisabled) {
+                return;
+            }
+
+            const remainingMS = getMsUntilNextEvent(new Date(+CRONJOB_START_DATE), WINDOW_SIZE, new Date());
+
+            this.remainingMsUntilDemoSessionOver = remainingMS;
+            this.demoInformationIntervalId = setInterval(() => this.remainingMsUntilDemoSessionOver -= 1000, 1000);
+
+            if (!this.$store.state.endSessionTimeoutId ) {
+                const timeoutId = setTimeout(() => {
+                    this.$store.commit('SET_END_SESSION_TIMEOUT_ID', null);
+                    this.$store.dispatch('user/logout');
+                    this.setUpDemoSession();
+                }, remainingMS);
+                this.$store.commit('SET_END_SESSION_TIMEOUT_ID', timeoutId);
+            }
+        },
     },
+
+    created () {
+        this.setUpDemoSession();
+    },
+
+    destroyed () {
+        this.demoInformationIntervalId && clearInterval(this.demoInformationIntervalId);
+    }
 }
 </script>
 
@@ -98,6 +154,7 @@ export default {
 
     .c-auth {
         background-color: #f2f2f2;
+        flex-direction: column;
 
         &__other-view {
             text-align: right;
@@ -235,4 +292,14 @@ export default {
         }
     }
 
+    .c-demo-session {
+        text-align: center;
+        font-style: italic;
+        margin-top: 2rem;
+
+        &__message {
+            font-weight: bold;
+            color: #002536;
+        }
+    }
 </style>
