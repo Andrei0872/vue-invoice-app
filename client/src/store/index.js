@@ -17,7 +17,9 @@ const store = new Vuex.Store({
         currentEntity: null,
         selectedProvider: null,
         // FIXME: use the URL from api/getters
-        mainUrl: `${process.env.VUE_APP_API_URL}/api/`
+        mainUrl: `${process.env.VUE_APP_API_URL}/api/`,
+
+        endSessionTimeoutId: null,
     },
 
     getters: {
@@ -53,6 +55,8 @@ const store = new Vuex.Store({
         SET_PROVIDER: (state, payload) => state.selectedProvider = payload,
 
         SET_PROVIDER_INVOICE_NR: (state, payload) => state.selectedProvider = { ...state.selectedProvider, invoiceNr: payload },
+        
+        SET_END_SESSION_TIMEOUT_ID: (state, payload) => state.endSessionTimeoutId = payload,
     },
 
     actions: {
