@@ -43,9 +43,11 @@ services:
       # but the one which has been created in the container, due to
       # `npm i`.
       - /app/node_modules
+    # command: npm run dev:debug
     command: npm run dev
     ports:
       - "3000:3000"
+      - "9229:9229"
     depends_on:
       db:
         condition: service_healthy
