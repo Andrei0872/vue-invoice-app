@@ -65,9 +65,9 @@
                                 />
                             </template>
                             <template v-else>
-                                <span class="file file--pdf">
+                                <!-- <span class="file file--pdf">
                                     <font-awesome-icon icon="file-pdf" @click="generateFile('pdf', row.id)" />
-                                </span>
+                                </span> -->
                                 <span class="file file--excel">
                                     <font-awesome-icon icon="file-excel" @click="generateFile('excel', row.id, rowIndex)" />
                                 </span>
