@@ -10,6 +10,10 @@ services:
       MYSQL_USER: "${DB_USERNAME}"
       MYSQL_PASSWORD: "${DB_PASSWORD}"
     restart: always
+    healthcheck:
+      test: "mysql -uroot -p$DB_ROOT_PASSWORD -e 'select 1;'"
+      interval: 1s
+      retries: 20
     volumes:
       - database_invoide_prod:/var/lib/mysql
     networks:
@@ -32,7 +36,10 @@ services:
         - $PWD/server:/app
         - /app/node_modules
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "127.0.0.1:3000:3000"
     networks:
@@ -42,6 +49,10 @@ services:
     image: redis:6.2
     networks:
       - invoice_prod
+    healthcheck:
+      test: "redis-cli ping"
+      interval: 1s
+      retries: 20
 
 
 volumes:
