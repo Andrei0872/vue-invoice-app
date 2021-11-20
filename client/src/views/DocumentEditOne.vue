@@ -326,27 +326,27 @@ export default {
     },
 
     async created () {
-
-        this.currentDocument = { ...this.documents.find(document => document.id === this.currentDocumentId) };
-
-        this.setCurrentDocumentOwnPristineData({
-            provider_id: this.currentDocument.provider_id,
-            invoice_number: this.currentDocument.invoice_number,
-        });
-
         if (this.$store && !this.$store.state['provider']) {
-            this.$store.dispatch('api/FETCH_DATA', { 
+            this.$store.registerModule('provider', common);
+            await this.$store.dispatch('api/FETCH_DATA', { 
                 avoidChangingState: true, 
                 anotherEntity: 'providers',
             });
         }
 
         if (this.$store && !this.$store.state['product']) {
+            this.$store.registerModule('product', common);
             await this.$store.dispatch('api/FETCH_DATA', { 
                 avoidChangingState: true, 
                 anotherEntity: 'products' 
             });
         }
+
+        this.currentDocument = { ...this.documents.find(document => document.id === this.currentDocumentId) };
+        this.setCurrentDocumentOwnPristineData({
+            provider_id: this.currentDocument.provider_id,
+            invoice_number: this.currentDocument.invoice_number,
+        });
 
         // if singleDocument.currentDoc id !== this.currentDocumentId... 
         // || this.documentProducts.length === 0
