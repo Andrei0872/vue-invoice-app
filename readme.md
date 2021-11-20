@@ -9,6 +9,7 @@
     - [Bash Scripting](#bash-scripting)
     - [Docker and docker-compose](#docker-and-docker-compose)
     - [Using a cron job to periodically clean up the accumulated data](#using-a-cron-job-to-periodically-clean-up-the-accumulated-data)
+    - [Databases](#databases)
     - [Deploying my first full-stack application](#deploying-my-first-full-stack-application)
 
 An application meant to facilitate the process of writing up a traditional invoice.
@@ -209,6 +210,11 @@ docker-compose down -v \
   && docker-compose up -d
 ```
 
+### Databases
+
+Since the beginning of this project, I was settled to learn as much as possible from it. That's why I went with *pure SQL queries* instead of using an ORM.
+
+This opened the door to many learning opportunities. One of my favorite discoveries was the use of **Stored Procedures** and **Triggers** in MySQL
 
 ### Deploying my first full-stack application
 
